@@ -21,7 +21,16 @@ class BalancesService:
 
     @staticmethod
     def _filter_balances(user_id: UUID, request: BalanceListRequest) -> QuerySet[Balance]:
-        queryset = Balance.objects.select_related("commodity__group", "commodity").filter(user_id=user_id)
+        from django.db.models import Exists, OuterRef
+
+        from whimo.db.models import ConversionInput
+
+        has_recipe_subquery = Exists(ConversionInput.objects.filter(commodity=OuterRef("commodity")))
+        queryset = (
+            Balance.objects.select_related("commodity__group", "commodity")
+            .annotate(commodity_has_recipe=has_recipe_subquery)
+            .filter(user_id=user_id)
+        )
 
         if search := request.search:
             queryset = queryset.filter(
@@ -35,5 +44,8 @@ class BalancesService:
 
         if commodity_id := request.commodity_id:
             queryset = queryset.filter(commodity_id=commodity_id)
+
+        if orderings := request.get_orderings():
+            queryset = queryset.order_by(*orderings)
 
         return cast(QuerySet[Balance], queryset)

@@ -3,14 +3,14 @@ import json
 import logging
 import zipfile
 from dataclasses import dataclass
-from typing import Any, cast
-from uuid import UUID
+from decimal import Decimal
+from typing import cast
+from uuid import UUID, uuid4
 
 from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import transaction as db_transaction
-from django.db.models import Count, Q, QuerySet
-from django.utils import timezone
+from django.db.models import Q, QuerySet
 from django.utils.translation import gettext_lazy as _
 from pydantic import ValidationError
 
@@ -22,19 +22,26 @@ from whimo.contrib.tasks.users import send_email, send_sms
 from whimo.db.enums import GadgetType, TransactionAction, TransactionStatus, TransactionType
 from whimo.db.enums.notifications import NotificationType
 from whimo.db.enums.transactions import TransactionLocation, TransactionTraceability
-from whimo.db.models import Balance, Commodity, Gadget, Transaction
+from whimo.db.models import Balance, Commodity, ConversionRecipe, Transaction
+from whimo.db.storages import TransactionsStorage, UsersStorage
 from whimo.notifications.services.notifications import NotificationsService
 from whimo.notifications.services.notifications_push import NotificationsPushService
 from whimo.transactions.constants import LOCATION_S3_PREFIX
 from whimo.transactions.mappers import TransactionsMapper
 from whimo.transactions.schemas.dto import ChainLocationBundleDTO, FeatureCollection, TraceabilityCountsDTO
 from whimo.transactions.schemas.errors import (
+    AtLeastOneInputRequiredError,
+    InsufficientBalanceForConversionError,
+    InvalidRecipeOverrideError,
     LocationFileDownloadError,
     LocationFileUploadError,
+    RecipeNotFoundError,
     RecipientConflictError,
     RecipientIsNotSpecifiedError,
 )
 from whimo.transactions.schemas.requests import (
+    ConversionCreateRequest,
+    ConversionRecipeListRequest,
     RecipientRequest,
     TransactionDownstreamCreateRequest,
     TransactionGeodataUpdateRequest,
@@ -51,21 +58,10 @@ logger = logging.getLogger(__name__)
 class TransactionsService:
     @staticmethod
     def get(user_id: UUID, transaction_id: UUID) -> Transaction:
-        try:
-            transaction = (
-                TransactionsService._select_user_transaction(user_id, transaction_id)
-                .select_related("commodity__group", "commodity", "buyer", "seller")
-                .prefetch_related(
-                    User.objects.generate_prefetch_gadgets("buyer__"),
-                    User.objects.generate_prefetch_gadgets("seller__"),
-                )
-                .get()
-            )
-        except Transaction.DoesNotExist as err:
-            raise NotFound(errors={"transaction": [transaction_id]}) from err
+        transaction = TransactionsStorage.get_user_transaction_with_relations(user_id, transaction_id)
 
         if transaction.type == TransactionType.DOWNSTREAM and not transaction.traceability:
-            transaction.traceability = TransactionsService._get_downstream_traceability(
+            transaction.traceability = TransactionsStorage.get_downstream_traceability(
                 seller_id=transaction.seller_id,
                 commodity_id=transaction.commodity_id,
             )
@@ -74,25 +70,23 @@ class TransactionsService:
 
     @staticmethod
     def list_transactions(user_id: UUID, request: TransactionListRequest) -> tuple[list[Transaction], Pagination]:
-        queryset = TransactionsService._filter_transactions(user_id, request).prefetch_related(
-            User.objects.generate_prefetch_gadgets("buyer__"),
-            User.objects.generate_prefetch_gadgets("seller__"),
-        )
+        queryset = TransactionsStorage.filter_transactions(user_id, request)
         return paginate_queryset(queryset=queryset, request=request)
 
     @staticmethod
     def get_seller_traceability_counts(user_id: UUID, transaction_id: UUID) -> TraceabilityCountsDTO:
-        try:
-            transaction = TransactionsService._select_user_transaction(user_id, transaction_id).get()
-        except Transaction.DoesNotExist as err:
-            raise NotFound(errors={"transaction": [transaction_id]}) from err
+        if not TransactionsStorage.select_user_transaction(user_id, transaction_id).exists():
+            raise NotFound(errors={"transaction": [transaction_id]})
 
-        counts = TransactionsService._get_traceability_counts(transaction_id, transaction.commodity_id)
+        counts = TransactionsStorage.get_traceability_counts(transaction_id)
         return TraceabilityCountsDTO(counts=counts)
 
     @staticmethod
     def create_producer(user_id: UUID, request: TransactionProducerCreateRequest) -> Transaction:
-        commodity = TransactionsService._get_commodity(request.commodity_id)
+        try:
+            commodity = Commodity.objects.get(pk=request.commodity_id)
+        except Commodity.DoesNotExist as err:
+            raise NotFound(errors={"commodity": [request.commodity_id]}) from err
 
         balance, _ = Balance.objects.get_or_create(user_id=user_id, commodity_id=commodity.pk)
 
@@ -176,7 +170,7 @@ class TransactionsService:
     @staticmethod
     def update_geodata(user_id: UUID, transaction_id: UUID, request: TransactionGeodataUpdateRequest) -> None:
         try:
-            transaction = TransactionsService._select_user_transaction(user_id, transaction_id).get()
+            transaction = TransactionsStorage.select_user_transaction(user_id, transaction_id).get()
         except Transaction.DoesNotExist as err:
             raise NotFound(errors={"transaction": [transaction_id]}) from err
 
@@ -192,7 +186,7 @@ class TransactionsService:
     def resend_notification(user_id: UUID, transaction_id: UUID) -> None:
         try:
             transaction = (
-                TransactionsService._select_user_transaction(user_id, transaction_id)
+                TransactionsStorage.select_user_transaction(user_id, transaction_id)
                 .filter(status=TransactionStatus.PENDING)
                 .get()
             )
@@ -214,11 +208,11 @@ class TransactionsService:
     @staticmethod
     def request_missing_geodata(user_id: UUID, transaction_id: UUID) -> None:
         try:
-            transaction = TransactionsService._select_user_transaction(user_id, transaction_id).get()
+            transaction = TransactionsStorage.select_user_transaction(user_id, transaction_id).get()
         except Transaction.DoesNotExist as err:
             raise NotFound(errors={"transaction": [transaction_id]}) from err
 
-        first_transactions = TransactionsService._get_first_chain_transactions(transaction_id, transaction.commodity_id)
+        first_transactions = TransactionsStorage.get_first_chain_transactions(transaction_id)
 
         for transaction in first_transactions.filter(location__isnull=True):
             if not transaction.buyer_id:
@@ -234,14 +228,12 @@ class TransactionsService:
 
     @staticmethod
     def get_chain_feature_collection(transaction_id: UUID) -> tuple[FeatureCollection, list[UUID], list[UUID]]:
-        try:
-            transaction = Transaction.objects.get(pk=transaction_id)
-        except Transaction.DoesNotExist as err:
-            raise NotFound(errors={"transaction": [transaction_id]}) from err
+        if not Transaction.objects.filter(pk=transaction_id).exists():
+            raise NotFound(errors={"transaction": [transaction_id]})
 
-        last_transactions = TransactionsService._get_first_chain_transactions(transaction_id, transaction.commodity_id)
+        first_transactions = TransactionsStorage.get_first_chain_transactions(transaction_id)
 
-        data = TransactionsService._get_feature_collections(last_transactions)
+        data = TransactionsService._get_feature_collections(first_transactions)
         feature_collections, succeed_transactions, failed_transactions = data
         return (
             TransactionsService._merge_feature_collections(feature_collections),
@@ -251,15 +243,10 @@ class TransactionsService:
 
     @staticmethod
     def get_chain_location_bundle(transaction_id: UUID) -> tuple[bytes, ChainLocationBundleDTO]:
-        try:
-            transaction = Transaction.objects.get(pk=transaction_id)
-        except Transaction.DoesNotExist as err:
-            raise NotFound(errors={"transaction": [transaction_id]}) from err
+        if not Transaction.objects.filter(pk=transaction_id).exists():
+            raise NotFound(errors={"transaction": [transaction_id]})
 
-        chain_transactions = TransactionsService._get_all_chain_transactions(
-            transaction_id=transaction_id,
-            commodity_id=transaction.commodity_id,
-        )
+        chain_transactions = TransactionsStorage.get_chain_transactions(transaction_id=transaction_id)
 
         zip_buffer = io.BytesIO()
         with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
@@ -282,16 +269,96 @@ class TransactionsService:
 
     @staticmethod
     def get_chain_csv_export(transaction_id: UUID) -> QuerySet[Transaction]:
-        try:
-            transaction = Transaction.objects.get(pk=transaction_id)
-        except Transaction.DoesNotExist as err:
-            raise NotFound(errors={"transaction": [transaction_id]}) from err
+        if not Transaction.objects.filter(pk=transaction_id).exists():
+            raise NotFound(errors={"transaction": [transaction_id]})
 
         return (
-            TransactionsService._get_all_chain_transactions(transaction_id, transaction.commodity_id)
+            TransactionsStorage.get_chain_transactions(transaction_id)
             .select_related("commodity", "commodity__group", "seller", "buyer", "created_by")
             .prefetch_related("seller__gadgets", "buyer__gadgets")
         )
+
+    @staticmethod
+    def get_list_csv_export(user_id: UUID, request: TransactionListRequest) -> QuerySet[Transaction]:
+        return (
+            TransactionsStorage.filter_transactions(user_id, request)
+            .select_related("commodity", "commodity__group", "seller", "buyer", "created_by")
+            .prefetch_related("seller__gadgets", "buyer__gadgets")
+        )
+
+    @staticmethod
+    def create_conversion(user_id: UUID, request: ConversionCreateRequest) -> list[Transaction]:
+        try:
+            recipe = ConversionRecipe.objects.prefetch_conversion_data().get(id=request.recipe_id)
+        except ConversionRecipe.DoesNotExist as err:
+            raise RecipeNotFoundError from err
+
+        recipe_input_ids = {inp.commodity_id for inp in recipe.inputs_list}
+        recipe_output_ids = {out.commodity_id for out in recipe.outputs_list}
+
+        if request.input_overrides:
+            override_input_ids = {item.commodity_id for item in request.input_overrides}
+            if not override_input_ids.issubset(recipe_input_ids):
+                raise InvalidRecipeOverrideError
+
+        if request.output_overrides:
+            override_output_ids = {item.commodity_id for item in request.output_overrides}
+            if not override_output_ids.issubset(recipe_output_ids):
+                raise InvalidRecipeOverrideError
+
+        input_override_map = {item.commodity_id: item.quantity for item in request.input_overrides or []}
+        output_override_map = {item.commodity_id: item.quantity for item in request.output_overrides or []}
+
+        input_commodities = {
+            inp.commodity_id: input_override_map.get(inp.commodity_id, inp.quantity) for inp in recipe.inputs_list
+        }
+
+        if all(qty == 0 for qty in input_commodities.values()):
+            raise AtLeastOneInputRequiredError
+
+        output_commodities = {
+            out.commodity_id: output_override_map.get(out.commodity_id, out.quantity) for out in recipe.outputs_list
+        }
+
+        input_commodities = {k: v for k, v in input_commodities.items() if v > 0}
+        output_commodities = {k: v for k, v in output_commodities.items() if v > 0}
+
+        traceability = TransactionsStorage.get_conversion_traceability(
+            user_id=user_id,
+            input_commodity_ids=list(input_commodities.keys()),
+        )
+
+        group_id = uuid4()
+
+        with db_transaction.atomic():
+            input_balances_to_update, input_transactions = TransactionsService._process_conversion_inputs(
+                user_id=user_id,
+                input_commodities=input_commodities,
+                traceability=traceability,
+                group_id=group_id,
+            )
+
+            output_balances_to_update, output_balances_to_create, output_transactions = (
+                TransactionsService._process_conversion_outputs(
+                    user_id=user_id,
+                    output_commodities=output_commodities,
+                    traceability=traceability,
+                    group_id=group_id,
+                )
+            )
+
+            all_balances_to_update = input_balances_to_update + output_balances_to_update
+            all_transactions = input_transactions + output_transactions
+
+            if all_balances_to_update:
+                Balance.objects.bulk_update(all_balances_to_update, ["volume", "updated_at"])
+
+            if output_balances_to_create:
+                Balance.objects.bulk_create(output_balances_to_create)
+
+            Transaction.objects.bulk_create(all_transactions)
+
+            return all_transactions
 
     @staticmethod
     def _upload_location_file(transaction_id: UUID, location_file: InMemoryUploadedFile | None) -> None:
@@ -305,7 +372,7 @@ class TransactionsService:
 
     @staticmethod
     def _accept(user_id: UUID, transaction_id: UUID) -> None:
-        transaction = TransactionsService._get_incoming_transaction(user_id, transaction_id, allow_created_by=False)
+        transaction = TransactionsStorage.get_incoming_transaction(user_id, transaction_id, allow_created_by=False)
 
         seller_balance: Balance | None = None
         buyer_balance: Balance | None = None
@@ -342,7 +409,7 @@ class TransactionsService:
 
             transaction.status = TransactionStatus.ACCEPTED
             transaction.expires_at = None
-            transaction.traceability = TransactionsService._get_downstream_traceability(
+            transaction.traceability = TransactionsStorage.get_downstream_traceability(
                 seller_id=seller_id,
                 commodity_id=transaction.commodity_id,
             )
@@ -358,7 +425,7 @@ class TransactionsService:
 
     @staticmethod
     def _reject(user_id: UUID, transaction_id: UUID) -> None:
-        transaction = TransactionsService._get_incoming_transaction(user_id, transaction_id, allow_created_by=True)
+        transaction = TransactionsStorage.get_incoming_transaction(user_id, transaction_id, allow_created_by=True)
         transaction.status = TransactionStatus.REJECTED
         transaction.expires_at = None
 
@@ -374,13 +441,6 @@ class TransactionsService:
         NotificationsPushService.send_push([notification.id])
 
     @staticmethod
-    def _get_commodity(commodity_id: UUID) -> Commodity:
-        try:
-            return Commodity.objects.get(pk=commodity_id)
-        except Commodity.DoesNotExist as err:
-            raise NotFound(errors={"commodity": [commodity_id]}) from err
-
-    @staticmethod
     def _get_producer_traceability(request: TransactionProducerCreateRequest) -> TransactionTraceability:
         if request.location in {TransactionLocation.QR, TransactionLocation.GPS}:
             return TransactionTraceability.FULL
@@ -391,152 +451,12 @@ class TransactionsService:
         return TransactionTraceability.PARTIAL if request.is_buying_from_farmer else TransactionTraceability.INCOMPLETE
 
     @staticmethod
-    def _get_downstream_traceability(seller_id: UUID | None, commodity_id: UUID) -> TransactionTraceability:
-        seller_transactions_traceability = Transaction.objects.filter(
-            buyer_id=seller_id,
-            status=TransactionStatus.ACCEPTED,
-            commodity_id=commodity_id,
-        ).values_list("traceability", flat=True)
-
-        if seller_transactions_traceability:
-            traceability = [TransactionTraceability(trace) for trace in seller_transactions_traceability if trace]
-            return min(traceability)
-
-        return TransactionTraceability.INCOMPLETE
-
-    @staticmethod
     def _obtain_seller_id_and_buyer_id(
         user_id: UUID,
         recipient_id: UUID | None,
         action: TransactionAction,
     ) -> tuple[UUID | None, UUID | None]:
         return (user_id, recipient_id) if action == TransactionAction.SELLING else (recipient_id, user_id)
-
-    @staticmethod
-    def _select_user_transaction(user_id: UUID, transaction_id: UUID) -> QuerySet[Transaction]:
-        query = Transaction.objects.filter(Q(buyer_id=user_id) | Q(seller_id=user_id), pk=transaction_id)
-        return cast(QuerySet[Transaction], query)
-
-    @staticmethod
-    def _get_incoming_transaction(user_id: UUID, transaction_id: UUID, allow_created_by: bool) -> Transaction:
-        queryset = Transaction.objects.select_related("commodity").filter(
-            Q(buyer_id=user_id) | Q(seller_id=user_id),
-            Q(expires_at__gte=timezone.now()) | Q(expires_at__isnull=True),
-            pk=transaction_id,
-            type=TransactionType.DOWNSTREAM,
-            status=TransactionStatus.PENDING,
-        )
-
-        if not allow_created_by:
-            queryset = queryset.exclude(created_by_id=user_id)
-
-        try:
-            return queryset.get()
-        except Transaction.DoesNotExist as err:
-            raise NotFound(errors={"transaction": [transaction_id]}) from err
-
-    @staticmethod
-    def _get_traceability_counts(transaction_id: UUID, commodity_id: UUID) -> dict[TransactionTraceability, int]:
-        counts = {TransactionTraceability(traceability): 0 for traceability in TransactionTraceability}
-        base_query = Transaction.objects.filter(commodity_id=commodity_id)
-
-        transactions_ids = {transaction_id}
-        filters: dict[str, Any] = {}
-        visited: set[UUID] = set()
-
-        while transactions_ids:
-            filters["pk__in"] = transactions_ids
-            transactions_query = base_query.filter(**filters).exclude(pk__in=visited)
-            filters["status"] = TransactionStatus.ACCEPTED
-
-            visited |= transactions_ids
-            counts_query = transactions_query.values("traceability").annotate(count=Count("id"))
-            for item in counts_query:
-                if traceability := item["traceability"]:
-                    counts[TransactionTraceability(traceability)] += item["count"]
-
-            sellers_ids = transactions_query.filter(seller_id__isnull=False).values_list("seller_id", flat=True)
-            transactions_ids = set(base_query.filter(buyer_id__in=sellers_ids).values_list("pk", flat=True))
-
-        return counts
-
-    @staticmethod
-    def _get_first_chain_transactions(transaction_id: UUID, commodity_id: UUID) -> QuerySet[Transaction, Transaction]:
-        first_transactions = Transaction.objects.none()
-        base_query = Transaction.objects.filter(commodity_id=commodity_id)
-
-        transactions_ids = {transaction_id}
-        filters: dict[str, Any] = {}
-        visited: set[UUID] = set()
-
-        while transactions_ids:
-            filters["pk__in"] = transactions_ids
-            transactions_query = base_query.filter(**filters).exclude(pk__in=visited)
-            filters["status"] = TransactionStatus.ACCEPTED
-
-            visited |= transactions_ids
-            first_transactions |= transactions_query.filter(seller_id__isnull=True, status=TransactionStatus.ACCEPTED)
-
-            sellers_ids = transactions_query.filter(seller_id__isnull=False).values_list("seller_id", flat=True)
-            transactions_ids = set(base_query.filter(buyer_id__in=sellers_ids).values_list("pk", flat=True))
-
-        return cast(QuerySet[Transaction], first_transactions)
-
-    @staticmethod
-    def _get_all_chain_transactions(transaction_id: UUID, commodity_id: UUID) -> QuerySet[Transaction]:
-        chain_transactions = Transaction.objects.none()
-        base_query = Transaction.objects.filter(commodity_id=commodity_id)
-
-        transactions_ids = {transaction_id}
-        filters: dict[str, Any] = {}
-        visited: set[UUID] = set()
-
-        while transactions_ids:
-            filters["pk__in"] = transactions_ids
-            transactions_query = base_query.filter(**filters).exclude(pk__in=visited)
-            chain_transactions |= transactions_query
-
-            filters["status"] = TransactionStatus.ACCEPTED
-            visited |= transactions_ids
-
-            sellers_ids = transactions_query.filter(seller_id__isnull=False).values_list("seller_id", flat=True)
-            transactions_ids = set(base_query.filter(buyer_id__in=sellers_ids).values_list("pk", flat=True))
-
-        return cast(QuerySet[Transaction], chain_transactions)
-
-    @staticmethod
-    def _filter_transactions(user_id: UUID, request: TransactionListRequest) -> QuerySet[Transaction]:
-        queryset = Transaction.objects.select_related("commodity__group", "commodity", "buyer", "seller")
-
-        _filter = Q(buyer_id=request.buyer_id) if request.buyer_id else Q(buyer_id=user_id) | Q(seller_id=user_id)
-
-        if search := request.search:
-            _filter &= (
-                Q(commodity__name__icontains=search)
-                | Q(commodity__code__icontains=search)
-                | Q(commodity__name_variants__icontains=search)
-            )
-
-        if status := request.status:
-            _filter &= Q(status=status)
-
-        if request.action == TransactionAction.BUYING:
-            _filter &= Q(buyer_id=user_id)
-
-        if request.action == TransactionAction.SELLING:
-            _filter &= Q(seller_id=user_id)
-
-        if created_at_from := request.created_at_from:
-            _filter &= Q(created_at__gte=created_at_from)
-
-        if created_at_to := request.created_at_to:
-            _filter &= Q(created_at__lte=created_at_to)
-
-        if commodity_group_id := request.commodity_group_id:
-            _filter &= Q(commodity__group_id=commodity_group_id)
-
-        queryset = queryset.filter(_filter)
-        return cast(QuerySet[Transaction], queryset)
 
     @staticmethod
     def _get_or_create_recipient(request: RecipientRequest | None) -> tuple[User | None, bool]:  # type: ignore # noqa: PLR0911 too many return statements
@@ -551,20 +471,18 @@ class TransactionsService:
                 raise NotFound(errors={"username": [username]}) from err
 
         if email := request.email:
-            try:
-                gadget = Gadget.objects.get(type=GadgetType.EMAIL, identifier=email)
-                return gadget.user, False
-            except Gadget.DoesNotExist:
-                user = RegistrationService.register(request)
-                return user, True
+            existing_user = UsersStorage.get_user_by_gadget(GadgetType.EMAIL, email)
+            if existing_user:
+                return existing_user, False
+            new_user = RegistrationService.register(request)
+            return new_user, True
 
         if phone := request.phone:
-            try:
-                gadget = Gadget.objects.get(type=GadgetType.PHONE, identifier=phone)
-                return gadget.user, False
-            except Gadget.DoesNotExist:
-                user = RegistrationService.register(request)
-                return user, True
+            existing_user = UsersStorage.get_user_by_gadget(GadgetType.PHONE, phone)
+            if existing_user:
+                return existing_user, False
+            new_user = RegistrationService.register(request)
+            return new_user, True
 
         return None, False
 
@@ -669,3 +587,104 @@ class TransactionsService:
     @staticmethod
     def _send_invite_sms(phone: str) -> None:
         send_sms.delay(recipient=phone, message=_("You have been invited to Whimo!"))
+
+    @staticmethod
+    def _validate_conversion_commodities(commodity_ids: set[UUID]) -> None:
+        existing_count = Commodity.objects.filter(id__in=commodity_ids).count()
+        if existing_count != len(commodity_ids):
+            raise NotFound(errors={"commodities": ["One or more commodities do not exist"]})
+
+    @staticmethod
+    def _process_conversion_inputs(
+        user_id: UUID,
+        input_commodities: dict[UUID, Decimal],
+        traceability: TransactionTraceability,
+        group_id: UUID,
+    ) -> tuple[list[Balance], list[Transaction]]:
+        existing_input_balances = {
+            balance.commodity_id: balance
+            for balance in Balance.objects.select_for_update().filter(
+                user_id=user_id, commodity_id__in=input_commodities.keys()
+            )
+        }
+
+        for commodity_id, required_volume in input_commodities.items():
+            balance = existing_input_balances.get(commodity_id)
+            if not balance or balance.volume < required_volume:
+                raise InsufficientBalanceForConversionError
+
+        balances_to_update = []
+        transactions = []
+
+        for commodity_id, volume in input_commodities.items():
+            balance = existing_input_balances[commodity_id]
+            balance.volume -= volume
+            balances_to_update.append(balance)
+
+            transaction = TransactionsMapper.to_conversion_transaction(
+                user_id=user_id,
+                commodity_id=commodity_id,
+                volume=volume,
+                traceability=traceability,
+                is_input=True,
+                group_id=group_id,
+            )
+            transactions.append(transaction)
+
+        return balances_to_update, transactions
+
+    @staticmethod
+    def _process_conversion_outputs(
+        user_id: UUID,
+        output_commodities: dict[UUID, Decimal],
+        traceability: TransactionTraceability,
+        group_id: UUID,
+    ) -> tuple[list[Balance], list[Balance], list[Transaction]]:
+        existing_output_balances = {
+            balance.commodity_id: balance
+            for balance in Balance.objects.select_for_update().filter(
+                user_id=user_id, commodity_id__in=output_commodities.keys()
+            )
+        }
+
+        balances_to_update = []
+        balances_to_create = []
+        transactions = []
+
+        for commodity_id, volume in output_commodities.items():
+            balance = existing_output_balances.get(commodity_id)
+            if balance:
+                balance.volume += volume
+                balances_to_update.append(balance)
+            else:
+                balance = Balance(user_id=user_id, commodity_id=commodity_id, volume=volume)
+                balances_to_create.append(balance)
+
+            transaction = TransactionsMapper.to_conversion_transaction(
+                user_id=user_id,
+                commodity_id=commodity_id,
+                volume=volume,
+                traceability=traceability,
+                is_input=False,
+                group_id=group_id,
+            )
+            transactions.append(transaction)
+
+        return balances_to_update, balances_to_create, transactions
+
+    @staticmethod
+    def list_conversion_recipes(request: ConversionRecipeListRequest) -> tuple[list[ConversionRecipe], Pagination]:
+        queryset = TransactionsService._filter_conversion_recipes(request)
+        return paginate_queryset(queryset=queryset, request=request)
+
+    @staticmethod
+    def _filter_conversion_recipes(request: ConversionRecipeListRequest) -> QuerySet[ConversionRecipe]:
+        queryset = ConversionRecipe.objects.prefetch_conversion_data()
+
+        if search := request.search:
+            queryset = queryset.filter(Q(name__icontains=search))
+
+        if commodity_id := request.commodity_id:
+            queryset = queryset.filter(inputs__commodity_id=commodity_id).distinct()
+
+        return cast(QuerySet[ConversionRecipe], queryset)

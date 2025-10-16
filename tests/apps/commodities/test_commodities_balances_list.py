@@ -11,6 +11,7 @@ from syrupy import SnapshotAssertion
 
 from tests.factories.balances import BalanceFactory
 from tests.factories.commodities import CommodityFactory, CommodityGroupFactory
+from tests.factories.conversions import ConversionInputFactory
 from tests.factories.users import UserFactory
 from tests.helpers.clients import APIClient
 from tests.helpers.constants import DEFAULT_DATETIME, MEDIUM_BATCH_SIZE, SMALL_BATCH_SIZE
@@ -54,8 +55,8 @@ class TestCommoditiesBalancesList:
         # 1. select user
         # 2. select gadgets
         # 3. select count
-        # 4. select entities
-        assert len(queries) == 4, queries_to_str(queries)  # noqa: PLR2004 Magic value used in comparison
+        # 4. select entities (with has_recipe annotation)
+        assert len(queries) == 4, queries_to_str(queries)  # noqa: PLR2004 Magic value used in comparison  # noqa: PLR2004 Magic value used in comparison  # noqa: PLR2004 Magic value used in comparison  # noqa: PLR2004 Magic value used in comparison
 
     def test_search_by_commodity_name(
         self,
@@ -213,6 +214,126 @@ class TestCommoditiesBalancesList:
         expected_items_count = min(page_size, remaining_items)
         assert len(data_response.data) == expected_items_count
 
+    def test_order_by_commodity_name_asc(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        BalanceFactory.create(user=user, commodity__name="Banana")
+        BalanceFactory.create(user=user, commodity__name="Apple")
+        BalanceFactory.create(user=user, commodity__name="Cherry")
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=f"{self.URL}?orderings=commodity_name")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = PaginatedDataResponse[list[BalanceDTO]](**response_json)
+        assert len(data_response.data) == 3  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[0].commodity.name == "Apple"
+        assert data_response.data[1].commodity.name == "Banana"
+        assert data_response.data[2].commodity.name == "Cherry"
+
+    def test_order_by_commodity_name_desc(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        BalanceFactory.create(user=user, commodity__name="Banana")
+        BalanceFactory.create(user=user, commodity__name="Apple")
+        BalanceFactory.create(user=user, commodity__name="Cherry")
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=f"{self.URL}?orderings=-commodity_name")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = PaginatedDataResponse[list[BalanceDTO]](**response_json)
+        assert len(data_response.data) == 3  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[0].commodity.name == "Cherry"
+        assert data_response.data[1].commodity.name == "Banana"
+        assert data_response.data[2].commodity.name == "Apple"
+
+    def test_order_by_amount_asc(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        BalanceFactory.create(user=user, volume=50)
+        BalanceFactory.create(user=user, volume=10)
+        BalanceFactory.create(user=user, volume=30)
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=f"{self.URL}?orderings=amount")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = PaginatedDataResponse[list[BalanceDTO]](**response_json)
+        assert len(data_response.data) == 3  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[0].volume == 10  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[1].volume == 30  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[2].volume == 50  # noqa: PLR2004 Magic value used in comparison
+
+    def test_order_by_amount_desc(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        BalanceFactory.create(user=user, volume=50)
+        BalanceFactory.create(user=user, volume=10)
+        BalanceFactory.create(user=user, volume=30)
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=f"{self.URL}?orderings=-amount")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = PaginatedDataResponse[list[BalanceDTO]](**response_json)
+        assert len(data_response.data) == 3  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[0].volume == 50  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[1].volume == 30  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[2].volume == 10  # noqa: PLR2004 Magic value used in comparison
+
     def test_empty_result(self, client: APIClient, freezer: FrozenDateTimeFactory, snapshot: SnapshotAssertion) -> None:
         # Arrange
         freezer.move_to(DEFAULT_DATETIME)
@@ -231,6 +352,33 @@ class TestCommoditiesBalancesList:
         data_response = PaginatedDataResponse[list[BalanceDTO]](**response_json)
         assert len(data_response.data) == 0
         assert data_response.pagination.count == 0
+
+    def test_has_recipe_field(self, client: APIClient, freezer: FrozenDateTimeFactory) -> None:
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+
+        commodity_with_recipe = CommodityFactory.create()
+        commodity_without_recipe = CommodityFactory.create()
+
+        ConversionInputFactory.create(commodity=commodity_with_recipe)
+
+        balance_with_recipe = BalanceFactory.create(user=user, commodity=commodity_with_recipe)
+        balance_without_recipe = BalanceFactory.create(user=user, commodity=commodity_without_recipe)
+
+        client.login(user)
+
+        response = client.get(path=self.URL)
+        response_json = response.json()
+
+        assert response.status_code == HTTPStatus.OK, response_json
+
+        data_response = PaginatedDataResponse[list[BalanceDTO]](**response_json)
+        assert len(data_response.data) == 2  # noqa: PLR2004 Magic value used in comparison
+
+        balance_dict = {b.id: b for b in data_response.data}
+        assert balance_dict[balance_with_recipe.id].has_recipe is True
+        assert balance_dict[balance_without_recipe.id].has_recipe is False
 
     def test_unauthorized(self, client: APIClient, snapshot: SnapshotAssertion) -> None:
         # Act

@@ -10,6 +10,7 @@ class TransactionAction(StrEnum):
 class TransactionType(StrEnum):
     PRODUCER = "producer"
     DOWNSTREAM = "downstream"
+    CONVERSION = "conversion"
 
 
 class TransactionLocation(StrEnum):

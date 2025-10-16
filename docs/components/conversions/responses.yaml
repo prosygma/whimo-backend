@@ -1,0 +1,15 @@
+ConversionRecipesListResponse:
+  description: List of conversion recipes with pagination
+  content:
+    application/json:
+      schema:
+        type: object
+        allOf:
+          - $ref: '../common/schemas.yaml#/PaginatedDataResponse'
+          - properties:
+              data:
+                type: array
+                items:
+                  $ref: './schemas.yaml#/ConversionRecipeDTO'
+                description: Array of conversion recipes
+

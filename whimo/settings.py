@@ -263,6 +263,17 @@ SIMPLE_JWT = {
 
 AUTH_PASSWORD_VALIDATORS = ()
 
+# OAuth
+# ______________________________________________________________________________________________________________________
+
+OAUTH_GOOGLE_CLIENT_ID = env.str("OAUTH_GOOGLE_CLIENT_ID", default="")
+
+OAUTH_GOOGLE_CLIENT_SECRET = env.str("OAUTH_GOOGLE_CLIENT_SECRET", default="")
+
+OAUTH_APPLE_CLIENT_ID = env.str("OAUTH_APPLE_CLIENT_ID", default="")
+
+OAUTH_APPLE_CLIENT_SECRET = env.str("OAUTH_APPLE_CLIENT_SECRET", default="")
+
 # Email
 # ______________________________________________________________________________________________________________________
 
@@ -428,6 +439,11 @@ UNFOLD = {
                         "title": _("Commodities"),
                         "icon": "inventory",
                         "link": reverse_lazy("admin:db_commodity_changelist"),
+                    },
+                    {
+                        "title": _("Conversion Recipes"),
+                        "icon": "transform",
+                        "link": reverse_lazy("admin:db_conversionrecipe_changelist"),
                     },
                     {
                         "title": _("Seasons"),

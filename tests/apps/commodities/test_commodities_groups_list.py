@@ -69,8 +69,8 @@ class TestCommoditiesGroupsList:
         # 2. select gadgets
         # 3. select count
         # 4. select entities
-        # 5. prefetch related entities
-        assert len(queries) == 5, queries_to_str(queries)  # noqa: PLR2004 Magic value used in comparison
+        # 5. prefetch related entities (with has_recipe annotation)
+        assert len(queries) == 5, queries_to_str(queries)  # noqa: PLR2004 Magic value used in comparison  # noqa: PLR2004 Magic value used in comparison  # noqa: PLR2004 Magic value used in comparison
 
     def test_search_by_name(
         self,

@@ -1,0 +1,36 @@
+ConversionDTO:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Unique identifier for the conversion item
+    commodity:
+      $ref: '../commodities/schemas.yaml#/CommodityWithGroupDTO'
+      description: Commodity
+    quantity:
+      type: number
+      format: double
+      description: Quantity of the commodity
+
+ConversionRecipeDTO:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Unique identifier for the conversion recipe
+    name:
+      type: string
+      description: Name of the conversion recipe
+    inputs:
+      type: array
+      items:
+        $ref: '#/ConversionDTO'
+      description: List of input commodities required
+    outputs:
+      type: array
+      items:
+        $ref: '#/ConversionDTO'
+      description: List of output commodities produced
+

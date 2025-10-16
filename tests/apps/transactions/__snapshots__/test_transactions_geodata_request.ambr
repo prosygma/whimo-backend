@@ -1,4 +1,22 @@
 # serializer version: 1
+# name: TestTransactionsGeodataRequest.test_conversion_geodata_request
+  dict({
+    'message': 'Missing geodata requested',
+    'success': True,
+  })
+# ---
+# name: TestTransactionsGeodataRequest.test_conversion_multiple_inputs_geodata_request
+  dict({
+    'message': 'Missing geodata requested',
+    'success': True,
+  })
+# ---
+# name: TestTransactionsGeodataRequest.test_conversion_with_downstream_geodata_request
+  dict({
+    'message': 'Missing geodata requested',
+    'success': True,
+  })
+# ---
 # name: TestTransactionsGeodataRequest.test_creates_notifications_for_missing_geodata
   dict({
     'message': 'Missing geodata requested',
@@ -10,6 +28,12 @@
     'code': 'drf.permission_denied',
     'message': 'At least one verified gadget is required',
     'success': False,
+  })
+# ---
+# name: TestTransactionsGeodataRequest.test_multilevel_conversion_geodata_request
+  dict({
+    'message': 'Missing geodata requested',
+    'success': True,
   })
 # ---
 # name: TestTransactionsGeodataRequest.test_no_notifications_when_no_missing_geodata

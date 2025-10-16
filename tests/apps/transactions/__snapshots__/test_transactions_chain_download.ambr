@@ -1,4 +1,52 @@
 # serializer version: 1
+# name: TestTransactionsChainDownload.test_conversion_chain
+  dict({
+    'data': dict({
+      'failed_transactions': list([
+      ]),
+      'feature_collection': dict({
+        'features': list([
+        ]),
+        'type': 'FeatureCollection',
+      }),
+      'succeed_transactions': list([
+      ]),
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsChainDownload.test_conversion_multiple_inputs_chain
+  dict({
+    'data': dict({
+      'failed_transactions': list([
+      ]),
+      'feature_collection': dict({
+        'features': list([
+        ]),
+        'type': 'FeatureCollection',
+      }),
+      'succeed_transactions': list([
+      ]),
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsChainDownload.test_conversion_with_downstream_chain
+  dict({
+    'data': dict({
+      'failed_transactions': list([
+      ]),
+      'feature_collection': dict({
+        'features': list([
+        ]),
+        'type': 'FeatureCollection',
+      }),
+      'succeed_transactions': list([
+      ]),
+    }),
+    'success': True,
+  })
+# ---
 # name: TestTransactionsChainDownload.test_feature_collection_validation_error
   dict({
     'code': 'pydantic.validation_error',
@@ -23,6 +71,22 @@
     'code': 'api.internal',
     'message': 'Location file download error',
     'success': False,
+  })
+# ---
+# name: TestTransactionsChainDownload.test_multilevel_conversion_chain
+  dict({
+    'data': dict({
+      'failed_transactions': list([
+      ]),
+      'feature_collection': dict({
+        'features': list([
+        ]),
+        'type': 'FeatureCollection',
+      }),
+      'succeed_transactions': list([
+      ]),
+    }),
+    'success': True,
   })
 # ---
 # name: TestTransactionsChainDownload.test_seller_access

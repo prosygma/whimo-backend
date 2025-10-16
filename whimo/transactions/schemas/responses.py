@@ -18,3 +18,7 @@ class TransactionGeodataRequestedResponse(MessageResponse):
 
 class TransactionNotificationResentResponse(MessageResponse):
     message: StrPromise = _("Transaction notification resent")
+
+
+class ConversionCompletedResponse(MessageResponse):
+    message: StrPromise = _("Conversion completed successfully")

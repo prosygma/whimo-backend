@@ -1,0 +1,21 @@
+# serializer version: 1
+# name: TestAppleWebLogin.test_oauth_error
+  dict({
+    'code': 'api.unauthorized',
+    'errors': dict({
+      'oauth_error': '',
+    }),
+    'message': 'OAuth error',
+    'success': False,
+  })
+# ---
+# name: TestAppleWebLogin.test_oauth_parsing_error
+  dict({
+    'code': 'api.unauthorized',
+    'errors': dict({
+      'oauth_error': '',
+    }),
+    'message': 'OAuth error',
+    'success': False,
+  })
+# ---

@@ -105,6 +105,29 @@ ChainFeatureCollectionDownloadResponse:
                 type: string
                 default: Chain feature collection
 
+TransactionListCsvDownloadResponse:
+  description: Filtered transaction list data as CSV file
+  content:
+    text/csv:
+      schema:
+        type: string
+        format: binary
+        description: CSV file containing filtered transactions data with columns for transaction details, commodity information, and user IDs
+      example: |
+        Transaction ID,Transaction Created At,Transaction Type,Transaction Status,Transaction Traceability,Transaction Location,Latitude,Longitude,Volume,Is Automatic,Created By Role,Commodity ID,Commodity Code,Commodity Name,Commodity Unit,Commodity Group,Seller ID,Seller Created At,Buyer ID,Buyer Created At
+        123e4567-e89b-12d3-a456-426614174000,2024-01-15T10:30:00Z,PRODUCER,ACCEPTED,FULL,GPS,1.234,-5.678,100.5,false,seller,456e7890-e89b-12d3-a456-426614174000,CORN001,Corn,kg,Grains,789e0123-e89b-12d3-a456-426614174000,2024-01-10T08:00:00Z,012e3456-e89b-12d3-a456-426614174000,2024-01-12T09:15:00Z
+  headers:
+    Content-Disposition:
+      schema:
+        type: string
+        example: 'attachment; filename="transactions.csv"'
+      description: Suggests downloading the file with a specific filename
+    X-Total-Transactions:
+      schema:
+        type: string
+        example: '10'
+      description: Number of transactions included in CSV
+
 ChainCsvDownloadResponse:
   description: Transaction chain data as CSV file
   content:
@@ -170,3 +193,16 @@ TransactionNotificationResentResponse:
               message:
                 type: string
                 default: Transaction notification resent
+
+ConversionCompletedResponse:
+  description: Conversion completed successfully
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/BaseResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Conversion completed successfully

@@ -40,6 +40,9 @@ CommodityDTO:
       type: string
       description: Unit of measurement
       examples: [ kg ]
+    has_recipe:
+      type: boolean
+      description: Whether the commodity has a conversion recipe
 
 CommodityWithGroupDTO:
   allOf:
@@ -75,3 +78,6 @@ BalanceDTO:
     commodity:
       $ref: '../commodities/schemas.yaml#/CommodityWithGroupDTO'
       description: Commodity information
+    has_recipe:
+      type: boolean
+      description: Whether the commodity has a conversion recipe

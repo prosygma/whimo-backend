@@ -111,14 +111,13 @@ class TestGoogleLogin:
         assert data_response.data.access
         assert data_response.data.refresh
 
-        mock_oauth.register.assert_called_once()
         mock_google_client.parse_id_token.assert_called_once_with(token={"id_token": "valid-token"}, nonce="test-nonce")
 
     def test_oauth_parsing_error(self, client: APIClient, mocker: MockerFixture, snapshot: SnapshotAssertion) -> None:
         # Arrange
         mock_oauth = MagicMock()
         mock_google_client = MagicMock()
-        mock_google_client.parse_id_token.side_effect = Exception("Token parsing failed")
+        mock_google_client.parse_id_token.side_effect = OAuthError
         mock_oauth.google = mock_google_client
 
         mocker.patch("whimo.auth.social.service.OAuth", return_value=mock_oauth)

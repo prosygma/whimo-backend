@@ -1,0 +1,476 @@
+# serializer version: 1
+# name: TestConversionRecipesList.test_empty_result
+  dict({
+    'data': list([
+    ]),
+    'pagination': dict({
+      'count': 0,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestConversionRecipesList.test_filter_by_commodity_id
+  dict({
+    'data': list([
+      dict({
+        'id': '00000000-0000-0000-0000-000000000006',
+        'inputs': list([
+          dict({
+            'commodity': dict({
+              'code': '4841',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000000',
+                'name': 'teacher',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000000',
+              'name': 'officer',
+              'unit': 'tons',
+            }),
+            'id': '00000000-0000-0000-0000-000000000008',
+            'quantity': 653.39,
+          }),
+        ]),
+        'name': 'Themselves your majority.',
+        'outputs': list([
+          dict({
+            'commodity': dict({
+              'code': '8947',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000001',
+                'name': 'free',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000001',
+              'name': 'benefit',
+              'unit': 'liters',
+            }),
+            'id': '00000000-0000-0000-0000-000000000007',
+            'quantity': 689.34,
+          }),
+        ]),
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestConversionRecipesList.test_forbidden
+  dict({
+    'code': 'drf.permission_denied',
+    'message': 'At least one verified gadget is required',
+    'success': False,
+  })
+# ---
+# name: TestConversionRecipesList.test_pagination[1-2]
+  dict({
+    'data': list([
+      dict({
+        'id': '00000000-0000-0000-0000-00000000000a',
+        'inputs': list([
+          dict({
+            'commodity': dict({
+              'code': '9694',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000002',
+                'name': 'recent',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000002',
+              'name': 'little',
+              'unit': 'liters',
+            }),
+            'id': '00000000-0000-0000-0000-00000000000c',
+            'quantity': 756.51,
+          }),
+        ]),
+        'name': 'Necessary religious.',
+        'outputs': list([
+          dict({
+            'commodity': dict({
+              'code': '5917',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000003',
+                'name': 'through',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000003',
+              'name': 'people',
+              'unit': 'tons',
+            }),
+            'id': '00000000-0000-0000-0000-00000000000b',
+            'quantity': 294.3,
+          }),
+        ]),
+      }),
+      dict({
+        'id': '00000000-0000-0000-0000-000000000009',
+        'inputs': list([
+          dict({
+            'commodity': dict({
+              'code': '2094',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000000',
+                'name': 'behind',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000000',
+              'name': 'maybe',
+              'unit': 'kg',
+            }),
+            'id': '00000000-0000-0000-0000-00000000000b',
+            'quantity': 795.22,
+          }),
+        ]),
+        'name': 'Themselves your majority.',
+        'outputs': list([
+          dict({
+            'commodity': dict({
+              'code': '0186',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000001',
+                'name': 'nearly',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000001',
+              'name': 'third',
+              'unit': 'tons',
+            }),
+            'id': '00000000-0000-0000-0000-00000000000a',
+            'quantity': 931.33,
+          }),
+        ]),
+      }),
+    ]),
+    'pagination': dict({
+      'count': 5,
+      'next_page': 2,
+      'page': 1,
+      'page_size': 2,
+      'previous_page': None,
+      'total_pages': 3,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestConversionRecipesList.test_pagination[2-2]
+  dict({
+    'data': list([
+      dict({
+        'id': '00000000-0000-0000-0000-000000000010',
+        'inputs': list([
+          dict({
+            'commodity': dict({
+              'code': '4135',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000004',
+                'name': 'go',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000004',
+              'name': 'study',
+              'unit': 'pcs',
+            }),
+            'id': '00000000-0000-0000-0000-000000000012',
+            'quantity': 536.01,
+          }),
+        ]),
+        'name': 'Four two data.',
+        'outputs': list([
+          dict({
+            'commodity': dict({
+              'code': '2309',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000005',
+                'name': 'agreement',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000005',
+              'name': 'protect',
+              'unit': 'kg',
+            }),
+            'id': '00000000-0000-0000-0000-000000000011',
+            'quantity': 227.39,
+          }),
+        ]),
+      }),
+      dict({
+        'id': '00000000-0000-0000-0000-000000000011',
+        'inputs': list([
+          dict({
+            'commodity': dict({
+              'code': '9161',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000006',
+                'name': 'although',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000006',
+              'name': 'hospital',
+              'unit': 'kg',
+            }),
+            'id': '00000000-0000-0000-0000-000000000013',
+            'quantity': 720.03,
+          }),
+        ]),
+        'name': 'Natural explain before something.',
+        'outputs': list([
+          dict({
+            'commodity': dict({
+              'code': '2173',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000007',
+                'name': 'write',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000007',
+              'name': 'short',
+              'unit': 'kg',
+            }),
+            'id': '00000000-0000-0000-0000-000000000012',
+            'quantity': 795.08,
+          }),
+        ]),
+      }),
+    ]),
+    'pagination': dict({
+      'count': 5,
+      'next_page': 3,
+      'page': 2,
+      'page_size': 2,
+      'previous_page': 1,
+      'total_pages': 3,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestConversionRecipesList.test_search_by_name
+  dict({
+    'data': list([
+      dict({
+        'id': '00000000-0000-0000-0000-000000000003',
+        'inputs': list([
+          dict({
+            'commodity': dict({
+              'code': '5871',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000000',
+                'name': 'seat',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000000',
+              'name': 'fish',
+              'unit': 'tons',
+            }),
+            'id': '00000000-0000-0000-0000-000000000005',
+            'quantity': 227.85,
+          }),
+        ]),
+        'name': 'Cocoa Processing Recipe',
+        'outputs': list([
+          dict({
+            'commodity': dict({
+              'code': '8398',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000001',
+                'name': 'light',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000001',
+              'name': 'people',
+              'unit': 'tons',
+            }),
+            'id': '00000000-0000-0000-0000-000000000004',
+            'quantity': 193.96,
+          }),
+        ]),
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestConversionRecipesList.test_success
+  dict({
+    'data': list([
+      dict({
+        'id': '00000000-0000-0000-0000-000000000001',
+        'inputs': list([
+          dict({
+            'commodity': dict({
+              'code': '5934',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000001',
+                'name': 'term',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000001',
+              'name': 'create',
+              'unit': 'pcs',
+            }),
+            'id': '00000000-0000-0000-0000-000000000002',
+            'quantity': 291.09,
+          }),
+          dict({
+            'commodity': dict({
+              'code': '8583',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000000',
+                'name': 'light',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000000',
+              'name': 'successful',
+              'unit': 'tons',
+            }),
+            'id': '00000000-0000-0000-0000-000000000001',
+            'quantity': 193.96,
+          }),
+        ]),
+        'name': 'Themselves your majority.',
+        'outputs': list([
+          dict({
+            'commodity': dict({
+              'code': '4711',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000002',
+                'name': 'under',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000002',
+              'name': 'respond',
+              'unit': 'pcs',
+            }),
+            'id': '00000000-0000-0000-0000-000000000000',
+            'quantity': 253.01,
+          }),
+          dict({
+            'commodity': dict({
+              'code': '8684',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000003',
+                'name': 'time',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000003',
+              'name': 'nearly',
+              'unit': 'pcs',
+            }),
+            'id': '00000000-0000-0000-0000-000000000001',
+            'quantity': 320.96,
+          }),
+        ]),
+      }),
+      dict({
+        'id': '00000000-0000-0000-0000-000000000002',
+        'inputs': list([
+          dict({
+            'commodity': dict({
+              'code': '7953',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000005',
+                'name': 'sign',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000005',
+              'name': 'eight',
+              'unit': 'kg',
+            }),
+            'id': '00000000-0000-0000-0000-000000000004',
+            'quantity': 377.13,
+          }),
+          dict({
+            'commodity': dict({
+              'code': '9477',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000004',
+                'name': 'beautiful',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000004',
+              'name': 'recent',
+              'unit': 'tons',
+            }),
+            'id': '00000000-0000-0000-0000-000000000003',
+            'quantity': 432.91,
+          }),
+        ]),
+        'name': 'Necessary religious.',
+        'outputs': list([
+          dict({
+            'commodity': dict({
+              'code': '0989',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000007',
+                'name': 'agreement',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000007',
+              'name': 'response',
+              'unit': 'kg',
+            }),
+            'id': '00000000-0000-0000-0000-000000000003',
+            'quantity': 227.39,
+          }),
+          dict({
+            'commodity': dict({
+              'code': '5256',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000006',
+                'name': 'blood',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000006',
+              'name': 'team',
+              'unit': 'kg',
+            }),
+            'id': '00000000-0000-0000-0000-000000000002',
+            'quantity': 901.23,
+          }),
+        ]),
+      }),
+    ]),
+    'pagination': dict({
+      'count': 2,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestConversionRecipesList.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestConversionRecipesList.test_user_deleted
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---

@@ -6,14 +6,16 @@ from typing import Any
 from uuid import UUID
 
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from pydantic import field_validator, model_validator
+from pydantic import Field, field_validator, model_validator
 
-from whimo.common.schemas.base import BaseRequest, PaginationRequest
+from whimo.common.schemas.base import BaseRequest, OrderingRequestMixin, PaginationRequest
 from whimo.common.schemas.dto import CreateGadgetDTO
 from whimo.db.enums import TransactionAction, TransactionLocation, TransactionStatus
 from whimo.transactions.schemas.dto import FeatureCollection
 from whimo.transactions.schemas.errors import (
     CommodityGroupRequiredError,
+    ConversionDuplicateInputCommodityError,
+    ConversionDuplicateOutputCommodityError,
     InvalidLatitudeError,
     InvalidLongitudeError,
     InvalidStatusUpdateError,
@@ -152,14 +154,23 @@ class TransactionStatusUpdateRequest(BaseRequest):
         return value
 
 
-class TransactionListRequest(PaginationRequest):
+class TransactionListRequest(PaginationRequest, OrderingRequestMixin):
     search: str | None = None
     status: TransactionStatus | None = None
     action: TransactionAction | None = None
     created_at_from: datetime | None = None
     created_at_to: datetime | None = None
     commodity_group_id: UUID | None = None
+    commodity_id: UUID | None = None
     buyer_id: UUID | None = None
+
+    @property
+    def orderings_map(self) -> dict[str, str]:
+        return {
+            "commodity_name": "commodity__name",
+            "amount": "volume",
+            "created_at": "created_at",
+        }
 
     @model_validator(mode="after")
     def validate_buyer(self) -> "TransactionListRequest":
@@ -181,5 +192,35 @@ class TransactionGeodataUpdateRequest(BaseRequest):
     def validate_location_file(self) -> "TransactionGeodataUpdateRequest":
         if self.location not in {TransactionLocation.FILE, TransactionLocation.QR}:
             raise LocationFileNotSupportedError
+
+        return self
+
+
+class ConversionRecipeListRequest(PaginationRequest):
+    search: str | None = None
+    commodity_id: UUID | None = None
+
+
+class CommodityQuantityOverride(BaseRequest):
+    commodity_id: UUID
+    quantity: Decimal = Field(ge=0)
+
+
+class ConversionCreateRequest(BaseRequest):
+    recipe_id: UUID
+    input_overrides: list[CommodityQuantityOverride] | None = None
+    output_overrides: list[CommodityQuantityOverride] | None = None
+
+    @model_validator(mode="after")
+    def validate_overrides(self) -> "ConversionCreateRequest":
+        if self.input_overrides:
+            input_commodity_ids = [item.commodity_id for item in self.input_overrides]
+            if len(input_commodity_ids) != len(set(input_commodity_ids)):
+                raise ConversionDuplicateInputCommodityError
+
+        if self.output_overrides:
+            output_commodity_ids = [item.commodity_id for item in self.output_overrides]
+            if len(output_commodity_ids) != len(set(output_commodity_ids)):
+                raise ConversionDuplicateOutputCommodityError
 
         return self

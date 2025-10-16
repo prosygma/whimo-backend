@@ -58,6 +58,9 @@ class NotificationsPushService:
             if (notification.received_by_id, notification.type) not in enabled_types:
                 continue
 
+            if notification.created_by_id and notification.created_by_id == notification.received_by_id:
+                continue
+
             notification_data = NotificationsMapper.to_dto(notification).model_dump()
             send_gcm_push.delay(notification_data)
             send_apns_push.delay(notification_data)

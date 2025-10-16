@@ -18,165 +18,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-# Commodity group names
-# ----------------------------------------------------------------------------------------------------------------------
-
-msgid "Cattle"
-msgstr "Ganado bovino"
-
-msgid "Cocoa"
-msgstr "Cacao"
-
-msgid "Coffee"
-msgstr "Café"
-
-msgid "Palm Oil"
-msgstr "Aceite de palma"
-
-msgid "Rubber"
-msgstr "Caucho"
-
-msgid "Soy"
-msgstr "Soja"
-
-# Commodity names
-# ----------------------------------------------------------------------------------------------------------------------
-
-msgid "Pure-bred cattle for breeding"
-msgstr "Ganado bovino de raza pura para cría"
-
-msgid "Live cattle"
-msgstr "Ganado bovino vivo"
-
-msgid "Meat of bovine animals, fresh or chilled"
-msgstr "Carne de bovino"
-
-msgid "Meat of bovine animals, frozen"
-msgstr "Carne de bovino"
-
-msgid "Fresh or chilled edible offal of bovine animals"
-msgstr "Despojos comestibles de bovino"
-
-msgid "Frozen edible bovine livers"
-msgstr "Hígados de bovino comestibles"
-
-msgid "Frozen edible bovine offal"
-msgstr "Despojos comestibles de bovino"
-
-msgid "Prepared or preserved meat or offal of bovine animals"
-msgstr "Carne o despojos de bovino preparados o conservados"
-
-msgid "Raw hides and skins of bovine or equine animals"
-msgstr "Pieles y cueros en bruto de bovino o equino"
-
-msgid "Tanned or crust hides and skins of bovine or equine animals"
-msgstr "Pieles y cueros curtidos o en crust de bovino o equino"
-
-msgid "Leather further prepared after tanning or crusting, of bovine"
-msgstr "Cuero de bovino trabajado tras el curtido o crust"
-
-msgid "Cocoa beans"
-msgstr "Granos de cacao"
-
-msgid "Cocoa shells and other cocoa waste"
-msgstr "Cáscaras y otros residuos de cacao"
-
-msgid "Cocoa paste"
-msgstr "Pasta de cacao"
-
-msgid "Cocoa butter, fat and oil"
-msgstr "Manteca, grasa y aceite de cacao"
-
-msgid "Cocoa powder"
-msgstr "Cacao en polvo"
-
-msgid "Chocolate and other preparations containing cocoa"
-msgstr "Chocolate y demás preparaciones con cacao"
-
-msgid "Coffee, whether or not roasted or decaffeinated; coffee husks and skins; coffee substitutes"
-msgstr "Café, tostado o no, descafeinado o no; cáscaras y cascarillas de café; sucedáneos del café"
-
-msgid "Palm nuts and kernels"
-msgstr "Nueces y almendras de palma"
-
-msgid "Palm oil and its fractions"
-msgstr "Aceite de palma y sus fracciones"
-
-msgid "Crude palm kernel and babassu oil"
-msgstr "Aceite crudo de palmiste y babasú"
-
-msgid "Palm kernel and babassu oil and their fractions"
-msgstr "Aceite de palmiste y babasú y sus fracciones"
-
-msgid "Oilcake and other solid residues"
-msgstr "Tortas y demás residuos sólidos"
-
-msgid "Glycerol"
-msgstr "Glicerol"
-
-msgid "Palmitic acid, stearic acid, their salts and esters"
-msgstr "Ácido palmítico, ácido esteárico, sus sales y ésteres"
-
-msgid "Saturated acyclic monocarboxylic acids"
-msgstr "Ácidos monocarboxílicos acíclicos saturados"
-
-msgid "Stearic acid"
-msgstr "Ácido esteárico"
-
-msgid "Oleic acid"
-msgstr "Ácido oleico"
-
-msgid "Fatty acids, industrial, monocarboxylic"
-msgstr "Ácidos grasos industriales monocarboxílicos"
-
-msgid "Fatty alcohols"
-msgstr "Alcoholes grasos"
-
-msgid "Natural rubber and similar natural gums"
-msgstr "Caucho natural y gomas naturales similares"
-
-msgid "Compounded rubber, unvulcanised"
-msgstr "Caucho compuesto, sin vulcanizar"
-
-msgid "Unvulcanised rubber forms"
-msgstr "Formas de caucho sin vulcanizar"
-
-msgid "Vulcanised rubber thread and cord"
-msgstr "Hilo y cordón de caucho vulcanizado"
-
-msgid "Vulcanised rubber plates, sheets, strips and profiles"
-msgstr "Placas, hojas, tiras y perfiles de caucho vulcanizado"
-
-msgid "Conveyor or transmission belts of vulcanised rubber"
-msgstr "Bandas transportadoras o de transmisión de caucho vulcanizado"
-
-msgid "New pneumatic tyres"
-msgstr "Neumáticos nuevos"
-
-msgid "Retreaded or used tyres; solid or cushion tyres"
-msgstr "Neumáticos recauchutados o usados; macizos o de goma"
-
-msgid "Inner tubes of rubber"
-msgstr "Cámaras de caucho"
-
-msgid "Rubber apparel and clothing accessories"
-msgstr "Prendas y accesorios de vestir de caucho"
-
-msgid "Articles of vulcanised rubber, n.e.s."
-msgstr "Artículos de caucho vulcanizado, n.e.p."
-
-msgid "Hard rubber and articles, n.e.s."
-msgstr "Ebonita y artículos, n.e.p."
-
-msgid "Soya beans"
-msgstr "Soja en grano"
-
-msgid "Soya bean flour and meal"
-msgstr "Harina y torta de soja"
-
-msgid "Soya-bean oil and its fractions"
-msgstr "Aceite de soja y sus fracciones"
-
 # Project strings
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -229,8 +70,8 @@ msgstr "Ya existe un dispositivo con este identificador"
 msgid "Registered"
 msgstr "Registrado"
 
-msgid "Invalid OAuth callback"
-msgstr "Devolución de llamada OAuth no válida"
+msgid "OAuth error"
+msgstr "Error de OAuth"
 
 msgid "At least one verified gadget is required"
 msgstr "Se requiere al menos un dispositivo verificado"
@@ -323,11 +164,23 @@ msgstr "Total de registros"
 msgid "All time users"
 msgstr "Usuarios de todos los tiempos"
 
+msgid "Current Seasons"
+msgstr "Temporadas actuales"
+
+msgid "Active harvest seasons"
+msgstr "Temporadas de cosecha activas"
+
 msgid "Transactions by Traceability Status"
 msgstr "Transacciones por estado de trazabilidad"
 
+msgid "Transactions by Season"
+msgstr "Transacciones por temporada"
+
 msgid "Daily Registrations Over Time"
 msgstr "Registros diarios a lo largo del tiempo"
+
+msgid "Daily Transactions by Season"
+msgstr "Transacciones diarias por temporada"
 
 msgid "Balance Summary by Commodity"
 msgstr "Resumen de saldos por materia prima"
@@ -413,6 +266,33 @@ msgstr "Indica si las notificaciones de este tipo están habilitadas"
 msgid "Notification Settings"
 msgstr "Configuración de notificaciones"
 
+msgid "Season"
+msgstr "Temporada"
+
+msgid "Seasons"
+msgstr "Temporadas"
+
+msgid "Season Commodity"
+msgstr "Producto básico de temporada"
+
+msgid "Season Commodities"
+msgstr "Productos básicos de temporada"
+
+msgid "Name of the season"
+msgstr "Nombre de la temporada"
+
+msgid "Description of the season"
+msgstr "Descripción de la temporada"
+
+msgid "Start date of the season"
+msgstr "Fecha de inicio de la temporada"
+
+msgid "End date of the season"
+msgstr "Fecha de finalización de la temporada"
+
+msgid "Commodities participating in this season"
+msgstr "Productos básicos participantes en esta temporada"
+
 msgid "Type of transaction"
 msgstr "Tipo de transacción"
 
@@ -451,6 +331,9 @@ msgstr "Comprador en esta transacción"
 
 msgid "User who created this transaction"
 msgstr "Usuario que creó esta transacción"
+
+msgid "Season this transaction belongs to"
+msgstr "Temporada a la que pertenece esta transacción"
 
 msgid "Whether this transaction is buying from a farmer directly"
 msgstr "Si esta transacción está comprando directamente de un agricultor"
@@ -505,6 +388,9 @@ msgstr "El servicio está funcionando correctamente"
 
 msgid "Navigation"
 msgstr "Navegación"
+
+msgid "Periodic Tasks"
+msgstr "Tareas periódicas"
 
 msgid "User Management"
 msgstr "Gestión de usuarios"
@@ -565,6 +451,9 @@ msgstr "Datos geográficos faltantes solicitados"
 
 msgid "Transaction notification resent"
 msgstr "Notificación de transacción reenviada"
+
+msgid "Conversion completed successfully"
+msgstr "Conversión completada exitosamente"
 
 msgid "Welcome to WHIMO!"
 msgstr "¡Bienvenido a WHIMO!"

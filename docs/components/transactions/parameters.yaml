@@ -36,6 +36,14 @@ CommodityGroupIdParameter:
     format: uuid
   description: Unique identifier of the commodity group
 
+CommodityIdParameter:
+  name: commodity_id
+  in: query
+  schema:
+    type: string
+    format: uuid
+  description: Filter by commodity ID
+
 BuyerIdParameter:
   name: buyer_id
   in: query
@@ -55,3 +63,19 @@ TransactionIdParameter:
     format: uuid
   description: Unique identifier of the transaction
   required: true
+
+OrderingsParameter:
+  name: orderings
+  in: query
+  schema:
+    type: array
+    items:
+      type: string
+      enum:
+        - commodity_name
+        - -commodity_name
+        - amount
+        - -amount
+        - created_at
+        - -created_at
+      description: Order by field

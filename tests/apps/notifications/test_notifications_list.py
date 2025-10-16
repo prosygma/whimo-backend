@@ -441,3 +441,67 @@ class TestNotificationsPushService:
         # Assert
         mock_gcm_delay.assert_not_called()
         mock_apns_delay.assert_not_called()
+
+    def test_send_push_skips_when_creator_is_receiver(
+        self,
+        mocker: MockerFixture,
+        freezer: FrozenDateTimeFactory,
+    ) -> None:
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+
+        notification = NotificationFactory.create(
+            received_by=user, created_by=user, type=NotificationType.TRANSACTION_PENDING
+        )
+
+        mock_gcm_delay = mocker.patch("whimo.contrib.tasks.notifications.send_gcm_push.delay")
+        mock_apns_delay = mocker.patch("whimo.contrib.tasks.notifications.send_apns_push.delay")
+
+        NotificationsPushService.send_push([notification.id])
+
+        mock_gcm_delay.assert_not_called()
+        mock_apns_delay.assert_not_called()
+
+    def test_send_push_sends_when_creator_differs_from_receiver(
+        self,
+        mocker: MockerFixture,
+        freezer: FrozenDateTimeFactory,
+    ) -> None:
+        freezer.move_to(DEFAULT_DATETIME)
+
+        creator = UserFactory.create()
+        receiver = UserFactory.create()
+
+        notification = NotificationFactory.create(
+            received_by=receiver, created_by=creator, type=NotificationType.TRANSACTION_PENDING
+        )
+
+        mock_gcm_delay = mocker.patch("whimo.contrib.tasks.notifications.send_gcm_push.delay")
+        mock_apns_delay = mocker.patch("whimo.contrib.tasks.notifications.send_apns_push.delay")
+
+        NotificationsPushService.send_push([notification.id])
+
+        mock_gcm_delay.assert_called_once()
+        mock_apns_delay.assert_called_once()
+
+    def test_send_push_sends_when_creator_is_none(
+        self,
+        mocker: MockerFixture,
+        freezer: FrozenDateTimeFactory,
+    ) -> None:
+        freezer.move_to(DEFAULT_DATETIME)
+
+        receiver = UserFactory.create()
+
+        notification = NotificationFactory.create(
+            received_by=receiver, created_by=None, type=NotificationType.TRANSACTION_PENDING
+        )
+
+        mock_gcm_delay = mocker.patch("whimo.contrib.tasks.notifications.send_gcm_push.delay")
+        mock_apns_delay = mocker.patch("whimo.contrib.tasks.notifications.send_apns_push.delay")
+
+        NotificationsPushService.send_push([notification.id])
+
+        mock_gcm_delay.assert_called_once()
+        mock_apns_delay.assert_called_once()

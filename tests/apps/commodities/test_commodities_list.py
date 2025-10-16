@@ -50,8 +50,8 @@ class TestCommoditiesList:
         # 1. select user
         # 2. select gadgets
         # 3. select count
-        # 4. select entities
-        assert len(queries) == 4, queries_to_str(queries)  # noqa: PLR2004 Magic value used in comparison
+        # 4. select entities (with has_recipe annotation)
+        assert len(queries) == 4, queries_to_str(queries)  # noqa: PLR2004 Magic value used in comparison  # noqa: PLR2004 Magic value used in comparison  # noqa: PLR2004 Magic value used in comparison
 
     def test_search_by_name(
         self,

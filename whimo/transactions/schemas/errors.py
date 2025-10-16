@@ -57,3 +57,39 @@ class InvalidLatitudeError(BadRequest):
 
 class InvalidLongitudeError(BadRequest):
     message = _("Longitude must be between -180 and 180 degrees")
+
+
+class InsufficientBalanceForConversionError(BadRequest):
+    message = _("Insufficient balance for conversion")
+
+
+class ConversionInputsRequiredError(BadRequest):
+    message = _("At least one input commodity is required")
+
+
+class ConversionOutputsRequiredError(BadRequest):
+    message = _("At least one output commodity is required")
+
+
+class ConversionDuplicateInputCommodityError(BadRequest):
+    message = _("Duplicate commodity in inputs")
+
+
+class ConversionDuplicateOutputCommodityError(BadRequest):
+    message = _("Duplicate commodity in outputs")
+
+
+class ConversionCommodityOverlapError(BadRequest):
+    message = _("Same commodity cannot be both input and output")
+
+
+class RecipeNotFoundError(NotFound):
+    message = _("Conversion recipe not found")
+
+
+class InvalidRecipeOverrideError(BadRequest):
+    message = _("Override commodity not found in recipe")
+
+
+class AtLeastOneInputRequiredError(BadRequest):
+    message = _("At least one input must have quantity greater than zero")

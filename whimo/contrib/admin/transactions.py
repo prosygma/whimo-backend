@@ -1,4 +1,3 @@
-from typing import Any, cast
 from uuid import UUID
 
 from django.contrib import admin, messages
@@ -17,6 +16,7 @@ from whimo.contrib.utils import ReadOnlyAdminMixin, change_link_with_icon, color
 from whimo.db.enums import TransactionStatus, TransactionType
 from whimo.db.enums.transactions import TransactionTraceability
 from whimo.db.models import Transaction
+from whimo.db.storages import TransactionsStorage
 from whimo.transactions.export.resources import TransactionAdminResource
 from whimo.transactions.services import TransactionsService
 
@@ -75,7 +75,7 @@ class TransactionAdmin(ReadOnlyAdminMixin, ModelAdmin, ExportActionMixin, Simple
     def download_chain(self, request: HttpRequest, object_id: str) -> HttpResponse:
         transaction = Transaction.objects.get(pk=object_id)
         chain_transactions = (
-            self._get_chain_transactions(transaction.id, transaction.commodity_id)
+            TransactionsStorage.get_chain_transactions(transaction.id)
             .select_related("commodity", "commodity__group", "seller", "buyer", "created_by")
             .prefetch_related("seller__gadgets", "buyer__gadgets")
         )
@@ -158,24 +158,3 @@ class TransactionAdmin(ReadOnlyAdminMixin, ModelAdmin, ExportActionMixin, Simple
     )
     def traceability_labeled(self, obj: Transaction) -> str | None:
         return obj.traceability
-
-    def _get_chain_transactions(self, transaction_id: UUID, commodity_id: UUID) -> QuerySet[Transaction]:
-        chain_transactions = Transaction.objects.none()
-        base_query = Transaction.objects.filter(commodity_id=commodity_id)
-
-        transactions_ids = {transaction_id}
-        filters: dict[str, Any] = {}
-        visited: set[UUID] = set()
-
-        while transactions_ids:
-            filters["pk__in"] = transactions_ids
-            transactions_query = base_query.filter(**filters).exclude(pk__in=visited)
-            chain_transactions |= transactions_query
-
-            filters["status"] = TransactionStatus.ACCEPTED
-            visited |= transactions_ids
-
-            sellers_ids = transactions_query.filter(seller_id__isnull=False).values_list("seller_id", flat=True)
-            transactions_ids = set(base_query.filter(buyer_id__in=sellers_ids).values_list("pk", flat=True))
-
-        return cast(QuerySet[Transaction], chain_transactions)

@@ -1,0 +1,7 @@
+# serializer version: 1
+# name: TestRecipeBasedConversion.test_success_with_recipe_defaults
+  dict({
+    'message': 'Conversion completed successfully',
+    'success': True,
+  })
+# ---

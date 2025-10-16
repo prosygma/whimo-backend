@@ -16,3 +16,32 @@ OAuthIdTokenRequest:
             nullable: true
             description: OAuth nonce
             examples: [ 0659394143674eb1053e8186660f44cbf0a0... ]
+
+OAuthCodeRequest:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - code
+        properties:
+          code:
+            type: string
+            description: OAuth authorization code
+            examples: [ 4/0AY0e-g7... ]
+          redirect_uri:
+            type: string
+            description: OAuth redirect URI
+            examples: [ http://localhost:3000/oauth/callback ]
+            default: http://localhost:3000/oauth/callback
+          state:
+            type: string
+            nullable: true
+            description: OAuth state parameter
+            examples: [ abc123... ]
+          nonce:
+            type: string
+            nullable: true
+            description: OAuth nonce
+            examples: [ 0659394143674eb1053e8186660f44cbf0a0... ]

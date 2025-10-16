@@ -12,6 +12,8 @@ from whimo.transactions.export.resources import TransactionUserResource
 from whimo.transactions.mappers import TransactionsMapper
 from whimo.transactions.schemas.dto import ChainFeatureCollectionDTO
 from whimo.transactions.schemas.requests import (
+    ConversionCreateRequest,
+    ConversionRecipeListRequest,
     TransactionDownstreamCreateRequest,
     TransactionGeodataUpdateRequest,
     TransactionListRequest,
@@ -19,6 +21,7 @@ from whimo.transactions.schemas.requests import (
     TransactionStatusUpdateRequest,
 )
 from whimo.transactions.schemas.responses import (
+    ConversionCompletedResponse,
     TransactionGeodataRequestedResponse,
     TransactionGeodataUpdatedResponse,
     TransactionNotificationResentResponse,
@@ -34,6 +37,23 @@ class TransactionListView(views.APIView):
 
         response = TransactionsMapper.to_dto_list(entities=items, user_id=request.user.id)
         return PaginatedDataResponse(data=response, pagination=pagination).as_response()
+
+
+class TransactionListCsvDownloadView(views.APIView):
+    throttle_classes = [DownloadThrottle]
+
+    def get(self, request: Request, *_: Any, **__: Any) -> HttpResponse:
+        payload = TransactionListRequest.parse(request, from_query_params=True)
+        transactions = TransactionsService.get_list_csv_export(user_id=request.user.id, request=payload)
+
+        resource = TransactionUserResource()
+        dataset = resource.export(transactions)
+        csv_data = dataset.csv
+
+        response = HttpResponse(csv_data, content_type="text/csv")
+        response["Content-Disposition"] = 'attachment; filename="transactions.csv"'
+        response["X-Total-Transactions"] = str(len(transactions))
+        return response
 
 
 class TransactionDetailView(views.APIView):
@@ -69,6 +89,20 @@ class TransactionDownstreamCreateView(views.APIView):
 
         response = TransactionsMapper.to_dto(entity=transaction, user_id=request.user.id)
         return DataResponse(data=response).as_response()
+
+
+class ConversionView(views.APIView):
+    def get(self, request: Request, *_: Any, **__: Any) -> Response:
+        payload = ConversionRecipeListRequest.parse(request, from_query_params=True)
+        items, pagination = TransactionsService.list_conversion_recipes(request=payload)
+
+        response = TransactionsMapper.to_conversion_recipe_dto_list(items)
+        return PaginatedDataResponse(data=response, pagination=pagination).as_response()
+
+    def post(self, request: Request, *_: Any, **__: Any) -> Response:
+        payload = ConversionCreateRequest.parse(request)
+        TransactionsService.create_conversion(user_id=request.user.id, request=payload)
+        return ConversionCompletedResponse().as_response()
 
 
 class TransactionStatusUpdateView(views.APIView):

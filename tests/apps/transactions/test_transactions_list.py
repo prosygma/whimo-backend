@@ -264,6 +264,34 @@ class TestTransactionsList:
         assert len(data_response.data) == 1
         assert data_response.data[0].id == transaction.id
 
+    def test_filter_by_commodity_id(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        transaction = TransactionFactory.create(buyer=user)
+        TransactionFactory.create_batch(size=SMALL_BATCH_SIZE, buyer=user)
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=f"{self.URL}?commodity_id={transaction.commodity.id}")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = PaginatedDataResponse[list[TransactionDTO]](**response_json)
+        assert len(data_response.data) == 1
+        assert data_response.data[0].id == transaction.id
+        assert data_response.data[0].commodity.id == transaction.commodity.id
+
     def test_filter_by_buyer(
         self,
         client: APIClient,
@@ -381,6 +409,192 @@ class TestTransactionsList:
         remaining_items = max(0, MEDIUM_BATCH_SIZE - (page - 1) * page_size)
         expected_items_count = min(page_size, remaining_items)
         assert len(data_response.data) == expected_items_count
+
+    def test_order_by_commodity_name_asc(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        TransactionFactory.create(buyer=user, commodity__name="Banana")
+        TransactionFactory.create(buyer=user, commodity__name="Apple")
+        TransactionFactory.create(buyer=user, commodity__name="Cherry")
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=f"{self.URL}?orderings=commodity_name")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = PaginatedDataResponse[list[TransactionDTO]](**response_json)
+        assert len(data_response.data) == 3  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[0].commodity.name == "Apple"
+        assert data_response.data[1].commodity.name == "Banana"
+        assert data_response.data[2].commodity.name == "Cherry"
+
+    def test_order_by_commodity_name_desc(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        TransactionFactory.create(buyer=user, commodity__name="Banana")
+        TransactionFactory.create(buyer=user, commodity__name="Apple")
+        TransactionFactory.create(buyer=user, commodity__name="Cherry")
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=f"{self.URL}?orderings=-commodity_name")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = PaginatedDataResponse[list[TransactionDTO]](**response_json)
+        assert len(data_response.data) == 3  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[0].commodity.name == "Cherry"
+        assert data_response.data[1].commodity.name == "Banana"
+        assert data_response.data[2].commodity.name == "Apple"
+
+    def test_order_by_amount_asc(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        TransactionFactory.create(buyer=user, volume=50)
+        TransactionFactory.create(buyer=user, volume=10)
+        TransactionFactory.create(buyer=user, volume=30)
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=f"{self.URL}?orderings=amount")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = PaginatedDataResponse[list[TransactionDTO]](**response_json)
+        assert len(data_response.data) == 3  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[0].volume == 10  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[1].volume == 30  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[2].volume == 50  # noqa: PLR2004 Magic value used in comparison
+
+    def test_order_by_amount_desc(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        TransactionFactory.create(buyer=user, volume=50)
+        TransactionFactory.create(buyer=user, volume=10)
+        TransactionFactory.create(buyer=user, volume=30)
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=f"{self.URL}?orderings=-amount")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = PaginatedDataResponse[list[TransactionDTO]](**response_json)
+        assert len(data_response.data) == 3  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[0].volume == 50  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[1].volume == 30  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[2].volume == 10  # noqa: PLR2004 Magic value used in comparison
+
+    def test_order_by_created_at_asc(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        user = UserFactory.create()
+
+        freezer.move_to(DEFAULT_DATETIME + timedelta(days=2))
+        TransactionFactory.create(buyer=user)
+
+        freezer.move_to(DEFAULT_DATETIME)
+        TransactionFactory.create(buyer=user)
+
+        freezer.move_to(DEFAULT_DATETIME + timedelta(days=1))
+        TransactionFactory.create(buyer=user)
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=f"{self.URL}?orderings=created_at")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = PaginatedDataResponse[list[TransactionDTO]](**response_json)
+        assert len(data_response.data) == 3  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[0].created_at < data_response.data[1].created_at  # type: ignore
+        assert data_response.data[1].created_at < data_response.data[2].created_at  # type: ignore
+
+    def test_order_by_created_at_desc(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        user = UserFactory.create()
+
+        freezer.move_to(DEFAULT_DATETIME)
+        TransactionFactory.create(buyer=user)
+
+        freezer.move_to(DEFAULT_DATETIME + timedelta(days=1))
+        TransactionFactory.create(buyer=user)
+
+        freezer.move_to(DEFAULT_DATETIME + timedelta(days=2))
+        TransactionFactory.create(buyer=user)
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=f"{self.URL}?orderings=-created_at")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = PaginatedDataResponse[list[TransactionDTO]](**response_json)
+        assert len(data_response.data) == 3  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data[0].created_at > data_response.data[1].created_at  # type: ignore
+        assert data_response.data[1].created_at > data_response.data[2].created_at  # type: ignore
 
     def test_combined_filters(
         self,

@@ -14,6 +14,12 @@ class Transaction(BaseModel):
         help_text=_("Type of transaction"),
     )
 
+    group_id = models.UUIDField(
+        null=True,
+        blank=True,
+        help_text=_("Transaction group id"),
+    )
+
     location = models.CharField(
         max_length=10,
         null=True,

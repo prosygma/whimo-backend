@@ -100,7 +100,7 @@ class TestTransactionsNotificationResend:
             received_by=buyer,
             created_by=user,
         )
-        assert notifications.count() == 2  # noqa: PLR2004
+        assert notifications.count() == 2  # noqa: PLR2004 Magic value used in comparison
 
         new_notification = notifications.exclude(id=first_notification.id).get()
         assert new_notification.status == NotificationStatus.PENDING

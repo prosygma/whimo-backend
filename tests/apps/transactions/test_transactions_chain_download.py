@@ -15,13 +15,16 @@ from pydantic_core import InitErrorDetails
 from pytest_mock import MockerFixture
 from syrupy import SnapshotAssertion
 
+from tests.factories.balances import BalanceFactory
+from tests.factories.commodities import CommodityFactory
+from tests.factories.conversions import ConversionInputFactory, ConversionOutputFactory, ConversionRecipeFactory
 from tests.factories.transactions import TransactionFactory
 from tests.factories.users import UserFactory
 from tests.helpers.clients import APIClient
 from tests.helpers.constants import DEFAULT_DATETIME
 from whimo.common.schemas.base import DataResponse
 from whimo.common.schemas.errors import NotFound
-from whimo.db.enums import TransactionLocation
+from whimo.db.enums import TransactionLocation, TransactionStatus, TransactionType
 from whimo.db.models import Transaction
 from whimo.transactions.schemas.dto import (
     ChainFeatureCollectionDTO,
@@ -358,6 +361,329 @@ class TestTransactionsChainDownload:
         # Assert
         assert response.status_code == HTTPStatus.UNAUTHORIZED, response_json
         assert response_json == snapshot
+
+    def test_conversion_chain(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+        mock_get_chain_feature_collection: MagicMock,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans")
+        oil = CommodityFactory.create(name="Cacao Oil")
+
+        # beans -> oil
+        TransactionFactory.create(
+            type=TransactionType.PRODUCER,
+            buyer=user,
+            seller=None,
+            commodity=beans,
+            volume=Decimal("100.0"),
+            status=TransactionStatus.ACCEPTED,
+        )
+
+        BalanceFactory.create(user=user, commodity=beans, volume=Decimal("100.0"))
+
+        recipe = ConversionRecipeFactory.create(name="Beans to Oil")
+        ConversionInputFactory.create(recipe=recipe, commodity=beans, quantity=Decimal("50.0"))
+        ConversionOutputFactory.create(recipe=recipe, commodity=oil, quantity=Decimal("25.0"))
+
+        client.login(user)
+        response = client.post(
+            path=reverse("transactions_conversion"),
+            data={"recipe_id": str(recipe.id)},
+            format="json",
+        )
+        assert response.status_code == HTTPStatus.OK
+
+        oil_transaction = Transaction.objects.get(
+            created_by_id=user.id,
+            type=TransactionType.CONVERSION,
+            commodity_id=oil.id,
+            buyer_id=user.id,
+        )
+
+        mock_feature_collection = FeatureCollection(type="FeatureCollection", features=[])
+        mock_succeed_transactions: list[UUID] = []
+        mock_failed_transactions: list[UUID] = []
+
+        mock_get_chain_feature_collection.return_value = (
+            mock_feature_collection,
+            mock_succeed_transactions,
+            mock_failed_transactions,
+        )
+
+        url = reverse(self.URL, args=(oil_transaction.id,))
+
+        # Act
+        response = client.get(path=url)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = DataResponse[ChainFeatureCollectionDTO](**response_json)
+        assert data_response.data.feature_collection.type == "FeatureCollection"
+
+        mock_get_chain_feature_collection.assert_called_once_with(transaction_id=oil_transaction.id)
+
+    def test_multilevel_conversion_chain(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+        mock_get_chain_feature_collection: MagicMock,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans")
+        oil = CommodityFactory.create(name="Cacao Oil")
+        chocolate = CommodityFactory.create(name="Chocolate")
+
+        # beans -> oil -> chocolate
+        TransactionFactory.create(
+            type=TransactionType.PRODUCER,
+            buyer=user,
+            seller=None,
+            commodity=beans,
+            volume=Decimal("200.0"),
+            status=TransactionStatus.ACCEPTED,
+        )
+
+        BalanceFactory.create(user=user, commodity=beans, volume=Decimal("200.0"))
+
+        recipe1 = ConversionRecipeFactory.create(name="Beans to Oil")
+        ConversionInputFactory.create(recipe=recipe1, commodity=beans, quantity=Decimal("100.0"))
+        ConversionOutputFactory.create(recipe=recipe1, commodity=oil, quantity=Decimal("50.0"))
+
+        client.login(user)
+        response = client.post(
+            path=reverse("transactions_conversion"),
+            data={"recipe_id": str(recipe1.id)},
+            format="json",
+        )
+        assert response.status_code == HTTPStatus.OK
+
+        recipe2 = ConversionRecipeFactory.create(name="Oil to Chocolate")
+        ConversionInputFactory.create(recipe=recipe2, commodity=oil, quantity=Decimal("25.0"))
+        ConversionOutputFactory.create(recipe=recipe2, commodity=chocolate, quantity=Decimal("10.0"))
+
+        response = client.post(
+            path=reverse("transactions_conversion"),
+            data={"recipe_id": str(recipe2.id)},
+            format="json",
+        )
+        assert response.status_code == HTTPStatus.OK
+
+        chocolate_transaction = Transaction.objects.get(
+            created_by_id=user.id,
+            type=TransactionType.CONVERSION,
+            commodity_id=chocolate.id,
+            buyer_id=user.id,
+        )
+
+        mock_feature_collection = FeatureCollection(type="FeatureCollection", features=[])
+        mock_succeed_transactions: list[UUID] = []
+        mock_failed_transactions: list[UUID] = []
+
+        mock_get_chain_feature_collection.return_value = (
+            mock_feature_collection,
+            mock_succeed_transactions,
+            mock_failed_transactions,
+        )
+
+        url = reverse(self.URL, args=(chocolate_transaction.id,))
+
+        # Act
+        response = client.get(path=url)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = DataResponse[ChainFeatureCollectionDTO](**response_json)
+        assert data_response.data.feature_collection.type == "FeatureCollection"
+
+        mock_get_chain_feature_collection.assert_called_once_with(transaction_id=chocolate_transaction.id)
+
+    def test_conversion_multiple_inputs_chain(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+        mock_get_chain_feature_collection: MagicMock,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans")
+        sugar = CommodityFactory.create(name="Sugar")
+        chocolate = CommodityFactory.create(name="Chocolate")
+
+        # beans + sugar -> chocolate
+        TransactionFactory.create(
+            type=TransactionType.PRODUCER,
+            buyer=user,
+            seller=None,
+            commodity=beans,
+            volume=Decimal("100.0"),
+            status=TransactionStatus.ACCEPTED,
+        )
+        TransactionFactory.create(
+            type=TransactionType.PRODUCER,
+            buyer=user,
+            seller=None,
+            commodity=sugar,
+            volume=Decimal("50.0"),
+            status=TransactionStatus.ACCEPTED,
+        )
+
+        BalanceFactory.create(user=user, commodity=beans, volume=Decimal("100.0"))
+        BalanceFactory.create(user=user, commodity=sugar, volume=Decimal("50.0"))
+
+        recipe = ConversionRecipeFactory.create(name="Beans + Sugar to Chocolate")
+        ConversionInputFactory.create(recipe=recipe, commodity=beans, quantity=Decimal("50.0"))
+        ConversionInputFactory.create(recipe=recipe, commodity=sugar, quantity=Decimal("25.0"))
+        ConversionOutputFactory.create(recipe=recipe, commodity=chocolate, quantity=Decimal("30.0"))
+
+        client.login(user)
+        response = client.post(
+            path=reverse("transactions_conversion"),
+            data={"recipe_id": str(recipe.id)},
+            format="json",
+        )
+        assert response.status_code == HTTPStatus.OK
+
+        chocolate_transaction = Transaction.objects.get(
+            created_by_id=user.id,
+            type=TransactionType.CONVERSION,
+            commodity_id=chocolate.id,
+            buyer_id=user.id,
+        )
+
+        mock_feature_collection = FeatureCollection(type="FeatureCollection", features=[])
+        mock_succeed_transactions: list[UUID] = []
+        mock_failed_transactions: list[UUID] = []
+
+        mock_get_chain_feature_collection.return_value = (
+            mock_feature_collection,
+            mock_succeed_transactions,
+            mock_failed_transactions,
+        )
+
+        url = reverse(self.URL, args=(chocolate_transaction.id,))
+
+        # Act
+        response = client.get(path=url)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = DataResponse[ChainFeatureCollectionDTO](**response_json)
+        assert data_response.data.feature_collection.type == "FeatureCollection"
+
+        mock_get_chain_feature_collection.assert_called_once_with(transaction_id=chocolate_transaction.id)
+
+    def test_conversion_with_downstream_chain(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+        mock_get_chain_feature_collection: MagicMock,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        # farmer -> seller -> user -> (conversion) -> oil
+        farmer = UserFactory.create()
+        seller = UserFactory.create()
+        user = UserFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans")
+        oil = CommodityFactory.create(name="Cacao Oil")
+
+        TransactionFactory.create(
+            type=TransactionType.PRODUCER,
+            buyer=farmer,
+            seller=None,
+            commodity=beans,
+            volume=Decimal("300.0"),
+            status=TransactionStatus.ACCEPTED,
+        )
+
+        TransactionFactory.create(
+            type=TransactionType.DOWNSTREAM,
+            seller=farmer,
+            buyer=seller,
+            commodity=beans,
+            volume=Decimal("200.0"),
+            status=TransactionStatus.ACCEPTED,
+        )
+
+        TransactionFactory.create(
+            type=TransactionType.DOWNSTREAM,
+            seller=seller,
+            buyer=user,
+            commodity=beans,
+            volume=Decimal("100.0"),
+            status=TransactionStatus.ACCEPTED,
+        )
+
+        BalanceFactory.create(user=user, commodity=beans, volume=Decimal("100.0"))
+
+        recipe = ConversionRecipeFactory.create(name="Beans to Oil")
+        ConversionInputFactory.create(recipe=recipe, commodity=beans, quantity=Decimal("50.0"))
+        ConversionOutputFactory.create(recipe=recipe, commodity=oil, quantity=Decimal("25.0"))
+
+        client.login(user)
+        response = client.post(
+            path=reverse("transactions_conversion"),
+            data={"recipe_id": str(recipe.id)},
+            format="json",
+        )
+        assert response.status_code == HTTPStatus.OK
+
+        oil_transaction = Transaction.objects.get(
+            created_by_id=user.id,
+            type=TransactionType.CONVERSION,
+            commodity_id=oil.id,
+            buyer_id=user.id,
+        )
+
+        mock_feature_collection = FeatureCollection(type="FeatureCollection", features=[])
+        mock_succeed_transactions: list[UUID] = []
+        mock_failed_transactions: list[UUID] = []
+
+        mock_get_chain_feature_collection.return_value = (
+            mock_feature_collection,
+            mock_succeed_transactions,
+            mock_failed_transactions,
+        )
+
+        url = reverse(self.URL, args=(oil_transaction.id,))
+
+        # Act
+        response = client.get(path=url)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = DataResponse[ChainFeatureCollectionDTO](**response_json)
+        assert data_response.data.feature_collection.type == "FeatureCollection"
+
+        mock_get_chain_feature_collection.assert_called_once_with(transaction_id=oil_transaction.id)
 
     def test_nonexistent_transaction_service_raises_not_found(self) -> None:
         # Arrange

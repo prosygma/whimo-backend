@@ -57,5 +57,15 @@ def send_apns_push(notification_data: dict) -> None:
     notification_json = json.dumps(notification_data, cls=DjangoJSONEncoder)
     alert = Alert(body=notification_json)
 
+    # TODO: Uncomment when IOS app is ready
+    # from whimo.db.enums.notifications import NotificationStatus
+    # from whimo.db.models import Notification
+    # badge_count = Notification.objects.filter(
+    #     received_by_id=notification.received_by.id,
+    #     status=NotificationStatus.PENDING,
+    # ).count()
+
     for device in APNSDevice.objects.filter(user_id=notification.received_by.id):
         device.send_message(alert, mutable_content=True)
+        # TODO: Uncomment when IOS app is ready
+        # device.send_message(alert, badge=badge_count, mutable_content=True)

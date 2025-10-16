@@ -72,7 +72,7 @@ class TestAnalyticsChainTracing:
         # Assert
         assert result.total_transactions == 1
         assert result.total_suppliers == 1
-        assert result.initial_plots == 2  # noqa: PLR2004
+        assert result.initial_plots == 2  # noqa: PLR2004 Magic value used in comparison
 
     def test_branching_chain(self) -> None:
         # Arrange
@@ -115,7 +115,7 @@ class TestAnalyticsChainTracing:
         # Assert
         assert result.total_transactions == 1
         assert result.total_suppliers == 1
-        assert result.initial_plots == 3  # noqa: PLR2004
+        assert result.initial_plots == 3  # noqa: PLR2004 Magic value used in comparison
 
     @patch("whimo.analytics.services.default_storage.exists")
     def test_duplicate_coordinates(self, mock_storage_exists: Mock) -> None:
@@ -186,9 +186,9 @@ class TestAnalyticsChainTracing:
         result = AnalyticsService.get_user_analytics_data(user.id)
 
         # Assert
-        assert result.total_transactions == 2  # noqa: PLR2004
-        assert result.total_suppliers == 2  # noqa: PLR2004
-        assert result.initial_plots == 2  # noqa: PLR2004
+        assert result.total_transactions == 2  # noqa: PLR2004 Magic value used in comparison
+        assert result.total_suppliers == 2  # noqa: PLR2004 Magic value used in comparison
+        assert result.initial_plots == 2  # noqa: PLR2004 Magic value used in comparison
 
     @patch("whimo.analytics.services.default_storage.exists")
     def test_rejected_transactions(self, mock_storage_exists: Mock) -> None:
@@ -284,7 +284,7 @@ class TestAnalyticsChainTracing:
         result = AnalyticsService.get_user_analytics_data(user.id)
 
         # Assert
-        assert result.total_transactions == 3  # noqa: PLR2004
+        assert result.total_transactions == 3  # noqa: PLR2004 Magic value used in comparison
         assert result.initial_plots == 1
 
     @patch("whimo.analytics.services.default_storage.exists")
@@ -326,9 +326,9 @@ class TestAnalyticsChainTracing:
         result = AnalyticsService.get_user_analytics_data(user.id)
 
         # Assert
-        assert result.total_transactions == 3  # noqa: PLR2004
+        assert result.total_transactions == 3  # noqa: PLR2004 Magic value used in comparison
         assert result.total_suppliers == 1
-        assert result.initial_plots == 3  # noqa: PLR2004
+        assert result.initial_plots == 3  # noqa: PLR2004 Magic value used in comparison
 
     @patch("whimo.analytics.services.default_storage.exists")
     def test_circular_references(self, mock_storage_exists: Mock) -> None:
@@ -360,6 +360,6 @@ class TestAnalyticsChainTracing:
         result = AnalyticsService.get_user_analytics_data(user1.id)
 
         # Assert
-        assert result.total_transactions == 2  # noqa: PLR2004
+        assert result.total_transactions == 2  # noqa: PLR2004 Magic value used in comparison
         assert result.total_suppliers == 1
-        assert result.initial_plots == 2  # noqa: PLR2004
+        assert result.initial_plots == 2  # noqa: PLR2004 Magic value used in comparison

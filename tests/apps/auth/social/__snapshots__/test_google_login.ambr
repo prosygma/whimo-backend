@@ -2,6 +2,9 @@
 # name: TestGoogleLogin.test_oauth_error
   dict({
     'code': 'api.unauthorized',
+    'errors': dict({
+      'oauth_error': '',
+    }),
     'message': 'OAuth error',
     'success': False,
   })
@@ -9,6 +12,9 @@
 # name: TestGoogleLogin.test_oauth_parsing_error
   dict({
     'code': 'api.unauthorized',
+    'errors': dict({
+      'oauth_error': '',
+    }),
     'message': 'OAuth error',
     'success': False,
   })

@@ -5,12 +5,13 @@ from uuid import UUID
 
 from django.conf import settings
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from whimo.commodities.mappers.commodities import CommoditiesMapper
 from whimo.db.enums import TransactionAction, TransactionLocation, TransactionStatus, TransactionType
 from whimo.db.enums.transactions import TransactionTraceability
-from whimo.db.models import Transaction
-from whimo.transactions.schemas.dto import TransactionDTO
+from whimo.db.models import ConversionRecipe, Transaction
+from whimo.transactions.schemas.dto import ConversionDTO, ConversionRecipeDTO, TransactionDTO
 from whimo.transactions.schemas.requests import TransactionDownstreamCreateRequest, TransactionProducerCreateRequest
 from whimo.users.mappers.users import UsersMapper
 
@@ -157,3 +158,69 @@ class TransactionsMapper:
             buyer_id=user_id,
             created_by_id=user_id,
         )
+
+    @staticmethod
+    def to_conversion_transaction(  # noqa: PLR0913 Too many arguments in function definition
+        user_id: UUID,
+        commodity_id: UUID,
+        volume: Decimal,
+        traceability: TransactionTraceability,
+        is_input: bool,
+        group_id: UUID,
+    ) -> Transaction:
+        return Transaction(
+            type=TransactionType.CONVERSION,
+            status=TransactionStatus.ACCEPTED,
+            traceability=traceability,
+            group_id=group_id,
+            # ---
+            location=None,
+            # ---
+            transaction_longitude=None,
+            transaction_latitude=None,
+            # ---
+            farm_longitude=None,
+            farm_latitude=None,
+            # ---
+            commodity_id=commodity_id,
+            volume=-volume if is_input else volume,
+            # ---
+            is_buying_from_farmer=False,
+            is_automatic=False,
+            expires_at=None,
+            # ---
+            seller_id=user_id if is_input else None,
+            buyer_id=None if is_input else user_id,
+            created_by_id=user_id,
+        )
+
+    @staticmethod
+    def to_conversion_recipe_dto(recipe: ConversionRecipe) -> ConversionRecipeDTO:
+        inputs = [
+            ConversionDTO(
+                id=input_item.id,
+                commodity=CommoditiesMapper.to_dto_with_group(input_item.commodity),
+                quantity=input_item.quantity,
+            )
+            for input_item in recipe.inputs_list
+        ]
+
+        outputs = [
+            ConversionDTO(
+                id=output_item.id,
+                commodity=CommoditiesMapper.to_dto_with_group(output_item.commodity),
+                quantity=output_item.quantity,
+            )
+            for output_item in recipe.outputs_list
+        ]
+
+        return ConversionRecipeDTO(
+            id=recipe.id,
+            name=_(recipe.name),
+            inputs=inputs,
+            outputs=outputs,
+        )
+
+    @staticmethod
+    def to_conversion_recipe_dto_list(recipes: list[ConversionRecipe]) -> list[ConversionRecipeDTO]:
+        return [TransactionsMapper.to_conversion_recipe_dto(recipe) for recipe in recipes]

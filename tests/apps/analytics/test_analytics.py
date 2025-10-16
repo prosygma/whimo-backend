@@ -162,9 +162,9 @@ class TestUserAnalytics:
         assert response_json == snapshot
 
         data_response = DataResponse[UserMetricsDTO](**response_json)
-        assert data_response.data.total_transactions == 4  # noqa: PLR2004
-        assert data_response.data.total_suppliers == 2  # noqa: PLR2004
-        assert data_response.data.initial_plots == 4  # noqa: PLR2004
+        assert data_response.data.total_transactions == 4  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data.total_suppliers == 2  # noqa: PLR2004 Magic value used in comparison
+        assert data_response.data.initial_plots == 4  # noqa: PLR2004 Magic value used in comparison
         assert data_response.data.files_uploaded == 0
 
     def test_success_duplicate_plots(
@@ -202,7 +202,7 @@ class TestUserAnalytics:
         # Assert
         assert response.status_code == HTTPStatus.OK, response_json
         data_response = DataResponse[UserMetricsDTO](**response_json)
-        assert data_response.data.total_transactions == 2  # noqa: PLR2004
+        assert data_response.data.total_transactions == 2  # noqa: PLR2004 Magic value used in comparison
         assert data_response.data.initial_plots == 1
 
     @patch("whimo.analytics.services.default_storage.exists")
@@ -235,7 +235,7 @@ class TestUserAnalytics:
         # Assert
         assert response.status_code == HTTPStatus.OK, response_json
         data_response = DataResponse[UserMetricsDTO](**response_json)
-        assert data_response.data.files_uploaded == 2  # noqa: PLR2004
+        assert data_response.data.files_uploaded == 2  # noqa: PLR2004 Magic value used in comparison
 
     @patch("whimo.analytics.services.default_storage.exists")
     def test_caching(
@@ -340,7 +340,7 @@ class TestUserAnalytics:
         assert response1.status_code == HTTPStatus.OK
         assert response2.status_code == HTTPStatus.OK
         assert user1_data["data"]["total_transactions"] == 1
-        assert user2_data["data"]["total_transactions"] == 2  # noqa: PLR2004
+        assert user2_data["data"]["total_transactions"] == 2  # noqa: PLR2004 Magic value used in comparison
 
         cache_key1 = USER_ANALYTICS_CACHE_KEY.format(user_id=user1.id)
         cache_key2 = USER_ANALYTICS_CACHE_KEY.format(user_id=user2.id)

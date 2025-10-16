@@ -1,4 +1,5 @@
 import types
+from abc import ABC, abstractmethod
 from collections import defaultdict
 from typing import Any, Generic, Type, TypeVar, get_args, get_origin
 
@@ -53,6 +54,30 @@ class BaseRequest(BaseModel):
 class PaginationRequest(BaseRequest):
     page: int = 1
     page_size: int = 20
+
+
+class OrderingRequestMixin(ABC):
+    orderings: list[str] | None = None
+
+    @property
+    @abstractmethod
+    def orderings_map(self) -> dict[str, str]:
+        pass
+
+    def get_orderings(self) -> list[str]:
+        ordering_fields: list[str] = []
+        if not self.orderings:
+            return ordering_fields
+
+        for ordering in self.orderings:
+            field = ordering.lstrip("-")
+            desc = ordering.startswith("-")
+
+            if ordering_field := self.orderings_map.get(field):
+                prefix = "-" if desc else ""
+                ordering_fields.append(f"{prefix}{ordering_field}")
+
+        return ordering_fields
 
 
 class BaseResponse(BaseModel):

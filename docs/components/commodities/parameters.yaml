@@ -13,3 +13,17 @@ CommodityIdParameter:
     type: string
     format: uuid
   description: Filter by commodity ID
+
+BalancesOrderingsParameter:
+  name: orderings
+  in: query
+  schema:
+    type: array
+    items:
+      type: string
+      enum:
+        - commodity_name
+        - -commodity_name
+        - amount
+        - -amount
+      description: Order by field

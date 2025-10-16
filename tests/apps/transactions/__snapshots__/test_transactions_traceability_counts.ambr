@@ -1,4 +1,17 @@
 # serializer version: 1
+# name: TestTransactionsTraceabilityCounts.test_conversion_multiple_inputs
+  dict({
+    'data': dict({
+      'counts': dict({
+        'conditional': 0,
+        'full': 1,
+        'incomplete': 0,
+        'partial': 4,
+      }),
+    }),
+    'success': True,
+  })
+# ---
 # name: TestTransactionsTraceabilityCounts.test_downstream
   dict({
     'data': dict({
@@ -17,6 +30,19 @@
     'code': 'drf.permission_denied',
     'message': 'At least one verified gadget is required',
     'success': False,
+  })
+# ---
+# name: TestTransactionsTraceabilityCounts.test_multilevel_conversion
+  dict({
+    'data': dict({
+      'counts': dict({
+        'conditional': 5,
+        'full': 0,
+        'incomplete': 0,
+        'partial': 0,
+      }),
+    }),
+    'success': True,
   })
 # ---
 # name: TestTransactionsTraceabilityCounts.test_producer[conditional]
@@ -66,6 +92,19 @@
         'full': 0,
         'incomplete': 0,
         'partial': 1,
+      }),
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsTraceabilityCounts.test_simple_conversion
+  dict({
+    'data': dict({
+      'counts': dict({
+        'conditional': 0,
+        'full': 3,
+        'incomplete': 0,
+        'partial': 0,
       }),
     }),
     'success': True,

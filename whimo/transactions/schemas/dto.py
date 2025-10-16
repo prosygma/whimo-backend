@@ -80,3 +80,14 @@ class ChainLocationBundleDTO(BaseModel):
     geojson_merged_transactions: list[UUID]
     custom_location_file_transactions: list[UUID]
     no_location_file_transactions: list[UUID]
+
+
+class ConversionDTO(BaseModelDTO):
+    commodity: CommodityWithGroupDTO
+    quantity: FloatDecimal
+
+
+class ConversionRecipeDTO(BaseModelDTO):
+    name: str
+    inputs: list[ConversionDTO]
+    outputs: list[ConversionDTO]

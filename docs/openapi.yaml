@@ -78,6 +78,40 @@ paths:
         '401':
           $ref: './components/common/errors.yaml#/UnauthorizedError'
 
+  /auth/social/google/web/login/:
+    post:
+      tags: [ Social ]
+      security: [ ]
+      summary: Google OAuth web login
+      description: Authorize Google OAuth authorization code
+      operationId: googleWebLogin
+      requestBody:
+        $ref: './components/auth/social/requests.yaml#/OAuthCodeRequest'
+      responses:
+        '200':
+          $ref: './components/auth/jwt/responses.yaml#/TokenPairResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+
+  /auth/social/apple/web/login/:
+    post:
+      tags: [ Social ]
+      security: [ ]
+      summary: Apple OAuth web login
+      description: Authorize Apple OAuth authorization code
+      operationId: appleWebLogin
+      requestBody:
+        $ref: './components/auth/social/requests.yaml#/OAuthCodeRequest'
+      responses:
+        '200':
+          $ref: './components/auth/jwt/responses.yaml#/TokenPairResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+
   /auth/jwt/:
     post:
       tags: [ JWT ]
@@ -415,6 +449,7 @@ paths:
       tags: [ Commodities ]
       summary: List commodities
       description: Returns a paginated list of available commodities
+      deprecated: true
       operationId: listCommodities
       parameters:
         - $ref: './components/common/parameters.yaml#/SearchParameter'
@@ -456,11 +491,13 @@ paths:
       tags: [ Commodities ]
       summary: List user balances
       description: Returns a paginated list of user's commodity balances
+      deprecated: true
       operationId: listBalances
       parameters:
         - $ref: './components/common/parameters.yaml#/SearchParameter'
         - $ref: './components/common/parameters.yaml#/PageParameter'
         - $ref: './components/common/parameters.yaml#/PageSizeParameter'
+        - $ref: './components/commodities/parameters.yaml#/BalancesOrderingsParameter'
         - $ref: './components/commodities/parameters.yaml#/CommodityGroupIdParameter'
         - $ref: './components/commodities/parameters.yaml#/CommodityIdParameter'
       responses:
@@ -483,15 +520,42 @@ paths:
         - $ref: './components/common/parameters.yaml#/SearchParameter'
         - $ref: './components/common/parameters.yaml#/PageParameter'
         - $ref: './components/common/parameters.yaml#/PageSizeParameter'
+        - $ref: './components/transactions/parameters.yaml#/OrderingsParameter'
         - $ref: './components/transactions/parameters.yaml#/StatusParameter'
         - $ref: './components/transactions/parameters.yaml#/ActionParameter'
         - $ref: './components/transactions/parameters.yaml#/CreatedAtFromParameter'
         - $ref: './components/transactions/parameters.yaml#/CreatedAtToParameter'
         - $ref: './components/transactions/parameters.yaml#/CommodityGroupIdParameter'
+        - $ref: './components/transactions/parameters.yaml#/CommodityIdParameter'
         - $ref: './components/transactions/parameters.yaml#/BuyerIdParameter'
       responses:
         '200':
           $ref: './components/transactions/responses.yaml#/TransactionListResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+
+  /transactions/download/csv/:
+    get:
+      tags: [ Transactions ]
+      summary: Download filtered transactions as CSV
+      description: Downloads CSV file containing filtered transactions data based on query parameters
+      operationId: downloadTransactionListCsv
+      parameters:
+        - $ref: './components/common/parameters.yaml#/SearchParameter'
+        - $ref: './components/transactions/parameters.yaml#/StatusParameter'
+        - $ref: './components/transactions/parameters.yaml#/ActionParameter'
+        - $ref: './components/transactions/parameters.yaml#/CreatedAtFromParameter'
+        - $ref: './components/transactions/parameters.yaml#/CreatedAtToParameter'
+        - $ref: './components/transactions/parameters.yaml#/CommodityGroupIdParameter'
+        - $ref: './components/transactions/parameters.yaml#/CommodityIdParameter'
+        - $ref: './components/transactions/parameters.yaml#/BuyerIdParameter'
+      responses:
+        '200':
+          $ref: './components/transactions/responses.yaml#/TransactionListCsvDownloadResponse'
         '400':
           $ref: './components/common/errors.yaml#/BadRequestError'
         '401':
@@ -530,6 +594,45 @@ paths:
       responses:
         '201':
           $ref: './components/transactions/responses.yaml#/TransactionCreatedResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+
+  /transactions/conversion/:
+    get:
+      tags: [ Transactions ]
+      summary: List conversion recipes
+      description: Returns a paginated list of conversion recipes
+      operationId: listConversionRecipes
+      parameters:
+        - $ref: './components/conversions/parameters.yaml#/ConversionRecipeSearchParam'
+        - $ref: './components/conversions/parameters.yaml#/ConversionRecipeCommodityIdParam'
+        - $ref: './components/common/parameters.yaml#/PageParameter'
+        - $ref: './components/common/parameters.yaml#/PageSizeParameter'
+      responses:
+        '200':
+          $ref: './components/conversions/responses.yaml#/ConversionRecipesListResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+    post:
+      tags: [ Transactions ]
+      summary: Create conversion transaction
+      description: Creates conversion transactions to transform input commodities into output commodities
+      operationId: createConversionTransaction
+      requestBody:
+        $ref: './components/transactions/requests.yaml#/ConversionCreateRequest'
+      responses:
+        '201':
+          $ref: './components/transactions/responses.yaml#/ConversionCompletedResponse'
         '400':
           $ref: './components/common/errors.yaml#/BadRequestError'
         '401':

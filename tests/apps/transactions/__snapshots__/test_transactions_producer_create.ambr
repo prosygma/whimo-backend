@@ -23,6 +23,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -82,6 +83,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -129,6 +131,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -176,6 +179,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -223,6 +227,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -284,6 +289,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -331,6 +337,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -385,6 +392,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -432,6 +440,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -479,6 +488,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -540,6 +550,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -587,6 +598,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -669,6 +681,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -716,6 +729,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -770,6 +784,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -824,6 +839,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -897,6 +913,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -944,6 +961,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -991,6 +1009,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),
@@ -1038,6 +1057,7 @@
         'group': dict({
           'name': 'seat',
         }),
+        'has_recipe': False,
         'name': 'fish',
         'unit': 'tons',
       }),

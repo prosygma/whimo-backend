@@ -4,20 +4,31 @@ from uuid import UUID
 
 from django.contrib.postgres.indexes import GinIndex
 from django.db import models
-from django.db.models import OuterRef, QuerySet, Subquery
+from django.db.models import Exists, OuterRef, QuerySet, Subquery
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
 from whimo.db.models import Balance, BaseModel
 
 COMMODITY_BALANCE_FIELD = "_balance"
+COMMODITY_HAS_RECIPE_FIELD = "_has_recipe"
 _not_set = object()
 
 
 class CommodityManager(models.Manager):
     def annotate_balances(self, user_id: UUID) -> QuerySet["Commodity"]:
         balance_subquery = Balance.objects.filter(user_id=user_id, commodity=OuterRef("pk")).values("volume")[:1]
-        return self.select_related("group").annotate(**{COMMODITY_BALANCE_FIELD: Subquery(balance_subquery)})
+        return (
+            self.annotate_has_recipe()
+            .select_related("group")
+            .annotate(**{COMMODITY_BALANCE_FIELD: Subquery(balance_subquery)})
+        )
+
+    def annotate_has_recipe(self) -> QuerySet["Commodity"]:
+        from whimo.db.models import ConversionInput
+
+        has_recipe_subquery = Exists(ConversionInput.objects.filter(commodity=OuterRef("pk")))
+        return self.annotate(**{COMMODITY_HAS_RECIPE_FIELD: has_recipe_subquery})
 
 
 class CommodityGroup(BaseModel):
@@ -96,4 +107,4 @@ class Commodity(BaseModel):
         ]
 
     def __str__(self) -> str:
-        return f"{self.code} {self.name}"
+        return f"{self.code} {self.name} ({self.unit})"

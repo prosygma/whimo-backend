@@ -24,7 +24,7 @@ class CommoditiesService:
 
     @staticmethod
     def _filter_commodities(params: CommodityListRequest) -> QuerySet[Commodity]:
-        queryset = Commodity.objects.select_related("group")
+        queryset = Commodity.objects.annotate_has_recipe().select_related("group")
 
         if search := params.search:
             queryset = queryset.filter(

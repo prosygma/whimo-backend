@@ -18,156 +18,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-# Commodity group names
-# ----------------------------------------------------------------------------------------------------------------------
-
-msgid "Cattle"
-msgstr ""
-
-msgid "Cocoa"
-msgstr ""
-
-msgid "Coffee"
-msgstr ""
-
-msgid "Palm Oil"
-msgstr ""
-
-msgid "Rubber"
-msgstr ""
-
-msgid "Soy"
-msgstr ""
-
-# Commodity names
-# ----------------------------------------------------------------------------------------------------------------------
-
-msgid "Pure-bred cattle for breeding"
-msgstr ""
-
-msgid "Live cattle"
-msgstr ""
-
-msgid "Meat of bovine animals"
-msgstr ""
-
-msgid "Edible offal of bovine animals"
-msgstr ""
-
-msgid "Edible bovine livers"
-msgstr ""
-
-msgid "Prepared or preserved meat or offal of bovine animals"
-msgstr ""
-
-msgid "Raw hides and skins of bovine or equine animals"
-msgstr ""
-
-msgid "Tanned or crust hides and skins of bovine or equine animals"
-msgstr ""
-
-msgid "Leather further prepared after tanning or crusting, of bovine"
-msgstr ""
-
-msgid "Cocoa beans"
-msgstr ""
-
-msgid "Cocoa shells and other cocoa waste"
-msgstr ""
-
-msgid "Cocoa paste"
-msgstr ""
-
-msgid "Cocoa butter, fat and oil"
-msgstr ""
-
-msgid "Cocoa powder"
-msgstr ""
-
-msgid "Chocolate and other preparations containing cocoa"
-msgstr ""
-
-msgid "Palm nuts and kernels"
-msgstr ""
-
-msgid "Palm oil and its fractions"
-msgstr ""
-
-msgid "Crude palm kernel and babassu oil"
-msgstr ""
-
-msgid "Palm kernel and babassu oil and their fractions"
-msgstr ""
-
-msgid "Oilcake and other solid residues"
-msgstr ""
-
-msgid "Glycerol"
-msgstr ""
-
-msgid "Palmitic acid, stearic acid, their salts and esters"
-msgstr ""
-
-msgid "Saturated acyclic monocarboxylic acids"
-msgstr ""
-
-msgid "Stearic acid"
-msgstr ""
-
-msgid "Oleic acid"
-msgstr ""
-
-msgid "Fatty acids, industrial, monocarboxylic"
-msgstr ""
-
-msgid "Fatty alcohols"
-msgstr ""
-
-msgid "Natural rubber and similar natural gums"
-msgstr ""
-
-msgid "Compounded rubber, unvulcanised"
-msgstr ""
-
-msgid "Unvulcanised rubber forms"
-msgstr ""
-
-msgid "Vulcanised rubber thread and cord"
-msgstr ""
-
-msgid "Vulcanised rubber plates, sheets, strips and profiles"
-msgstr ""
-
-msgid "Conveyor or transmission belts of vulcanised rubber"
-msgstr ""
-
-msgid "New pneumatic tyres"
-msgstr ""
-
-msgid "Retreaded or used tyres; solid or cushion tyres"
-msgstr ""
-
-msgid "Inner tubes of rubber"
-msgstr ""
-
-msgid "Rubber apparel and clothing accessories"
-msgstr ""
-
-msgid "Articles of vulcanised rubber, n.e.s."
-msgstr ""
-
-msgid "Hard rubber and articles, n.e.s."
-msgstr ""
-
-msgid "Soya beans"
-msgstr ""
-
-msgid "Soya bean flour and meal"
-msgstr ""
-
-msgid "Soya-bean oil and its fractions"
-msgstr ""
-
 # Project strings
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -220,7 +70,7 @@ msgstr ""
 msgid "Registered"
 msgstr ""
 
-msgid "Invalid OAuth callback"
+msgid "OAuth error"
 msgstr ""
 
 msgid "At least one verified gadget is required"
@@ -314,10 +164,22 @@ msgstr ""
 msgid "All time users"
 msgstr ""
 
+msgid "Current Seasons"
+msgstr ""
+
+msgid "Active harvest seasons"
+msgstr ""
+
 msgid "Transactions by Traceability Status"
 msgstr ""
 
+msgid "Transactions by Season"
+msgstr ""
+
 msgid "Daily Registrations Over Time"
+msgstr ""
+
+msgid "Daily Transactions by Season"
 msgstr ""
 
 msgid "Balance Summary by Commodity"
@@ -359,6 +221,9 @@ msgstr ""
 msgid "Name of the commodity group"
 msgstr ""
 
+msgid "Alternative name variations and translations"
+msgstr ""
+
 msgid "Commodity Groups"
 msgstr ""
 
@@ -375,6 +240,48 @@ msgid "Commodity group"
 msgstr ""
 
 msgid "Commodities"
+msgstr ""
+
+msgid "Conversion Recipe"
+msgstr ""
+
+msgid "Conversion Recipes"
+msgstr ""
+
+msgid "Conversion recipe"
+msgstr ""
+
+msgid "Input commodity"
+msgstr ""
+
+msgid "Quantity of this commodity required as input"
+msgstr ""
+
+msgid "Conversion Input"
+msgstr ""
+
+msgid "Conversion Inputs"
+msgstr ""
+
+msgid "Output commodity"
+msgstr ""
+
+msgid "Quantity of this commodity produced as output"
+msgstr ""
+
+msgid "Conversion Output"
+msgstr ""
+
+msgid "Conversion Outputs"
+msgstr ""
+
+msgid "Name or description of this conversion recipe"
+msgstr ""
+
+msgid "Inputs"
+msgstr ""
+
+msgid "Outputs"
 msgstr ""
 
 msgid "Notification data"
@@ -402,6 +309,33 @@ msgid "Indicates whether notifications of this type are enabled"
 msgstr ""
 
 msgid "Notification Settings"
+msgstr ""
+
+msgid "Season"
+msgstr ""
+
+msgid "Seasons"
+msgstr ""
+
+msgid "Season Commodity"
+msgstr ""
+
+msgid "Season Commodities"
+msgstr ""
+
+msgid "Name of the season"
+msgstr ""
+
+msgid "Description of the season"
+msgstr ""
+
+msgid "Start date of the season"
+msgstr ""
+
+msgid "End date of the season"
+msgstr ""
+
+msgid "Commodities participating in this season"
 msgstr ""
 
 msgid "Type of transaction"
@@ -441,6 +375,9 @@ msgid "Buyer in this transaction"
 msgstr ""
 
 msgid "User who created this transaction"
+msgstr ""
+
+msgid "Season this transaction belongs to"
 msgstr ""
 
 msgid "Whether this transaction is buying from a farmer directly"
@@ -497,6 +434,9 @@ msgstr ""
 msgid "Navigation"
 msgstr ""
 
+msgid "Periodic Tasks"
+msgstr ""
+
 msgid "User Management"
 msgstr ""
 
@@ -545,6 +485,33 @@ msgstr ""
 msgid "Longitude must be between -180 and 180 degrees"
 msgstr ""
 
+msgid "Insufficient balance for conversion"
+msgstr ""
+
+msgid "At least one input commodity is required"
+msgstr ""
+
+msgid "At least one output commodity is required"
+msgstr ""
+
+msgid "Duplicate commodity in inputs"
+msgstr ""
+
+msgid "Duplicate commodity in outputs"
+msgstr ""
+
+msgid "Same commodity cannot be both input and output"
+msgstr ""
+
+msgid "Conversion recipe not found"
+msgstr ""
+
+msgid "Override commodity not found in recipe"
+msgstr ""
+
+msgid "At least one input must have quantity greater than zero"
+msgstr ""
+
 msgid "Transaction status updated"
 msgstr ""
 
@@ -555,6 +522,9 @@ msgid "Missing geodata requested"
 msgstr ""
 
 msgid "Transaction notification resent"
+msgstr ""
+
+msgid "Conversion completed successfully"
 msgstr ""
 
 msgid "Welcome to WHIMO!"

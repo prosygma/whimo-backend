@@ -11,6 +11,7 @@ TransactionType:
   enum:
     - producer
     - downstream
+    - conversion
 
 TransactionLocation:
   description: Source of location geodata
@@ -270,3 +271,22 @@ ChainFeatureCollectionDTO:
         type: string
         format: uuid
       example: [ "123e4567-e89b-12d3-a456-426614174000" ]
+
+CommodityQuantityOverride:
+  type: object
+  description: Override quantity for a commodity defined in a recipe
+  required:
+    - commodity_id
+    - quantity
+  properties:
+    commodity_id:
+      type: string
+      format: uuid
+      description: ID of the commodity to override
+      example: "123e4567-e89b-12d3-a456-426614174000"
+    quantity:
+      type: number
+      format: double
+      description: Override quantity to use in conversion
+      minimum: 0
+      example: 25.0

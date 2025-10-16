@@ -1,3 +1,4 @@
+from decimal import Decimal
 from http import HTTPStatus
 from unittest.mock import patch
 
@@ -6,7 +7,9 @@ from django.urls import reverse
 from freezegun.api import FrozenDateTimeFactory
 from syrupy import SnapshotAssertion
 
+from tests.factories.balances import BalanceFactory
 from tests.factories.commodities import CommodityFactory
+from tests.factories.conversions import ConversionInputFactory, ConversionOutputFactory, ConversionRecipeFactory
 from tests.factories.notifications import NotificationFactory
 from tests.factories.transactions import TransactionFactory
 from tests.factories.users import UserFactory
@@ -14,7 +17,7 @@ from tests.helpers.clients import APIClient
 from tests.helpers.constants import DEFAULT_DATETIME
 from whimo.db.enums import TransactionStatus, TransactionType
 from whimo.db.enums.notifications import NotificationStatus, NotificationType
-from whimo.db.models import Notification
+from whimo.db.models import Notification, Transaction
 from whimo.transactions.services import TransactionsService
 
 pytestmark = [pytest.mark.django_db]
@@ -164,7 +167,7 @@ class TestTransactionsGeodataRequest:
 
         notifications = Notification.objects.filter(type=NotificationType.GEODATA_MISSING)
 
-        assert notifications.count() == 2  # noqa: PLR2004
+        assert notifications.count() == 2  # noqa: PLR2004 Magic value used in comparison
 
         assert notifications.filter(received_by=seller3_1).count() == 1
         assert notifications.filter(received_by=seller3_2).count() == 1
@@ -467,3 +470,268 @@ class TestTransactionsGeodataRequest:
             assert mock_create.call_count == 1
             call_args = mock_create.call_args[1]
             assert call_args["received_by_id"] == buyer_user.id
+
+    def test_conversion_geodata_request(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans")
+        oil = CommodityFactory.create(name="Cacao Oil")
+
+        # beans -> oil
+        TransactionFactory.create(
+            producer=True,
+            buyer=user,
+            location=None,
+            commodity=beans,
+        )
+
+        BalanceFactory.create(user=user, commodity=beans, volume=Decimal("100.0"))
+
+        recipe = ConversionRecipeFactory.create(name="Beans to Oil")
+        ConversionInputFactory.create(recipe=recipe, commodity=beans, quantity=Decimal("50.0"))
+        ConversionOutputFactory.create(recipe=recipe, commodity=oil, quantity=Decimal("25.0"))
+
+        client.login(user)
+        response = client.post(
+            path=reverse("transactions_conversion"),
+            data={"recipe_id": str(recipe.id)},
+            format="json",
+        )
+        assert response.status_code == HTTPStatus.OK
+
+        oil_transaction = Transaction.objects.get(
+            created_by_id=user.id,
+            type=TransactionType.CONVERSION,
+            commodity_id=oil.id,
+            buyer_id=user.id,
+        )
+
+        url = reverse(self.URL, args=(oil_transaction.id,))
+
+        # Act
+        response = client.post(path=url)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        notifications = Notification.objects.filter(type=NotificationType.GEODATA_MISSING)
+        assert notifications.count() == 1
+        assert notifications.filter(received_by=user).count() == 1
+
+    def test_multilevel_conversion_geodata_request(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans")
+        oil = CommodityFactory.create(name="Cacao Oil")
+        chocolate = CommodityFactory.create(name="Chocolate")
+
+        # beans -> oil -> chocolate
+        TransactionFactory.create(
+            producer=True,
+            buyer=user,
+            location=None,
+            commodity=beans,
+        )
+
+        BalanceFactory.create(user=user, commodity=beans, volume=Decimal("200.0"))
+
+        recipe1 = ConversionRecipeFactory.create(name="Beans to Oil")
+        ConversionInputFactory.create(recipe=recipe1, commodity=beans, quantity=Decimal("100.0"))
+        ConversionOutputFactory.create(recipe=recipe1, commodity=oil, quantity=Decimal("50.0"))
+
+        client.login(user)
+        response = client.post(
+            path=reverse("transactions_conversion"),
+            data={"recipe_id": str(recipe1.id)},
+            format="json",
+        )
+        assert response.status_code == HTTPStatus.OK
+
+        recipe2 = ConversionRecipeFactory.create(name="Oil to Chocolate")
+        ConversionInputFactory.create(recipe=recipe2, commodity=oil, quantity=Decimal("25.0"))
+        ConversionOutputFactory.create(recipe=recipe2, commodity=chocolate, quantity=Decimal("10.0"))
+
+        response = client.post(
+            path=reverse("transactions_conversion"),
+            data={"recipe_id": str(recipe2.id)},
+            format="json",
+        )
+        assert response.status_code == HTTPStatus.OK
+
+        chocolate_transaction = Transaction.objects.get(
+            created_by_id=user.id,
+            type=TransactionType.CONVERSION,
+            commodity_id=chocolate.id,
+            buyer_id=user.id,
+        )
+
+        url = reverse(self.URL, args=(chocolate_transaction.id,))
+
+        # Act
+        response = client.post(path=url)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        notifications = Notification.objects.filter(type=NotificationType.GEODATA_MISSING)
+        assert notifications.count() == 1
+        assert notifications.filter(received_by=user).count() == 1
+
+    def test_conversion_multiple_inputs_geodata_request(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans")
+        sugar = CommodityFactory.create(name="Sugar")
+        chocolate = CommodityFactory.create(name="Chocolate")
+
+        # beans + sugar -> chocolate
+        TransactionFactory.create(
+            producer=True,
+            buyer=user,
+            location=None,
+            commodity=beans,
+        )
+        TransactionFactory.create(
+            producer=True,
+            buyer=user,
+            location=None,
+            commodity=sugar,
+        )
+
+        BalanceFactory.create(user=user, commodity=beans, volume=Decimal("100.0"))
+        BalanceFactory.create(user=user, commodity=sugar, volume=Decimal("50.0"))
+
+        recipe = ConversionRecipeFactory.create(name="Beans + Sugar to Chocolate")
+        ConversionInputFactory.create(recipe=recipe, commodity=beans, quantity=Decimal("50.0"))
+        ConversionInputFactory.create(recipe=recipe, commodity=sugar, quantity=Decimal("25.0"))
+        ConversionOutputFactory.create(recipe=recipe, commodity=chocolate, quantity=Decimal("30.0"))
+
+        client.login(user)
+        response = client.post(
+            path=reverse("transactions_conversion"),
+            data={"recipe_id": str(recipe.id)},
+            format="json",
+        )
+        assert response.status_code == HTTPStatus.OK
+
+        chocolate_transaction = Transaction.objects.get(
+            created_by_id=user.id,
+            type=TransactionType.CONVERSION,
+            commodity_id=chocolate.id,
+            buyer_id=user.id,
+        )
+
+        url = reverse(self.URL, args=(chocolate_transaction.id,))
+
+        # Act
+        response = client.post(path=url)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        notifications = Notification.objects.filter(type=NotificationType.GEODATA_MISSING)
+        assert notifications.count() == 2  # noqa: PLR2004 Magic value used in comparison
+        assert notifications.filter(received_by=user).count() == 2  # noqa: PLR2004 Magic value used in comparison
+
+    def test_conversion_with_downstream_geodata_request(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        # farmer -> seller -> user -> (conversion) -> oil
+        farmer = UserFactory.create()
+        seller = UserFactory.create()
+        user = UserFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans")
+        oil = CommodityFactory.create(name="Cacao Oil")
+
+        TransactionFactory.create(
+            producer=True,
+            buyer=farmer,
+            location=None,
+            commodity=beans,
+        )
+
+        TransactionFactory.create(
+            type=TransactionType.DOWNSTREAM,
+            seller=farmer,
+            buyer=seller,
+            location=None,
+            commodity=beans,
+            status=TransactionStatus.ACCEPTED,
+        )
+
+        TransactionFactory.create(
+            type=TransactionType.DOWNSTREAM,
+            seller=seller,
+            buyer=user,
+            location=None,
+            commodity=beans,
+            status=TransactionStatus.ACCEPTED,
+        )
+
+        BalanceFactory.create(user=user, commodity=beans, volume=Decimal("100.0"))
+
+        recipe = ConversionRecipeFactory.create(name="Beans to Oil")
+        ConversionInputFactory.create(recipe=recipe, commodity=beans, quantity=Decimal("50.0"))
+        ConversionOutputFactory.create(recipe=recipe, commodity=oil, quantity=Decimal("25.0"))
+
+        client.login(user)
+        response = client.post(
+            path=reverse("transactions_conversion"),
+            data={"recipe_id": str(recipe.id)},
+            format="json",
+        )
+        assert response.status_code == HTTPStatus.OK
+
+        oil_transaction = Transaction.objects.get(
+            created_by_id=user.id,
+            type=TransactionType.CONVERSION,
+            commodity_id=oil.id,
+            buyer_id=user.id,
+        )
+
+        url = reverse(self.URL, args=(oil_transaction.id,))
+
+        # Act
+        response = client.post(path=url)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        notifications = Notification.objects.filter(type=NotificationType.GEODATA_MISSING)
+        assert notifications.count() == 1
+        assert notifications.filter(received_by=farmer).count() == 1

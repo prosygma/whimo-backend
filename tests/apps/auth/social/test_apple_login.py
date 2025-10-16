@@ -111,7 +111,6 @@ class TestAppleLogin:
         assert data_response.data.access
         assert data_response.data.refresh
 
-        mock_oauth.register.assert_called_once()
         mock_apple_client.parse_id_token.assert_called_once_with(
             token={"id_token": "valid-token"},
             nonce="test-nonce",
@@ -122,7 +121,7 @@ class TestAppleLogin:
         # Arrange
         mock_oauth = MagicMock()
         mock_apple_client = MagicMock()
-        mock_apple_client.parse_id_token.side_effect = Exception("Token parsing failed")
+        mock_apple_client.parse_id_token.side_effect = OAuthError
         mock_oauth.apple = mock_apple_client
 
         mocker.patch("whimo.auth.social.service.OAuth", return_value=mock_oauth)

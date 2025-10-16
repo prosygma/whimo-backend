@@ -1,0 +1,17 @@
+ConversionRecipeSearchParam:
+  name: search
+  in: query
+  required: false
+  schema:
+    type: string
+  description: Search conversion recipes by name
+
+ConversionRecipeCommodityIdParam:
+  name: commodity_id
+  in: query
+  required: false
+  schema:
+    type: string
+    format: uuid
+  description: Filter conversion recipes by commodity ID (matches recipes with this commodity in inputs)
+

@@ -81,3 +81,27 @@ TransactionGeodataUpdateRequest:
             type: string
             format: binary
             description: Location file
+
+ConversionCreateRequest:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - recipe_id
+        properties:
+          recipe_id:
+            type: string
+            format: uuid
+            description: ID of the conversion recipe to use
+          input_overrides:
+            type: array
+            description: Optional overrides for input commodities defined in the recipe
+            items:
+              $ref: './schemas.yaml#/CommodityQuantityOverride'
+          output_overrides:
+            type: array
+            description: Optional overrides for output commodities defined in the recipe
+            items:
+              $ref: './schemas.yaml#/CommodityQuantityOverride'

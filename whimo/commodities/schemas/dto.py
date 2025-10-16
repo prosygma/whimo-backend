@@ -11,6 +11,7 @@ class CommodityDTO(BaseModelDTO):
     code: str
     name: str
     unit: str
+    has_recipe: bool
 
 
 class CommodityWithGroupDTO(CommodityDTO):
@@ -29,3 +30,4 @@ class CommodityGroupWithCommoditiesBalancesDTO(BaseModelDTO):
 class BalanceDTO(BaseModelDTO):
     volume: Decimal
     commodity: CommodityWithGroupDTO
+    has_recipe: bool
