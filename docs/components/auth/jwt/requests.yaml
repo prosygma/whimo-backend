@@ -1,0 +1,40 @@
+TokenObtainRequest:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - username
+          - password
+        properties:
+          username:
+            type: string
+            description: User's email address or phone number
+          password:
+            type: string
+            description: User's password
+      examples:
+        email:
+          value:
+            username: john@whimo.com
+            password: John-Password-123
+          summary: User login credentials with email
+        phone:
+          value:
+            username: '+256798268908'
+            password: Alice-Password-123
+          summary: User login credentials with phone
+
+TokenRefreshRequest:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - token
+        properties:
+          refresh:
+            type: string
+            examples: [ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... ]

@@ -1,0 +1,155 @@
+# serializer version: 1
+# name: TestTransactionsChainDownload.test_feature_collection_validation_error
+  dict({
+    'code': 'pydantic.validation_error',
+    'errors': dict({
+      'features, 0': list([
+        'Value error, test error',
+      ]),
+    }),
+    'message': 'features, 0: Value error, test error',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsChainDownload.test_forbidden
+  dict({
+    'code': 'drf.permission_denied',
+    'message': 'At least one verified gadget is required',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsChainDownload.test_location_file_download_error
+  dict({
+    'code': 'api.internal',
+    'message': 'Location file download error',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsChainDownload.test_seller_access
+  dict({
+    'data': dict({
+      'failed_transactions': list([
+      ]),
+      'feature_collection': dict({
+        'features': list([
+          dict({
+            'geometry': dict({
+              'coordinates': list([
+                list([
+                  list([
+                    -122.4194,
+                    37.7749,
+                    0.0,
+                  ]),
+                ]),
+              ]),
+              'type': 'Polygon',
+            }),
+            'properties': dict({
+              'ProducerCountry': 'Test Country',
+              'ProducerName': 'Test Seller',
+              'ProductionPlace': 'Test Place',
+              'TransactionId': '12345678-1234-5678-9abc-123456789def',
+            }),
+            'type': 'Feature',
+          }),
+        ]),
+        'type': 'FeatureCollection',
+      }),
+      'succeed_transactions': list([
+      ]),
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsChainDownload.test_success_empty_feature_collection
+  dict({
+    'data': dict({
+      'failed_transactions': list([
+      ]),
+      'feature_collection': dict({
+        'features': list([
+        ]),
+        'type': 'FeatureCollection',
+      }),
+      'succeed_transactions': list([
+      ]),
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsChainDownload.test_success_with_feature_collection
+  dict({
+    'data': dict({
+      'failed_transactions': list([
+        '12345678-1234-5678-9abc-123456789abc',
+        '87654321-4321-8765-cba9-987654321098',
+      ]),
+      'feature_collection': dict({
+        'features': list([
+          dict({
+            'geometry': dict({
+              'coordinates': list([
+                list([
+                  list([
+                    -122.4194,
+                    37.7749,
+                    0.0,
+                  ]),
+                ]),
+              ]),
+              'type': 'Polygon',
+            }),
+            'properties': dict({
+              'ProducerCountry': 'Test Country',
+              'ProducerName': 'Test Producer',
+              'ProductionPlace': 'Test Place',
+              'TransactionId': 'aaaaaaaa-4321-8765-cba9-987654321098',
+            }),
+            'type': 'Feature',
+          }),
+        ]),
+        'type': 'FeatureCollection',
+      }),
+      'succeed_transactions': list([
+        'aaaaaaaa-4321-8765-cba9-987654321098',
+      ]),
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsChainDownload.test_throttling
+  dict({
+    'code': 'drf.throttled',
+    'message': 'Request was throttled. Expected available in 3600 seconds.',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsChainDownload.test_transaction_does_not_exist
+  dict({
+    'code': 'api.not_found',
+    'message': 'Object Not Found',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsChainDownload.test_transaction_not_user
+  dict({
+    'code': 'api.not_found',
+    'message': 'Object Not Found',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsChainDownload.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsChainDownload.test_user_deleted
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---

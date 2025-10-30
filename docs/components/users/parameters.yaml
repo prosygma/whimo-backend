@@ -1,0 +1,7 @@
+GadgetIdentifierParameter:
+  name: identifier
+  in: query
+  required: true
+  description: Email address or phone number to check
+  schema:
+    type: string

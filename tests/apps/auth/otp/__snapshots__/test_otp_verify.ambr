@@ -1,0 +1,46 @@
+# serializer version: 1
+# name: TestOTPVerify.test_gadget_does_not_exist
+  dict({
+    'code': 'api.not_found',
+    'errors': dict({
+      'gadget': list([
+        'john@whimo.com',
+      ]),
+    }),
+    'message': 'Object Not Found',
+    'success': False,
+  })
+# ---
+# name: TestOTPVerify.test_invalid_code
+  dict({
+    'code': 'otp.invalid_code',
+    'message': 'Bad Request',
+    'success': False,
+  })
+# ---
+# name: TestOTPVerify.test_mock_otp
+  dict({
+    'message': 'Gadget verified',
+    'success': True,
+  })
+# ---
+# name: TestOTPVerify.test_no_code_in_cache
+  dict({
+    'code': 'otp.invalid_code',
+    'message': 'Bad Request',
+    'success': False,
+  })
+# ---
+# name: TestOTPVerify.test_success
+  dict({
+    'message': 'Gadget verified',
+    'success': True,
+  })
+# ---
+# name: TestOTPVerify.test_throttling
+  dict({
+    'code': 'drf.throttled',
+    'message': 'Request was throttled. Expected available in 60 seconds.',
+    'success': False,
+  })
+# ---

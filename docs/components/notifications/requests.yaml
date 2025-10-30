@@ -1,0 +1,41 @@
+NotificationStatusUpdateRequest:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - status
+        properties:
+          status:
+            type: string
+            description: New status for the notification
+            enum:
+              - read
+
+NotificationSettingsUpdateRequest:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - settings
+        properties:
+          settings:
+            type: array
+            description: List of notification settings to update
+            items:
+              $ref: './schemas.yaml#/NotificationSettingsDTO'
+            example:
+              - type: transaction_pending
+                is_enabled: true
+              - type: geodata_missing
+                is_enabled: false
+
+DeviceAddRequest:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: './schemas.yaml#/DeviceDTO'

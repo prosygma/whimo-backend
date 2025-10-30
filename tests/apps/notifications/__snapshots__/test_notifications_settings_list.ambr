@@ -1,0 +1,53 @@
+# serializer version: 1
+# name: TestNotificationSettingsList.test_forbidden
+  dict({
+    'code': 'drf.permission_denied',
+    'message': 'At least one verified gadget is required',
+    'success': False,
+  })
+# ---
+# name: TestNotificationSettingsList.test_success
+  dict({
+    'data': list([
+      dict({
+        'is_enabled': True,
+        'type': 'geodata_missing',
+      }),
+      dict({
+        'is_enabled': True,
+        'type': 'geodata_updated',
+      }),
+      dict({
+        'is_enabled': True,
+        'type': 'transaction_accepted',
+      }),
+      dict({
+        'is_enabled': True,
+        'type': 'transaction_expired',
+      }),
+      dict({
+        'is_enabled': True,
+        'type': 'transaction_pending',
+      }),
+      dict({
+        'is_enabled': True,
+        'type': 'transaction_rejected',
+      }),
+    ]),
+    'success': True,
+  })
+# ---
+# name: TestNotificationSettingsList.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestNotificationSettingsList.test_user_deleted
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---

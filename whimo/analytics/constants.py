@@ -1,0 +1,2 @@
+USER_ANALYTICS_CACHE_KEY = "user_analytics:{user_id}"
+USER_ANALYTICS_CACHE_TIMEOUT = 3600

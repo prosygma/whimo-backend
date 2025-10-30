@@ -1,0 +1,45 @@
+# serializer version: 1
+# name: TestNotificationDevicesList.test_forbidden
+  dict({
+    'code': 'drf.permission_denied',
+    'message': 'At least one verified gadget is required',
+    'success': False,
+  })
+# ---
+# name: TestNotificationDevicesList.test_success
+  dict({
+    'data': list([
+      dict({
+        'registration_id': '58714841858',
+        'type': 'fcm',
+      }),
+      dict({
+        'registration_id': '39894719659',
+        'type': 'fcm',
+      }),
+      dict({
+        'registration_id': '34232094711',
+        'type': 'apns',
+      }),
+      dict({
+        'registration_id': '22018684833',
+        'type': 'apns',
+      }),
+    ]),
+    'success': True,
+  })
+# ---
+# name: TestNotificationDevicesList.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestNotificationDevicesList.test_user_deleted
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---

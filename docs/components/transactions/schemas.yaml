@@ -1,0 +1,272 @@
+TransactionAction:
+  description: Action in the transaction (buying or selling)
+  type: string
+  enum:
+    - buying
+    - selling
+
+TransactionType:
+  description: Type of transaction
+  type: string
+  enum:
+    - producer
+    - downstream
+
+TransactionLocation:
+  description: Source of location geodata
+  type: string
+  enum:
+    - qr
+    - manual
+    - file
+    - gps
+
+TransactionStatus:
+  description: Status of the transaction
+  type: string
+  enum:
+    - pending
+    - accepted
+    - rejected
+    - no_response
+
+TransactionTraceability:
+  description: Transaction traceability status
+  type: string
+  enum:
+    - full
+    - conditional
+    - partial
+    - incomplete
+
+TransactionDTO:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Unique identifier for the transaction
+    created_at:
+      type: string
+      format: date-time
+      description: Timestamp when the transaction was created
+    type:
+      $ref: '#/TransactionType'
+      description: Type of transaction
+    status:
+      $ref: '#/TransactionStatus'
+      description: Status of the transaction
+    action:
+      $ref: '#/TransactionAction'
+      description: Action in the transaction for the current user (buying or selling)
+    location:
+      $ref: '#/TransactionLocation'
+      description: Source of location geodata
+      nullable: true
+    transaction_latitude:
+      type: number
+      format: double
+      description: Latitude coordinate where the transaction takes place
+      examples: [ 51.507222 ]
+      nullable: true
+    transaction_longitude:
+      type: number
+      format: double
+      description: Longitude coordinate where the transaction takes place
+      examples: [ -0.1275 ]
+      nullable: true
+    farm_latitude:
+      type: number
+      format: double
+      description: Latitude coordinate of the farm where the commodity originates
+      examples: [ 51.485 ]
+      nullable: true
+    farm_longitude:
+      type: number
+      format: double
+      description: Longitude coordinate of the farm where the commodity originates
+      examples: [ -0.145 ]
+      nullable: true
+    commodity:
+      $ref: '../commodities/schemas.yaml#/CommodityWithGroupDTO'
+      description: Commodity being traded
+    volume:
+      type: number
+      format: double
+      description: Volume of commodities
+    is_buying_from_farmer:
+      type: boolean
+      description: Whether the transaction is buying from a farmer directly
+    is_automatic:
+      type: boolean
+      description: Whether the transaction is automatic
+    expires_at:
+      type: string
+      format: date-time
+      description: Timestamp when the transaction expires
+      nullable: true
+    updated_at:
+      type: string
+      format: date-time
+      description: Timestamp when the transaction was last updated
+    traceability:
+      $ref: '#/TransactionTraceability'
+      description: Transaction traceability status
+      nullable: true
+    seller:
+      $ref: '../users/schemas.yaml#/UserDTO'
+      description: Seller information
+      nullable: true
+    buyer:
+      $ref: '../users/schemas.yaml#/UserDTO'
+      description: Buyer information
+      nullable: true
+    created_by_id:
+      type: string
+      format: uuid
+      description: ID of the user who created the transaction
+      nullable: true
+
+TraceabilityCountsDTO:
+  type: object
+  properties:
+    counts:
+      type: object
+      description: Dictionary mapping traceability status to count
+      additionalProperties:
+        type: integer
+      example:
+        "full": 15
+        "conditional": 8
+        "partial": 5
+        "incomplete": 2
+
+RecipientDTO:
+  allOf:
+    - $ref: '../auth/registration/schemas.yaml#/CreateUserDTO'
+    - type: object
+      properties:
+        name:
+          type: string
+          description: User's name
+          example: a7e3ca
+
+
+TransactionCreateBaseDTO:
+  description: Base DTO for creating a transaction
+  type: object
+  required:
+    - commodity_id
+    - volume
+  properties:
+    commodity_id:
+      type: string
+      format: uuid
+      description: ID of the commodity being traded
+    volume:
+      type: number
+      format: double
+      description: Volume of commodities
+      examples: [ 10.5 ]
+    transaction_latitude:
+      type: number
+      format: double
+      description: Latitude coordinate where the transaction takes place
+      examples: [ 51.507222 ]
+      nullable: true
+    transaction_longitude:
+      type: number
+      format: double
+      description: Longitude coordinate where the transaction takes place
+      examples: [ -0.1275 ]
+      nullable: true
+    recipient:
+      $ref: './schemas.yaml#/RecipientDTO'
+      description: Transaction recipient information
+      nullable: true
+
+FeatureProperties:
+  type: object
+  description: Properties of a GeoJSON feature
+  properties:
+    producer_name:
+      type: string
+      description: Name of the producer
+      example: "Farm Producer Inc"
+    producer_country:
+      type: string
+      description: Country of the producer
+      example: "Brazil"
+    production_place:
+      type: string
+      description: Place of production
+      example: "São Paulo Region"
+
+FeatureGeometry:
+  type: object
+  description: Geometry of a GeoJSON feature
+  properties:
+    type:
+      type: string
+      description: Geometry type
+      enum: [ Polygon ]
+    coordinates:
+      type: array
+      description: Polygon coordinates
+      items:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+            format: double
+      example: [ [ [ -122.4194, 37.7749 ] ] ]
+
+Feature:
+  type: object
+  description: A GeoJSON feature
+  properties:
+    type:
+      type: string
+      description: Feature type
+      enum: [ Feature ]
+    geometry:
+      $ref: '#/FeatureGeometry'
+    properties:
+      $ref: '#/FeatureProperties'
+
+FeatureCollection:
+  type: object
+  description: A GeoJSON feature collection
+  properties:
+    type:
+      type: string
+      description: Collection type
+      enum: [ FeatureCollection ]
+    features:
+      type: array
+      description: Array of features
+      items:
+        $ref: '#/Feature'
+
+ChainFeatureCollectionDTO:
+  type: object
+  description: Transaction chain feature collection data
+  properties:
+    feature_collection:
+      $ref: '#/FeatureCollection'
+      description: GeoJSON feature collection containing location data
+    succeed_transactions:
+      type: array
+      description: List of transaction IDs that succeed to process
+      items:
+        type: string
+        format: uuid
+      example: [ "123e4567-e89b-12d3-a456-426614174000" ]
+    failed_transactions:
+      type: array
+      description: List of transaction IDs that failed to process
+      items:
+        type: string
+        format: uuid
+      example: [ "123e4567-e89b-12d3-a456-426614174000" ]

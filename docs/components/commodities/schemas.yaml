@@ -1,0 +1,77 @@
+CommodityGroupDTO:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Unique identifier for the commodity group
+    name:
+      type: string
+      description: Name of the commodity group
+      examples: [ Cocoa ]
+
+CommodityGroupWithCommoditiesBalancesDTO:
+  allOf:
+    - $ref: '#/CommodityGroupDTO'
+    - type: object
+      properties:
+        commodities:
+          type: array
+          items:
+            $ref: '#/CommodityWithBalanceDTO'
+          description: List of commodities in this group with user balances
+
+CommodityDTO:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Unique identifier for the commodity
+    code:
+      type: string
+      description: Commodity code
+      examples: [ '1801' ]
+    name:
+      type: string
+      description: Name of the commodity
+      examples: [ 'Cocoa beans, whole or broken, raw or roasted' ]
+    unit:
+      type: string
+      description: Unit of measurement
+      examples: [ kg ]
+
+CommodityWithGroupDTO:
+  allOf:
+    - $ref: '#/CommodityDTO'
+    - type: object
+      properties:
+        group:
+          $ref: '#/CommodityGroupDTO'
+          description: Commodity group this commodity belongs to
+
+CommodityWithBalanceDTO:
+  allOf:
+    - $ref: '#/CommodityWithGroupDTO'
+    - type: object
+      properties:
+        balance:
+          type: number
+          format: double
+          nullable: true
+          description: User's current balance for this commodity (null if no balance)
+
+BalanceDTO:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Unique identifier for the balance
+    volume:
+      type: number
+      format: double
+      description: Current balance volume
+    commodity:
+      $ref: '../commodities/schemas.yaml#/CommodityWithGroupDTO'
+      description: Commodity information

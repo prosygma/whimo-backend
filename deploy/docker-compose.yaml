@@ -1,0 +1,159 @@
+name: whimo
+
+services:
+  nginx:
+    image: nginx:1.27
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      api:
+        condition: service_healthy
+      docs:
+        condition: service_healthy
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - nginx_logs:/var/log/nginx/
+      - static_data:/usr/share/nginx/html/static
+
+  api:
+    image: ${API_IMAGE_NAME:-whimo-api}
+    build:
+      context: ..
+      dockerfile: deploy/api.Dockerfile
+    hostname: api.local
+    command: [ "/bin/bash", "./whimo/entrypoint.sh" ]
+    environment:
+      - POSTGRES_HOST=postgres.local
+      - REDIS_HOST=redis.local
+      - MINIO_HOST=minio.local
+    env_file:
+      - ../config/.env.${ENV:-local}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - static_data:/app/static/
+      - ../config:/app/config
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://api.local:8000/api/v1/system/healthcheck/" ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  celery-worker:
+    image: ${API_IMAGE_NAME:-whimo-api}
+    build:
+      context: ..
+      dockerfile: deploy/api.Dockerfile
+    command: [ "uv", "run", "celery", "-A", "whimo.common", "worker", "-l", "INFO" ]
+    environment:
+      - POSTGRES_HOST=postgres.local
+      - REDIS_HOST=redis.local
+      - MINIO_HOST=minio.local
+    env_file:
+      - ../config/.env.${ENV:-local}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ../config:/app/config
+
+  celery-beat:
+    image: ${API_IMAGE_NAME:-whimo-api}
+    build:
+      context: ..
+      dockerfile: deploy/api.Dockerfile
+    command: [ "uv", "run", "celery", "-A", "whimo.common", "beat", "-l", "INFO" ]
+    environment:
+      - POSTGRES_HOST=postgres.local
+      - REDIS_HOST=redis.local
+      - MINIO_HOST=minio.local
+    env_file:
+      - ../config/.env.${ENV:-local}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ../config:/app/config
+
+  docs:
+    image: ${DOCS_IMAGE_NAME:-whimo-docs}
+    hostname: docs.local
+    ports:
+      - "127.0.0.1:8080:8080"
+    build:
+      context: ..
+      dockerfile: deploy/docs.Dockerfile
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://docs.local:8080/" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  postgres:
+    hostname: postgres.local
+    image: postgres:17.4-alpine
+    ports:
+      - "127.0.0.1:5432:5432"
+    env_file:
+      - ../config/.env.${ENV:-local}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "$$POSTGRES_USER", "-d", "$$POSTGRES_DB" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    hostname: redis.local
+    image: redis:7.4-alpine
+    command: [ "/bin/sh", "-c", "redis-server --requirepass $$REDIS_PASSWORD" ]
+    ports:
+      - "127.0.0.1:6379:6379"
+    env_file:
+      - ../config/.env.${ENV:-local}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:RELEASE.2025-05-24T17-08-30Z
+    hostname: minio.local
+    command: [ "server", "/data", "--console-address", ":9001" ]
+    env_file:
+      - ../config/.env.${ENV:-local}
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: [ "CMD", "mc", "ready", "local" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  nginx_logs: { }
+  static_data: { }
+  postgres_data: { }
+  redis_data: { }
+  rabbitmq_data: { }
+  minio_data: { }

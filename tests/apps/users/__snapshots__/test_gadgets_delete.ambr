@@ -1,0 +1,82 @@
+# serializer version: 1
+# name: TestGadgetsDelete.test_error_delete_another_users_gadget
+  dict({
+    'code': 'api.not_found',
+    'errors': dict({
+      'gadget': list([
+        'shannon51@example.com',
+      ]),
+    }),
+    'message': 'Object Not Found',
+    'success': False,
+  })
+# ---
+# name: TestGadgetsDelete.test_error_delete_last_verified_gadget
+  dict({
+    'code': 'users.last_verified_gadget',
+    'message': 'Cannot delete the last verified gadget',
+    'success': False,
+  })
+# ---
+# name: TestGadgetsDelete.test_error_delete_nonexistent_gadget
+  dict({
+    'code': 'api.not_found',
+    'errors': dict({
+      'gadget': list([
+        'nonexistent@example.com',
+      ]),
+    }),
+    'message': 'Object Not Found',
+    'success': False,
+  })
+# ---
+# name: TestGadgetsDelete.test_error_empty_identifier
+  dict({
+    'code': 'api.not_found',
+    'errors': dict({
+      'gadget': list([
+        '',
+      ]),
+    }),
+    'message': 'Object Not Found',
+    'success': False,
+  })
+# ---
+# name: TestGadgetsDelete.test_error_missing_identifier
+  dict({
+    'code': 'pydantic.validation_error',
+    'errors': dict({
+      'identifier': list([
+        'Field required',
+      ]),
+    }),
+    'message': 'identifier: Field required',
+    'success': False,
+  })
+# ---
+# name: TestGadgetsDelete.test_success_delete_unverified_gadget
+  dict({
+    'message': 'Gadget deleted',
+    'success': True,
+  })
+# ---
+# name: TestGadgetsDelete.test_success_delete_verified_gadget_with_other_verified
+  dict({
+    'message': 'Gadget deleted',
+    'success': True,
+  })
+# ---
+# name: TestGadgetsDelete.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestGadgetsDelete.test_user_deleted
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---

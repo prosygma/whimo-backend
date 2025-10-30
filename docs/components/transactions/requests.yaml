@@ -1,0 +1,83 @@
+TransactionProducerCreateRequest:
+  required: true
+  content:
+    multipart/form-data:
+      schema:
+        type: object
+        allOf:
+          - $ref: './schemas.yaml#/TransactionCreateBaseDTO'
+          - properties:
+              is_buying_from_farmer:
+                type: boolean
+                description: Whether this transaction is buying from a farmer directly
+                default: false
+              farm_latitude:
+                type: number
+                format: double
+                description: Latitude coordinate of the farm where the commodity originates
+                examples: [ 51.485 ]
+                nullable: true
+              farm_longitude:
+                type: number
+                format: double
+                description: Longitude coordinate of the farm where the commodity originates
+                examples: [ -0.145 ]
+                nullable: true
+              location:
+                $ref: './schemas.yaml#/TransactionLocation'
+                description: Source of location geodata
+                nullable: true
+              location_file:
+                type: string
+                format: binary
+                description: Location file
+                nullable: true
+
+TransactionDownstreamCreateRequest:
+  required: true
+  content:
+    multipart/form-data:
+      schema:
+        type: object
+        required:
+          - action
+        allOf:
+          - $ref: './schemas.yaml#/TransactionCreateBaseDTO'
+          - properties:
+              action:
+                $ref: './schemas.yaml#/TransactionAction'
+                description: Action in the transaction (buying or selling)
+
+TransactionStatusUpdateRequest:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - status
+        properties:
+          status:
+            type: string
+            description: New status for the transaction (only accepted or rejected allowed)
+            enum:
+              - accepted
+              - rejected
+
+TransactionGeodataUpdateRequest:
+  required: true
+  content:
+    multipart/form-data:
+      schema:
+        type: object
+        required:
+          - location
+          - location_file
+        properties:
+          location:
+            $ref: './schemas.yaml#/TransactionLocation'
+            description: Source of location geodata
+          location_file:
+            type: string
+            format: binary
+            description: Location file

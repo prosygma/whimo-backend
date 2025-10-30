@@ -1,0 +1,8 @@
+# serializer version: 1
+# name: TestTokenRefresh.test_invalid_token
+  dict({
+    'code': 'jwt.token_not_valid',
+    'message': 'Token is invalid',
+    'success': False,
+  })
+# ---

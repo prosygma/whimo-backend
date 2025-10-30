@@ -1,0 +1,600 @@
+# Whimo Backend Translation File
+# Copyright (C) 2025 Whimo Team
+# This file is distributed under the same license as the Whimo package.
+# Whimo Team <whimo@maddevs.io>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Whimo 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-29 10:02+0000\n"
+"PO-Revision-Date: 2025-05-01 12:00+0000\n"
+"Last-Translator: Whimo Team <whimo@maddevs.io>\n"
+"Language-Team: Whimo Team <whimo@maddevs.io>\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+# Commodity group names
+# ----------------------------------------------------------------------------------------------------------------------
+
+msgid "Cattle"
+msgstr "Bovin"
+
+msgid "Cocoa"
+msgstr "Cacao"
+
+msgid "Coffee"
+msgstr "Café"
+
+msgid "Palm Oil"
+msgstr "Huile de palme"
+
+msgid "Rubber"
+msgstr "Caoutchouc"
+
+msgid "Soy"
+msgstr "Soja"
+
+# Commodity names
+# ----------------------------------------------------------------------------------------------------------------------
+
+msgid "Pure-bred cattle for breeding"
+msgstr "Bovins de race pure pour l'élevage"
+
+msgid "Live cattle"
+msgstr "Bovins vivants"
+
+msgid "Meat of bovine animals, fresh or chilled"
+msgstr "Viande de bovins"
+
+msgid "Meat of bovine animals, frozen"
+msgstr "Viande de bovins"
+
+msgid "Fresh or chilled edible offal of bovine animals"
+msgstr "Abats comestibles de bovins"
+
+msgid "Frozen edible bovine livers"
+msgstr "Foies de bovins comestibles"
+
+msgid "Frozen edible bovine offal"
+msgstr "Abats comestibles de bovins"
+
+msgid "Prepared or preserved meat or offal of bovine animals"
+msgstr "Viandes ou abats de bovins préparés ou conservés"
+
+msgid "Raw hides and skins of bovine or equine animals"
+msgstr "Peaux brutes de bovins ou d'équidés"
+
+msgid "Tanned or crust hides and skins of bovine or equine animals"
+msgstr "Peaux de bovins ou d'équidés, tannées ou en crust"
+
+msgid "Leather further prepared after tanning or crusting, of bovine"
+msgstr "Cuir de bovin, ouvré après tannage ou crust"
+
+msgid "Cocoa beans"
+msgstr "Fèves de cacao"
+
+msgid "Cocoa shells and other cocoa waste"
+msgstr "Coques et autres déchets de cacao"
+
+msgid "Cocoa paste"
+msgstr "Pâte de cacao"
+
+msgid "Cocoa butter, fat and oil"
+msgstr "Beurre, graisse et huile de cacao"
+
+msgid "Cocoa powder"
+msgstr "Cacao en poudre"
+
+msgid "Chocolate and other preparations containing cocoa"
+msgstr "Chocolat et autres préparations contenant du cacao"
+
+msgid "Coffee, whether or not roasted or decaffeinated; coffee husks and skins; coffee substitutes"
+msgstr "Café, torréfié ou non, décaféiné ou non; coques et pellicules de café; succédanés du café"
+
+msgid "Palm nuts and kernels"
+msgstr "Noix et amandes de palme"
+
+msgid "Palm oil and its fractions"
+msgstr "Huile de palme et ses fractions"
+
+msgid "Crude palm kernel and babassu oil"
+msgstr "Huile brute de palmiste et de babassu"
+
+msgid "Palm kernel and babassu oil and their fractions"
+msgstr "Huile de palmiste et de babassu et leurs fractions"
+
+msgid "Oilcake and other solid residues"
+msgstr "Tourteaux et autres résidus solides"
+
+msgid "Glycerol"
+msgstr "Glycérol"
+
+msgid "Palmitic acid, stearic acid, their salts and esters"
+msgstr "Acide palmitique, acide stéarique, leurs sels et esters"
+
+msgid "Saturated acyclic monocarboxylic acids"
+msgstr "Acides monocarboxyliques acycliques saturés"
+
+msgid "Stearic acid"
+msgstr "Acide stéarique"
+
+msgid "Oleic acid"
+msgstr "Acide oléique"
+
+msgid "Fatty acids, industrial, monocarboxylic"
+msgstr "Acides gras industriels monocarboxyliques"
+
+msgid "Fatty alcohols"
+msgstr "Alcools gras"
+
+msgid "Natural rubber and similar natural gums"
+msgstr "Caoutchouc naturel et gommes naturelles similaires"
+
+msgid "Compounded rubber, unvulcanised"
+msgstr "Caoutchouc composé, non vulcanisé"
+
+msgid "Unvulcanised rubber forms"
+msgstr "Formes de caoutchouc non vulcanisé"
+
+msgid "Vulcanised rubber thread and cord"
+msgstr "Fil et corde en caoutchouc vulcanisé"
+
+msgid "Vulcanised rubber plates, sheets, strips and profiles"
+msgstr "Plaques, feuilles, bandes et profilés en caoutchouc vulcanisé"
+
+msgid "Conveyor or transmission belts of vulcanised rubber"
+msgstr "Courroies transporteuses ou de transmission en caoutchouc vulcanisé"
+
+msgid "New pneumatic tyres"
+msgstr "Pneus neufs"
+
+msgid "Retreaded or used tyres; solid or cushion tyres"
+msgstr "Pneus rechapés ou usagés; pneus pleins ou à bandage"
+
+msgid "Inner tubes of rubber"
+msgstr "Chambres à air en caoutchouc"
+
+msgid "Rubber apparel and clothing accessories"
+msgstr "Vêtements et accessoires en caoutchouc"
+
+msgid "Articles of vulcanised rubber, n.e.s."
+msgstr "Ouvrages en caoutchouc vulcanisé, n.c.a."
+
+msgid "Hard rubber and articles, n.e.s."
+msgstr "Caoutchouc dur et ouvrages, n.c.a."
+
+msgid "Soya beans"
+msgstr "Graines de soja"
+
+msgid "Soya bean flour and meal"
+msgstr "Farine et tourteau de soja"
+
+msgid "Soya-bean oil and its fractions"
+msgstr "Huile de soja et ses fractions"
+
+# Project strings
+# ----------------------------------------------------------------------------------------------------------------------
+
+msgid "Token is invalid"
+msgstr "Le jeton est invalide"
+
+msgid "No active account found with the given credentials"
+msgstr "Aucun compte actif trouvé avec les identifiants fournis"
+
+msgid "No verified gadget found"
+msgstr "Aucun appareil vérifié trouvé"
+
+msgid "Authorized"
+msgstr "Autorisé"
+
+msgid "Bad Request"
+msgstr "Requête incorrecte"
+
+msgid "Gadget verified"
+msgstr "Appareil vérifié"
+
+msgid "Verification code sent"
+msgstr "Code de vérification envoyé"
+
+msgid "Reset code sent"
+msgstr "Code de réinitialisation envoyé"
+
+msgid "Verification code is valid"
+msgstr "Le code de vérification est valide"
+
+msgid "Password reset"
+msgstr "Réinitialisation du mot de passe"
+
+msgid "Your verification code"
+msgstr "Votre code de vérification"
+
+#, python-format
+msgid "Your verification code is: %s"
+msgstr "Votre code de vérification est : %s"
+
+msgid "Invalid email"
+msgstr "Email invalide"
+
+msgid "Email address or phone number is required"
+msgstr "L'adresse email ou le numéro de téléphone est requis"
+
+msgid "Gadget with this identifier already exists"
+msgstr "Un appareil avec cet identifiant existe déjà"
+
+msgid "Registered"
+msgstr "Inscrit"
+
+msgid "Invalid OAuth callback"
+msgstr "Rappel OAuth invalide"
+
+msgid "At least one verified gadget is required"
+msgstr "Au moins un appareil vérifié est requis"
+
+msgid "Unauthorized"
+msgstr "Non autorisé"
+
+msgid "Forbidden"
+msgstr "Interdit"
+
+msgid "Object Not Found"
+msgstr "Objet introuvable"
+
+msgid "Conflict"
+msgstr "Conflit"
+
+msgid "Internal Server Error"
+msgstr "Erreur interne du serveur"
+
+#, python-format
+msgid "Password must be at least %d characters long"
+msgstr "Le mot de passe doit contenir au moins %d caractères"
+
+msgid "Password must contain at least one uppercase letter"
+msgstr "Le mot de passe doit contenir au moins une lettre majuscule"
+
+msgid "Password must contain at least one lowercase letter"
+msgstr "Le mot de passe doit contenir au moins une lettre minuscule"
+
+msgid "Password must contain at least one number"
+msgstr "Le mot de passe doit contenir au moins un chiffre"
+
+msgid "Balance"
+msgstr "Solde"
+
+msgid "Metadata"
+msgstr "Métadonnées"
+
+msgid "Commodity Group"
+msgstr "Groupe de matières premières"
+
+msgid "Commodity"
+msgstr "Matière première"
+
+msgid "Notification"
+msgstr "Notification"
+
+msgid "Transaction"
+msgstr "Transaction"
+
+msgid "Location"
+msgstr "Localisation"
+
+msgid "User"
+msgstr "Utilisateur"
+
+msgid "Permissions"
+msgstr "Permissions"
+
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "Gadget"
+msgstr "Appareil"
+
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+msgid "Django site admin"
+msgstr "Administration du site Django"
+
+msgid "Active Traders"
+msgstr "Commerçants actifs"
+
+msgid "Last"
+msgstr "Dernier"
+
+msgid "days"
+msgstr "jours"
+
+msgid "Total Commodities"
+msgstr "Total des matières premières"
+
+msgid "With active balances"
+msgstr "Avec des soldes actifs"
+
+msgid "Total Registrations"
+msgstr "Total des inscriptions"
+
+msgid "All time users"
+msgstr "Utilisateurs de tous temps"
+
+msgid "Transactions by Traceability Status"
+msgstr "Transactions par statut de traçabilité"
+
+msgid "Daily Registrations Over Time"
+msgstr "Inscriptions quotidiennes dans le temps"
+
+msgid "Balance Summary by Commodity"
+msgstr "Résumé des soldes par matière première"
+
+msgid "Code"
+msgstr "Code"
+
+msgid "Name"
+msgstr "Nom"
+
+msgid "Unit"
+msgstr "Unité"
+
+msgid "Total Volume"
+msgstr "Volume total"
+
+msgid "No balance data available"
+msgstr "Aucune donnée de solde disponible"
+
+msgid "Balance commodity"
+msgstr "Matière première du solde"
+
+msgid "Balance user"
+msgstr "Utilisateur du solde"
+
+msgid "Balances"
+msgstr "Soldes"
+
+msgid "Unique identifier for this record."
+msgstr "Identifiant unique pour cet enregistrement."
+
+msgid "Timestamp when this record was created."
+msgstr "Horodatage de création de cet enregistrement."
+
+msgid "Timestamp when this record was last updated."
+msgstr "Horodatage de la dernière mise à jour de cet enregistrement."
+
+msgid "Name of the commodity group"
+msgstr "Nom du groupe de matières premières"
+
+msgid "Commodity Groups"
+msgstr "Groupes de matières premières"
+
+msgid "Commodity code"
+msgstr "Code de la matière première"
+
+msgid "Name of the commodity"
+msgstr "Nom de la matière première"
+
+msgid "Unit of measurement"
+msgstr "Unité de mesure"
+
+msgid "Commodity group"
+msgstr "Groupe de matières premières"
+
+msgid "Commodities"
+msgstr "Matières premières"
+
+msgid "Notification data"
+msgstr "Données de notification"
+
+msgid "Status of the notification"
+msgstr "Statut de la notification"
+
+msgid "Type of notification"
+msgstr "Type de notification"
+
+msgid "User who received this notification"
+msgstr "Utilisateur qui a reçu cette notification"
+
+msgid "User who created this notification"
+msgstr "Utilisateur qui a créé cette notification"
+
+msgid "Notifications"
+msgstr "Notifications"
+
+msgid "User who owns this notification settings"
+msgstr "Utilisateur propriétaire de ces paramètres de notification"
+
+msgid "Indicates whether notifications of this type are enabled"
+msgstr "Indique si les notifications de ce type sont activées"
+
+msgid "Notification Settings"
+msgstr "Paramètres de notification"
+
+msgid "Type of transaction"
+msgstr "Type de transaction"
+
+msgid "Source of location geodata"
+msgstr "Source des données géographiques de localisation"
+
+msgid "Status of the transaction"
+msgstr "Statut de la transaction"
+
+msgid "Traceability status of the transaction"
+msgstr "Statut de traçabilité de la transaction"
+
+msgid "Transaction latitude coordinate"
+msgstr "Coordonnée de latitude de la transaction"
+
+msgid "Transaction longitude coordinate"
+msgstr "Coordonnée de longitude de la transaction"
+
+msgid "Farm latitude coordinate"
+msgstr "Coordonnée de latitude de la ferme"
+
+msgid "Farm longitude coordinate"
+msgstr "Coordonnée de longitude de la ferme"
+
+msgid "Commodity being traded"
+msgstr "Matière première échangée"
+
+msgid "Volume of commodities"
+msgstr "Volume de matières premières"
+
+msgid "Seller in this transaction"
+msgstr "Vendeur dans cette transaction"
+
+msgid "Buyer in this transaction"
+msgstr "Acheteur dans cette transaction"
+
+msgid "User who created this transaction"
+msgstr "Utilisateur qui a créé cette transaction"
+
+msgid "Whether this transaction is buying from a farmer directly"
+msgstr "Si cette transaction achète directement d'un agriculteur"
+
+msgid "Whether this transaction was created automatically"
+msgstr "Si cette transaction a été créée automatiquement"
+
+msgid "When this transaction expires"
+msgstr "Quand cette transaction expire"
+
+msgid "Transactions"
+msgstr "Transactions"
+
+msgid "Indicates whether this user has been soft deleted"
+msgstr "Indique si cet utilisateur a été supprimé en douceur"
+
+msgid "Users"
+msgstr "Utilisateurs"
+
+msgid "Type of contact method (phone or email)"
+msgstr "Type de méthode de contact (téléphone ou email)"
+
+msgid "Contact identifier (e.g. email address or phone number)"
+msgstr "Identifiant de contact (ex: adresse email ou numéro de téléphone)"
+
+msgid "Indicates whether this contact method has been verified by the user"
+msgstr "Indique si cette méthode de contact a été vérifiée par l'utilisateur"
+
+msgid "The user this gadget belongs to"
+msgstr "L'utilisateur auquel appartient cet appareil"
+
+msgid "Gadgets"
+msgstr "Appareils"
+
+msgid "Invalid update status"
+msgstr "Statut de mise à jour invalide"
+
+msgid "Device with this token already exists"
+msgstr "Un appareil avec ce jeton existe déjà"
+
+msgid "Notification status updated"
+msgstr "Statut de notification mis à jour"
+
+msgid "Notification settings updated"
+msgstr "Paramètres de notification mis à jour"
+
+msgid "Device added"
+msgstr "Appareil ajouté"
+
+msgid "Service is healthy"
+msgstr "Le service fonctionne correctement"
+
+msgid "Navigation"
+msgstr "Navigation"
+
+msgid "User Management"
+msgstr "Gestion des utilisateurs"
+
+msgid "Trading"
+msgstr "Commerce"
+
+msgid "Commodity group is required"
+msgstr "Le groupe de matières premières est requis"
+
+msgid "Only accepted status is allowed"
+msgstr "Seul le statut accepté est autorisé"
+
+msgid "Location must be complete or must be empty"
+msgstr "La localisation doit être complète ou vide"
+
+msgid "Location file must be provided for this location type"
+msgstr "Le fichier de localisation doit être fourni pour ce type de localisation"
+
+msgid "Location file is not supported for this location type"
+msgstr "Le fichier de localisation n'est pas pris en charge pour ce type de localisation"
+
+msgid "Location file syntax is invalid"
+msgstr "La syntaxe du fichier de localisation est invalide"
+
+msgid "Transaction can only be accepted or rejected"
+msgstr "La transaction ne peut être qu'acceptée ou rejetée"
+
+msgid "Transaction recipient cannot be the same as the user"
+msgstr "Le destinataire de la transaction ne peut pas être le même que l'utilisateur"
+
+msgid "Transaction recipient is not specified"
+msgstr "Le destinataire de la transaction n'est pas spécifié"
+
+msgid "Location file upload error"
+msgstr "Erreur de téléchargement du fichier de localisation"
+
+msgid "Location file download error"
+msgstr "Erreur de téléchargement du fichier de localisation"
+
+msgid "Transaction recipient data must contain only one identifier at a time"
+msgstr "Les données du destinataire de la transaction doivent contenir un seul identifiant à la fois"
+
+msgid "Latitude must be between -90 and 90 degrees"
+msgstr "La latitude doit être comprise entre -90 et 90 degrés"
+
+msgid "Longitude must be between -180 and 180 degrees"
+msgstr "La longitude doit être comprise entre -180 et 180 degrés"
+
+msgid "Transaction status updated"
+msgstr "Statut de la transaction mis à jour"
+
+msgid "Transaction geodata updated"
+msgstr "Données géographiques de la transaction mises à jour"
+
+msgid "Missing geodata requested"
+msgstr "Données géographiques manquantes demandées"
+
+msgid "Transaction notification resent"
+msgstr "Notification de transaction renvoyée"
+
+msgid "Welcome to WHIMO!"
+msgstr "Bienvenue sur WHIMO !"
+
+msgid "You have been invited to Whimo!"
+msgstr "Vous avez été invité sur Whimo !"
+
+msgid "Current password is incorrect"
+msgstr "Le mot de passe actuel est incorrect"
+
+msgid "Email sending error"
+msgstr "Erreur d'envoi d'email"
+
+msgid "SMS sending error"
+msgstr "Erreur d'envoi de SMS"
+
+msgid "Cannot delete the last verified gadget"
+msgstr "Impossible de supprimer le dernier appareil vérifié"
+
+msgid "Exactly one identifier must be specified"
+msgstr "Exactement un identifiant doit être spécifié"
+
+msgid "Gadget exists"
+msgstr "L'appareil existe"
+
+msgid "Gadget deleted"
+msgstr "Appareil supprimé"
+
+msgid "Password changed"
+msgstr "Mot de passe modifié"
+
+msgid "Profile deleted"
+msgstr "Profil supprimé"

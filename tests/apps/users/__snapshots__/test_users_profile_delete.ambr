@@ -1,0 +1,14 @@
+# serializer version: 1
+# name: TestUsersProfileDelete.test_success
+  dict({
+    'message': 'Profile deleted',
+    'success': True,
+  })
+# ---
+# name: TestUsersProfileDelete.test_user_deleted
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---

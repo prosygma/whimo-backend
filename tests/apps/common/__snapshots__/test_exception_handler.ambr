@@ -1,0 +1,27 @@
+# serializer version: 1
+# name: TestExceptionHandler.test_drf_error
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestExceptionHandler.test_internal_server_error
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestExceptionHandler.test_pydantic_error
+  dict({
+    'code': 'pydantic.validation_error',
+    'errors': dict({
+      'password': list([
+        'Field required',
+      ]),
+    }),
+    'message': 'password: Field required',
+    'success': False,
+  })
+# ---

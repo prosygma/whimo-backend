@@ -1,0 +1,136 @@
+stages:
+  - test
+  - build
+  - deploy
+
+# Test Stage
+# ----------------------------------------------------------------------------------------------------------------------
+
+lint:
+  stage: test
+  image: ghcr.io/astral-sh/uv:debian
+  before_script:
+    - uv sync
+  script:
+    - uv run tox -e lint,typing,openapi
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - ./ci/reports/mypy.xml
+        - ./ci/reports/ruff.xml
+    paths:
+      - ./ci/reports
+
+test:
+  stage: test
+  image: ghcr.io/astral-sh/uv:debian
+  before_script:
+    - uv sync
+  script:
+    - uv run tox -e test
+  services:
+    - name: postgres:17.4-alpine
+      alias: $POSTGRES_HOST
+    - name: redis:7.4-alpine
+      alias: $REDIS_HOST
+      command: [ "/bin/sh", "-c", "redis-server --requirepass password" ]
+  variables:
+    # Postgres
+    POSTGRES_HOST: postgres.local
+    POSTGRES_PORT: 5432
+    POSTGRES_DB: app
+    POSTGRES_USER: app
+    POSTGRES_PASSWORD: password
+    # Redis
+    REDIS_HOST: redis.local
+    REDIS_PORT: 6379
+    REDIS_PASSWORD: password
+  coverage: '/TOTAL.*\s+(\d+%)$/'
+  artifacts:
+    when: always
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: ./ci/reports/coverage.xml
+      junit:
+        - ./ci/reports/pytest.xml
+    paths:
+      - ./ci/reports
+
+# Build Stage
+# ----------------------------------------------------------------------------------------------------------------------
+
+.build: &build
+  stage: build
+  image: docker:28
+  before_script:
+    - echo $CI_JOB_TOKEN | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+  script:
+    - docker compose -f deploy/docker-compose.yaml build $SERVICE_NAME
+    - docker tag $IMAGE_NAME $CI_REGISTRY_IMAGE/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+    - docker push $CI_REGISTRY_IMAGE/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+  services:
+    - name: docker:28-dind
+      alias: docker
+
+build:api:
+  <<: *build
+  variables:
+    SERVICE_NAME: api
+    IMAGE_NAME: whimo-api
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "develop"
+
+build:docs:
+  <<: *build
+  variables:
+    SERVICE_NAME: docs
+    IMAGE_NAME: whimo-docs
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "develop"
+
+# Build Stage
+# ----------------------------------------------------------------------------------------------------------------------
+
+.deploy: &deploy
+  stage: deploy
+  image: alpine:3.21
+  before_script:
+    - apk update && apk add openssh-client
+    - eval $(ssh-agent -s) && ssh-add <(echo "$SSH_PRIVATE_KEY" | base64 -d)
+    - mkdir -p ~/.ssh
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  script:
+    - scp -P $SSH_PORT -r ./deploy $SSH_USER@$SSH_HOST:$WORKING_DIRECTORY
+    - ssh -p $SSH_PORT -T $SSH_USER@$SSH_HOST "mkdir -p $WORKING_DIRECTORY/config"
+    - echo "$ENV_FILE" | base64 -d | ssh -p $SSH_PORT -T $SSH_USER@$SSH_HOST "cat > $WORKING_DIRECTORY/config/.env.$ENV"
+    - |
+      ssh -p $SSH_PORT -T $SSH_USER@$SSH_HOST "
+        export ENV=$ENV
+        export DOCS_IMAGE_NAME=$DOCS_IMAGE_NAME
+        export API_IMAGE_NAME=$API_IMAGE_NAME
+
+        echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
+        docker compose -f $WORKING_DIRECTORY/deploy/docker-compose.yaml pull
+        docker compose -f $WORKING_DIRECTORY/deploy/docker-compose.yaml down
+        docker compose -f $WORKING_DIRECTORY/deploy/docker-compose.yaml up -d
+      "
+
+deploy:dev:
+  <<: *deploy
+  variables:
+    # SSH Credentials
+    SSH_HOST: $SSH_DEV_HOST
+    SSH_PORT: $SSH_DEV_PORT
+    SSH_USER: $SSH_DEV_USER
+    SSH_PRIVATE_KEY: $SSH_DEV_PRIVATE_KEY
+    # Environment
+    ENV: dev
+    ENV_FILE: $ENV_DEV_FILE
+    WORKING_DIRECTORY: /var/www/whimo
+    # Docker Compose Images
+    DOCS_IMAGE_NAME: $CI_REGISTRY_IMAGE/whimo-docs:$CI_COMMIT_SHORT_SHA
+    API_IMAGE_NAME: $CI_REGISTRY_IMAGE/whimo-api:$CI_COMMIT_SHORT_SHA
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "develop"

@@ -1,0 +1,12 @@
+HealthcheckResponse:
+  description: Service is healthy
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Service is healthy

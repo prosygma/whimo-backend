@@ -1,0 +1,111 @@
+# serializer version: 1
+# name: TestTransactionsTraceabilityCounts.test_downstream
+  dict({
+    'data': dict({
+      'counts': dict({
+        'conditional': 1,
+        'full': 2,
+        'incomplete': 1,
+        'partial': 1,
+      }),
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsTraceabilityCounts.test_forbidden
+  dict({
+    'code': 'drf.permission_denied',
+    'message': 'At least one verified gadget is required',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsTraceabilityCounts.test_producer[conditional]
+  dict({
+    'data': dict({
+      'counts': dict({
+        'conditional': 1,
+        'full': 0,
+        'incomplete': 0,
+        'partial': 0,
+      }),
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsTraceabilityCounts.test_producer[full]
+  dict({
+    'data': dict({
+      'counts': dict({
+        'conditional': 0,
+        'full': 1,
+        'incomplete': 0,
+        'partial': 0,
+      }),
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsTraceabilityCounts.test_producer[incomplete]
+  dict({
+    'data': dict({
+      'counts': dict({
+        'conditional': 0,
+        'full': 0,
+        'incomplete': 1,
+        'partial': 0,
+      }),
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsTraceabilityCounts.test_producer[partial]
+  dict({
+    'data': dict({
+      'counts': dict({
+        'conditional': 0,
+        'full': 0,
+        'incomplete': 0,
+        'partial': 1,
+      }),
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsTraceabilityCounts.test_transaction_does_not_exist
+  dict({
+    'code': 'api.not_found',
+    'errors': dict({
+      'transaction': list([
+        '00000000-0000-0000-0000-000000000000',
+      ]),
+    }),
+    'message': 'Object Not Found',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsTraceabilityCounts.test_transaction_not_user
+  dict({
+    'code': 'api.not_found',
+    'errors': dict({
+      'transaction': list([
+        '00000000-0000-0000-0000-000000000000',
+      ]),
+    }),
+    'message': 'Object Not Found',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsTraceabilityCounts.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsTraceabilityCounts.test_user_deleted
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---

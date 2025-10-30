@@ -1,0 +1,660 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Dashboard" %} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .dark .dashboard-grid {
+            gap: 2rem;
+        }
+
+        .dark .kpi-grid {
+            gap: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--color-white, white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--color-base-200, #e5e7eb);
+            color: var(--color-font-base, #374151);
+            transition: box-shadow 0.2s ease-in-out;
+        }
+
+        .dark .kpi-card {
+            background: var(--color-base-900, #111827);
+            border: 1px solid var(--color-base-700, #374151);
+            box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.5), 0 0 2px 1px rgba(78, 100, 224, 0.15);
+            color: var(--color-font-base-dark, #e5e7eb);
+        }
+
+        .kpi-title {
+            font-size: 0.875rem;
+            color: var(--color-font-muted, #6b7280);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .dark .kpi-title {
+            color: var(--color-font-muted-dark, #9ca3af);
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-font-important, #111827);
+        }
+
+        .dark .kpi-value {
+            color: var(--color-font-important-dark, #f9fafb);
+        }
+
+        .kpi-subtitle {
+            font-size: 0.75rem;
+            color: var(--color-font-muted, #9ca3af);
+            margin-top: 0.25rem;
+        }
+
+        .dark .kpi-subtitle {
+            color: var(--color-font-muted-dark, #6b7280);
+        }
+
+        .chart-container {
+            background: var(--color-white, white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--color-base-200, #e5e7eb);
+            margin: 1.5rem 0;
+            transition: box-shadow 0.2s ease-in-out;
+
+            height: 350px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dark .chart-container {
+            background: var(--color-base-900, #111827);
+            border: 1px solid var(--color-base-700, #374151);
+            box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.5), 0 0 2px 1px rgba(78, 100, 224, 0.15);
+        }
+
+        .chart-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--color-font-important, #111827);
+            margin-bottom: 1rem;
+
+            flex-shrink: 0;
+        }
+
+        .dark .chart-title {
+            color: var(--color-font-important-dark, #f9fafb);
+        }
+
+
+        .chart-wrapper {
+            flex: 1;
+            position: relative;
+            min-height: 0;
+        }
+
+        .chart-wrapper canvas {
+            position: absolute !important;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .balance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .balance-table th,
+        .balance-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-base-200, #e5e7eb);
+        }
+
+        .dark .balance-table th,
+        .dark .balance-table td {
+            border-bottom: 1px solid var(--color-base-700, #374151);
+        }
+
+        .balance-table th {
+            background-color: var(--color-base-100, #f9fafb);
+            font-weight: 600;
+            color: var(--color-font-base, #374151);
+        }
+
+        .balance-table tbody tr:nth-child(even) {
+            background-color: var(--color-base-50, #f9fafb);
+        }
+
+        .balance-table tr:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        .dark .balance-table th {
+            background-color: var(--color-base-800, #1f2937);
+            color: var(--color-font-base-dark, #e5e7eb);
+        }
+
+        .dark .balance-table {
+            color: var(--color-font-base-dark, #e5e7eb);
+        }
+
+        .dark .balance-table tr:hover {
+            background-color: rgba(78, 100, 224, 0.05);
+        }
+
+
+        .table-container {
+            background: var(--color-white, white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--color-base-200, #e5e7eb);
+            margin: 1.5rem 0;
+            transition: box-shadow 0.2s ease-in-out;
+        }
+
+        .dark .table-container {
+            background: var(--color-base-900, #111827);
+            border: 1px solid var(--color-base-700, #374151);
+            box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.5), 0 0 2px 1px rgba(78, 100, 224, 0.15);
+        }
+
+        .chart-container-full {
+            background: var(--color-white, white);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--color-base-200, #e5e7eb);
+            margin: 1.5rem 0;
+            transition: box-shadow 0.2s ease-in-out;
+            width: 100%;
+
+            height: 350px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dark .chart-container-full {
+            background: var(--color-base-900, #111827);
+            border: 1px solid var(--color-base-700, #374151);
+            box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.5), 0 0 2px 1px rgba(78, 100, 224, 0.15);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1>{% trans "Dashboard" %}</h1>
+
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-title">{% trans "Active Traders" %}</div>
+            <div class="kpi-value">{{ active_traders.count }}</div>
+            <div class="kpi-subtitle">{% trans "Last" %} {{ active_traders.period_days }} {% trans "days" %}</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-title">{% trans "Total Commodities" %}</div>
+            <div class="kpi-value">{{ balance_summary|length }}</div>
+            <div class="kpi-subtitle">{% trans "With active balances" %}</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-title">{% trans "Total Registrations" %}</div>
+            <div class="kpi-value">
+                {% if user_growth %}
+                    {% with user_growth|last as last_growth %}
+                        {{ last_growth.cumulative_count }}
+                    {% endwith %}
+                {% else %}
+                    0
+                {% endif %}
+            </div>
+            <div class="kpi-subtitle">{% trans "All time users" %}</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-title">{% trans "Current Seasons" %}</div>
+            <div class="kpi-value">{{ current_seasons|length }}</div>
+            <div class="kpi-subtitle">{% trans "Active harvest seasons" %}</div>
+        </div>
+    </div>
+
+
+    <div class="dashboard-grid">
+        <div class="chart-container">
+            <div class="chart-title">{% trans "Transactions by Traceability Status" %}</div>
+            <div class="chart-wrapper">
+                <canvas id="traceabilityChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">{% trans "Transactions by Season" %}</div>
+            <div class="chart-wrapper">
+                <canvas id="transactionsBySeasonsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-container-full">
+        <div class="chart-title">{% trans "Daily Registrations Over Time" %}</div>
+        <div class="chart-wrapper">
+            <canvas id="userGrowthChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-container-full">
+        <div class="chart-title">{% trans "Daily Transactions by Season" %}</div>
+        <div class="chart-wrapper">
+            <canvas id="seasonTransactionsDailyChart"></canvas>
+        </div>
+    </div>
+
+
+    <div class="table-container">
+        <div class="chart-title">{% trans "Balance Summary by Commodity" %}</div>
+        <table class="balance-table">
+            <thead>
+            <tr>
+                <th>{% trans "Code" %}</th>
+                <th>{% trans "Name" %}</th>
+                <th>{% trans "Unit" %}</th>
+                <th>{% trans "Total Volume" %}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for balance in balance_summary %}
+                <tr>
+                    <td><strong>{{ balance.commodity_code }}</strong></td>
+                    <td>{{ balance.commodity_name }}</td>
+                    <td>{{ balance.commodity_unit }}</td>
+                    <td>{{ balance.total_volume|floatformat:2 }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--color-font-muted, #6b7280);">
+                        {% trans "No balance data available" %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let traceabilityChart = null;
+            let userGrowthChart = null;
+            let seasonTransactionsDailyChart = null;
+            let transactionsBySeasonsChart = null;
+
+            function renderCharts() {
+                if (traceabilityChart) {
+                    traceabilityChart.destroy();
+                }
+                if (userGrowthChart) {
+                    userGrowthChart.destroy();
+                }
+                if (seasonTransactionsDailyChart) {
+                    seasonTransactionsDailyChart.destroy();
+                }
+                if (transactionsBySeasonsChart) {
+                    transactionsBySeasonsChart.destroy();
+                }
+
+                const isDarkMode = document.documentElement.classList.contains('dark');
+                const textColor = isDarkMode ? '#e5e7eb' : '#374151';
+                const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
+
+                const traceabilityColorMap = {
+                    'Full': '#00c950',
+                    'Conditional': '#00b8db',
+                    'Partial': '#fe9a00',
+                    'Incomplete': '#fb2c36'
+                };
+
+                const traceabilityCtx = document.getElementById('traceabilityChart').getContext('2d');
+
+
+                const rawTraceabilityData = {
+                    {% for stat in traceability_stats %}'{{ stat.status|capfirst }}': {{ stat.count }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                };
+
+
+                const desiredOrder = ['Full', 'Conditional', 'Partial', 'Incomplete'];
+                const traceabilityLabels = [];
+                const traceabilityDataValues = [];
+                const traceabilityColors = [];
+
+                desiredOrder.forEach(status => {
+                    if (rawTraceabilityData.hasOwnProperty(status) && rawTraceabilityData[status] > 0) {
+                        traceabilityLabels.push(status);
+                        traceabilityDataValues.push(rawTraceabilityData[status]);
+                        traceabilityColors.push(traceabilityColorMap[status] || '#cccccc');
+                    }
+                });
+
+                const traceabilityData = {
+                    labels: traceabilityLabels,
+                    datasets: [{
+                        data: traceabilityDataValues,
+                        backgroundColor: traceabilityColors,
+                        borderWidth: 0
+                    }]
+                };
+
+                traceabilityChart = new Chart(traceabilityCtx, {
+                    type: 'doughnut',
+                    data: traceabilityData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {color: textColor}
+                            },
+                            tooltip: {
+                                enabled: true,
+                                mode: 'index',
+                                intersect: false
+                            }
+                        }
+                    }
+                });
+
+                const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+                const borderColor = '#00b8db';
+                const backgroundColor = '#00b8db55';
+                const userGrowthData = {
+                    labels: [{% for growth in user_growth %}'{{ growth.date|date:"M d" }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    datasets: [{
+                        label: 'Daily Registrations',
+                        data: [{% for growth in user_growth %}{{ growth.registrations_count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                        borderColor: borderColor,
+                        backgroundColor: backgroundColor,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                };
+
+                userGrowthChart = new Chart(userGrowthCtx, {
+                    type: 'line',
+                    data: userGrowthData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {color: gridColor},
+                                ticks: {
+                                    color: textColor,
+                                    stepSize: 1
+                                }
+                            },
+                            x: {
+                                grid: {color: gridColor},
+                                ticks: {color: textColor}
+                            }
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: {
+                                    color: textColor,
+                                    usePointStyle: true,
+                                    padding: 20
+                                }
+                            },
+                            tooltip: {
+                                enabled: true,
+                                mode: 'index',
+                                intersect: false
+                            }
+                        }
+                    }
+                });
+
+                const seasonTransactionsDailyCtx = document.getElementById('seasonTransactionsDailyChart').getContext('2d');
+                const seasonColors = ['#00c950', '#00b8db', '#fe9a00', '#fb2c36', '#8b5cf6', '#f59e0b'];
+
+                const seasonData = {};
+                {% for transaction in season_transactions_daily %}
+                    if (!seasonData['{{ transaction.season_name }}']) {
+                        seasonData['{{ transaction.season_name }}'] = [];
+                    }
+                    seasonData['{{ transaction.season_name }}'].push({
+                        date: '{{ transaction.date|date:"M d" }}',
+                        count: {{ transaction.transactions_count }}
+                    });
+                {% endfor %}
+
+                const seasonLabels = [...new Set([
+                    {% for transaction in season_transactions_daily %}'{{ transaction.date|date:"M d" }}'{% if not forloop.last %}, {% endif %}{% endfor %}
+                ])];
+
+                const seasonDatasets = [];
+                let colorIndex = 0;
+                Object.keys(seasonData).forEach(seasonName => {
+                    const data = seasonLabels.map(label => {
+                        const item = seasonData[seasonName].find(d => d.date === label);
+                        return item ? item.count : 0;
+                    });
+
+                    seasonDatasets.push({
+                        label: seasonName,
+                        data: data,
+                        borderColor: seasonColors[colorIndex % seasonColors.length],
+                        backgroundColor: seasonColors[colorIndex % seasonColors.length] + '33',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4
+                    });
+                    colorIndex++;
+                });
+
+                seasonTransactionsDailyChart = new Chart(seasonTransactionsDailyCtx, {
+                    type: 'line',
+                    data: {
+                        labels: seasonLabels,
+                        datasets: seasonDatasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {color: gridColor},
+                                ticks: {
+                                    color: textColor,
+                                    stepSize: 1
+                                }
+                            },
+                            x: {
+                                grid: {color: gridColor},
+                                ticks: {color: textColor}
+                            }
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: {
+                                    color: textColor,
+                                    usePointStyle: true,
+                                    padding: 20
+                                }
+                            },
+                            tooltip: {
+                                enabled: true,
+                                mode: 'index',
+                                intersect: false
+                            }
+                        }
+                    }
+                });
+
+                const transactionsBySeasonsCtx = document.getElementById('transactionsBySeasonsChart').getContext('2d');
+                const rawTransactionData = [{% for season in current_seasons %}{{ season.transactions_count }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+                const adjustedTransactionData = rawTransactionData.map(count => count === 0 ? 0.1 : count);
+
+                function wrapText(text, maxWidth) {
+                    const words = text.split(' ');
+                    const lines = [];
+                    let currentLine = '';
+
+                    for (const word of words) {
+                        const testLine = currentLine ? currentLine + ' ' + word : word;
+                        if (testLine.length * 8 <= maxWidth) {
+                            currentLine = testLine;
+                        } else {
+                            if (currentLine) {
+                                lines.push(currentLine);
+                                currentLine = word;
+                            } else {
+                                lines.push(word);
+                            }
+                        }
+                    }
+                    if (currentLine) {
+                        lines.push(currentLine);
+                    }
+                    return lines;
+                }
+
+                const originalLabels = [{% for season in current_seasons %}'{{ season.name }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
+                const chartWidth = transactionsBySeasonsCtx.canvas.width;
+                const barWidth = chartWidth / originalLabels.length * 0.8;
+                const wrappedLabels = originalLabels.map(label => wrapText(label, barWidth));
+
+                const transactionsBySeasonsData = {
+                    labels: wrappedLabels,
+                    datasets: [{
+                        label: 'Transactions Count',
+                        data: adjustedTransactionData,
+                        backgroundColor: seasonColors.slice(0, {{ current_seasons|length }}),
+                        borderWidth: 0
+                    }]
+                };
+
+                transactionsBySeasonsChart = new Chart(transactionsBySeasonsCtx, {
+                    type: 'bar',
+                    data: transactionsBySeasonsData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {color: gridColor},
+                                ticks: {
+                                    color: textColor,
+                                    stepSize: 1
+                                }
+                            },
+                            x: {
+                                grid: {color: gridColor},
+                                ticks: {
+                                    color: textColor,
+                                    maxRotation: 0,
+                                    minRotation: 0,
+                                    display: true,
+                                    autoSkip: false,
+                                    maxTicksLimit: 10,
+                                    callback: function(value, index) {
+                                        const label = wrappedLabels[index];
+                                        return label;
+                                    }
+                                },
+                                barPercentage: 0.8,
+                                categoryPercentage: 0.9
+                            }
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                enabled: true,
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    title: function(context) {
+                                        const index = context[0].dataIndex;
+                                        return originalLabels[index];
+                                    },
+                                    label: function(context) {
+                                        const realValue = rawTransactionData[context.dataIndex];
+                                        return context.dataset.label + ': ' + realValue;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            renderCharts();
+
+            const themeObserver = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.attributeName === "class") {
+                        renderCharts();
+                    }
+                });
+            });
+
+            themeObserver.observe(document.documentElement, {attributes: true});
+        });
+    </script>
+{% endblock %}

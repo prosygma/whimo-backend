@@ -1,0 +1,147 @@
+# serializer version: 1
+# name: TestNotificationDetail.test_forbidden
+  dict({
+    'code': 'drf.permission_denied',
+    'message': 'At least one verified gadget is required',
+    'success': False,
+  })
+# ---
+# name: TestNotificationDetail.test_notification_does_not_exist
+  dict({
+    'code': 'api.not_found',
+    'errors': dict({
+      'notification': list([
+        '00000000-0000-0000-0000-000000000000',
+      ]),
+    }),
+    'message': 'Object Not Found',
+    'success': False,
+  })
+# ---
+# name: TestNotificationDetail.test_notification_not_user
+  dict({
+    'code': 'api.not_found',
+    'errors': dict({
+      'notification': list([
+        '00000000-0000-0000-0000-000000000000',
+      ]),
+    }),
+    'message': 'Object Not Found',
+    'success': False,
+  })
+# ---
+# name: TestNotificationDetail.test_success
+  dict({
+    'data': dict({
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by': dict({
+        'gadgets': list([
+          dict({
+            'id': '00000000-0000-0000-0000-000000000002',
+            'identifier': 'criley@example.com',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'id': '00000000-0000-0000-0000-000000000003',
+            'identifier': '51591795330',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'id': '00000000-0000-0000-0000-000000000001',
+        'username': 'f3993a69e2ca7956',
+      }),
+      'data': None,
+      'id': '00000000-0000-0000-0000-000000000000',
+      'received_by': dict({
+        'gadgets': list([
+          dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'id': '00000000-0000-0000-0000-000000000001',
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'id': '00000000-0000-0000-0000-000000000000',
+        'username': 'cd18fc9fb6494384',
+      }),
+      'status': 'read',
+      'type': 'geodata_missing',
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationDetail.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestNotificationDetail.test_user_deleted
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestNotificationDetail.test_with_different_notification_types
+  dict({
+    'data': dict({
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by': dict({
+        'gadgets': list([
+          dict({
+            'id': '00000000-0000-0000-0000-000000000002',
+            'identifier': 'criley@example.com',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'id': '00000000-0000-0000-0000-000000000003',
+            'identifier': '51591795330',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'id': '00000000-0000-0000-0000-000000000001',
+        'username': 'f3993a69e2ca7956',
+      }),
+      'data': dict({
+        'transaction': dict({
+          'id': '123',
+          'status': 'pending',
+        }),
+      }),
+      'id': '00000000-0000-0000-0000-000000000000',
+      'received_by': dict({
+        'gadgets': list([
+          dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'id': '00000000-0000-0000-0000-000000000001',
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'id': '00000000-0000-0000-0000-000000000000',
+        'username': 'cd18fc9fb6494384',
+      }),
+      'status': 'read',
+      'type': 'transaction_pending',
+    }),
+    'success': True,
+  })
+# ---

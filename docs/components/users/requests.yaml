@@ -1,0 +1,52 @@
+PasswordChangeRequest:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - current_password
+          - new_password
+        properties:
+          current_password:
+            type: string
+            description: User's current password
+            examples: [ Current-Password-123 ]
+          new_password:
+            type: string
+            description: User's new password
+            examples: [ New-Password-123 ]
+
+GadgetCreateRequest:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          email:
+            type: string
+            format: email
+            description: Email address for the gadget
+            examples: [ "user@example.com" ]
+          phone:
+            type: string
+            description: Phone number for the gadget
+            examples: [ "+1234567890" ]
+        oneOf:
+          - required: [ email ]
+          - required: [ phone ]
+
+GadgetDeleteRequest:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - identifier
+        properties:
+          identifier:
+            type: string
+            description: Gadget identifier (email or phone number)
+            examples: [ "user@example.com", "+1234567890" ]

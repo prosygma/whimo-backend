@@ -1,0 +1,72 @@
+# serializer version: 1
+# name: TestAnalytics.test_forbidden
+  dict({
+    'code': 'drf.permission_denied',
+    'message': 'At least one verified gadget is required',
+    'success': False,
+  })
+# ---
+# name: TestAnalytics.test_success
+  dict({
+    'data': dict({
+      'active_traders': dict({
+        'count': 0,
+        'period_days': 30,
+      }),
+      'balance_summary': list([
+      ]),
+      'current_seasons': list([
+      ]),
+      'season_transactions_daily': list([
+      ]),
+      'transactions_by_seasons': list([
+      ]),
+      'transactions_by_traceability': list([
+      ]),
+      'user_growth': list([
+        dict({
+          'cumulative_count': 1,
+          'date': '2020-01-01',
+          'registrations_count': 1,
+        }),
+      ]),
+    }),
+    'success': True,
+  })
+# ---
+# name: TestAnalytics.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestUserAnalytics.test_success_no_transactions
+  dict({
+    'data': dict({
+      'files_uploaded': 0,
+      'initial_plots': 0,
+      'total_suppliers': 0,
+      'total_transactions': 0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestUserAnalytics.test_success_with_transactions
+  dict({
+    'data': dict({
+      'files_uploaded': 0,
+      'initial_plots': 4,
+      'total_suppliers': 2,
+      'total_transactions': 4,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestUserAnalytics.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---

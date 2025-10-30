@@ -1,0 +1,36 @@
+# serializer version: 1
+# name: TestTokenObtain.test_forbidden
+  dict({
+    'code': 'jwt.no_verified_gadget',
+    'message': 'No verified gadget found',
+    'success': False,
+  })
+# ---
+# name: TestTokenObtain.test_invalid_credentials
+  dict({
+    'code': 'jwt.authentication_failed',
+    'message': 'No active account found with the given credentials',
+    'success': False,
+  })
+# ---
+# name: TestTokenObtain.test_invalid_password
+  dict({
+    'code': 'jwt.authentication_failed',
+    'message': 'No active account found with the given credentials',
+    'success': False,
+  })
+# ---
+# name: TestTokenObtain.test_throttling
+  dict({
+    'code': 'drf.throttled',
+    'message': 'Request was throttled. Expected available in 60 seconds.',
+    'success': False,
+  })
+# ---
+# name: TestTokenObtain.test_user_deleted
+  dict({
+    'code': 'jwt.authentication_failed',
+    'message': 'No active account found with the given credentials',
+    'success': False,
+  })
+# ---

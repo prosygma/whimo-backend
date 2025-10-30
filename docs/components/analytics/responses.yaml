@@ -1,0 +1,168 @@
+AnalyticsResponse:
+  description: Analytics data response
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - success
+          - data
+        properties:
+          success:
+            type: boolean
+            example: true
+          data:
+            $ref: '#/AnalyticsData'
+
+AnalyticsData:
+  type: object
+  required:
+    - active_traders
+    - balance_summary
+    - transactions_by_traceability
+    - user_growth
+  properties:
+    active_traders:
+      $ref: '#/ActiveTradersKPI'
+    balance_summary:
+      type: array
+      items:
+        $ref: '#/BalanceSummaryItem'
+    transactions_by_traceability:
+      type: array
+      items:
+        $ref: '#/TraceabilityStatus'
+    user_growth:
+      type: array
+      items:
+        $ref: '#/UserGrowthItem'
+
+ActiveTradersKPI:
+  type: object
+  required:
+    - count
+    - period_days
+  properties:
+    count:
+      type: integer
+      description: Number of active traders
+      example: 45
+    period_days:
+      type: integer
+      description: Period in days for the KPI calculation
+      example: 30
+
+BalanceSummaryItem:
+  type: object
+  required:
+    - commodity_id
+    - commodity_code
+    - commodity_name
+    - commodity_unit
+    - total_volume
+  properties:
+    commodity_id:
+      type: string
+      format: uuid
+      description: Commodity ID
+      example: "550e8400-e29b-41d4-a716-446655440000"
+    commodity_code:
+      type: string
+      description: Commodity code
+      example: "COF001"
+    commodity_name:
+      type: string
+      description: Commodity name
+      example: "Arabica Coffee Beans"
+    commodity_unit:
+      type: string
+      description: Unit of measurement
+      example: "kg"
+    total_volume:
+      type: number
+      format: decimal
+      description: Total volume across all users
+      example: 1250.75
+
+TraceabilityStatus:
+  type: object
+  required:
+    - status
+    - count
+  properties:
+    status:
+      type: string
+      enum: [full, conditional, partial, incomplete]
+      description: Traceability status level
+      example: "full"
+    count:
+      type: integer
+      description: Number of transactions with this traceability status
+      example: 23
+
+UserGrowthItem:
+  type: object
+  required:
+    - date
+    - registrations_count
+    - cumulative_count
+  properties:
+    date:
+      type: string
+      format: date
+      description: Registration date
+      example: "2024-01-15"
+    registrations_count:
+      type: integer
+      description: Number of registrations on this date
+      example: 5
+    cumulative_count:
+      type: integer
+      description: Cumulative count of registrations up to this date
+      example: 142
+
+UserAnalyticsResponse:
+  description: User-specific analytics data response with caching optimization
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - success
+          - data
+        properties:
+          success:
+            type: boolean
+            example: true
+          data:
+            $ref: '#/UserMetrics'
+
+UserMetrics:
+  type: object
+  description: User-specific analytics metrics with supply chain traceability
+  required:
+    - total_transactions
+    - total_suppliers
+    - initial_plots
+    - files_uploaded
+  properties:
+    total_transactions:
+      type: integer
+      description: Total number of transactions where user is buyer, seller, or creator
+      example: 42
+      minimum: 0
+    total_suppliers:
+      type: integer
+      description: Total number of distinct suppliers the user has purchased from
+      example: 8
+      minimum: 0
+    initial_plots:
+      type: integer
+      description: Number of unique farm locations (initial plots) registered throughout the complete supply chain history of user's transactions
+      example: 25
+      minimum: 0
+    files_uploaded:
+      type: integer
+      description: Number of location files uploaded by the user
+      example: 12
+      minimum: 0 

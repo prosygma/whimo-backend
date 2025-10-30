@@ -1,0 +1,220 @@
+# Core Settings
+# ----------------------------------------------------------------------------------------------------------------------
+
+[project]
+name = "whimo-backend"
+version = "0.1.0"
+description = "WHIMO Backend Service"
+requires-python = ">=3.12.0, <3.13"
+readme = "README.md"
+dependencies = [
+    "django-constance>=4.3.2,<5",
+    "django-cors-headers>=4.7.0,<5",
+    "django-environ>=0.12.0,<0.13",
+    "django-import-export>=4.3.7,<5",
+    "django-redis>=5.4.0,<6",
+    "django-simple-history>=3.8.0,<4",
+    "django-stubs-ext>=5.1.3,<6",
+    "djangorestframework-simplejwt>=5.5.0,<6",
+    "djangorestframework>=3.16.0,<4",
+    "django~=5.2",
+    "psycopg2-binary>=2.9.10,<3",
+    "pydantic>=2.11.3,<3",
+    "gunicorn>=23.0.0",
+    "authlib>=1.5.2",
+    "email-validator>=2.2.0",
+    "django-unfold>=0.59.0",
+    "django-storages[s3]>=1.14.6",
+    "celery[redis]>=5.5.3",
+    "django-celery-beat>=2.8.1",
+    "django-celery-results>=2.6.0",
+    "requests>=2.32.3",
+    "django-push-notifications[apns-async,fcm]>=3.2.1",
+    "sentry-sdk[django]>=2.34.1",
+]
+package-mode = false
+
+[dependency-groups]
+dev = [
+    "django-stubs[compatible-mypy]>=5.1.3,<6",
+    "djangorestframework-stubs[compatible-mypy]>=3.15.3,<4",
+    "factory-boy>=3.3.3,<4",
+    "mypy>=1.15.0,<2",
+    "openapi-spec-validator>=0.7.1,<0.8",
+    "pytest>=8.3.5,<9",
+    "pytest-cov>=6.1.1,<7",
+    "pytest-django>=4.11.1,<5",
+    "pytest-freezegun>=0.4.2,<0.5",
+    "pytest-mock>=3.14.0",
+    "pytest-xdist>=3.6.1",
+    "ruff>=0.11.5,<0.12",
+    "setuptools>=78.1.0,<79",
+    "syrupy>=4.9.1,<5",
+    "tox>=4.25.0,<5",
+    "types-authlib>=1.5.0.20250416",
+]
+
+# Ruff
+# ----------------------------------------------------------------------------------------------------------------------
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "A",      # flake8-builtins: Checks for name shadowing of Python builtins
+    "ANN",    # flake8-annotations: Type annotation related checks
+    "ARG",    # flake8-unused-arguments: Detects unused function arguments
+    "ASYNC",  # flake8-async: Checks for async/await related issues
+    "B",      # flake8-bugbear: Detects common bugs and design problems
+    "C",      # mccabe: Code complexity measurement
+    "C4",     # flake8-comprehensions: Checks for unnecessary comprehensions
+    "COM",    # flake8-commas: Enforces comma placement in lists, dicts, etc.
+    "DJ",     # flake8-django: Django-specific linting rules
+    "DTZ",    # flake8-datetimez: Checks for naive vs aware datetime objects
+    "E",      # pycodestyle errors: Basic Python style conventions (errors)
+    "F",      # Pyflakes: Detects logical errors in programs
+    "G",      # flake8-logging-format: Checks logging format strings
+    "I",      # isort: Import sorting and organization
+    "INT",    # flake8-gettext: Checks for gettext internationalization issues
+    "ISC",    # flake8-implicit-str-concat: String concatenation style checks
+    "LOG",    # flake8-logging: Various logging-related checks
+    "PIE",    # flake8-pie: Miscellaneous linting rules and enhancements
+    "PLE",    # Pylint errors: Critical programming errors
+    "PLR",    # Pylint refactor: Suggestions for code improvements
+    "PLW",    # Pylint warnings: Potential issues or code smells
+    "PT",     # flake8-pytest-style: Best practices for pytest
+    "Q",      # flake8-quotes: Consistency in string quote usage
+    "RET",    # flake8-return: Checks for issues with return statements
+    "RSE",    # flake8-raise: Checks for issues with raised exceptions
+    "RUF",    # Ruff-specific rules: Rules unique to the Ruff linter
+    "SIM",    # flake8-simplify: Checks for code that can be simplified
+    "T20",    # flake8-print: Checks for print statements in production code
+    "TID",    # flake8-tidy-imports: Import tidying and organization
+]
+ignore = [
+    "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in `**__`
+    "COM812",  # Trailing comma missing
+    "DJ001",   # Avoid using `null=True` on string-based fields such as `CharField`
+    "RUF012",  # Mutable class attributes should be annotated with `typing.ClassVar`
+]
+exclude = ["**/migrations/*"]
+
+# MyPy
+# ----------------------------------------------------------------------------------------------------------------------
+
+[tool.mypy]
+python_version = "3.12"
+plugins = [
+    "mypy_django_plugin.main",
+    "mypy_drf_plugin.main",
+]
+exclude = ["migrations/*"]
+
+[[tool.mypy.overrides]]
+module = [
+    "celery.*",
+    "django_celery_beat.*",
+    "environ.*",
+    "firebase_admin.*",
+    "import_export.*",
+    "push_notifications.*",
+    "simple_history.*",
+    "unfold.*",
+]
+follow_untyped_imports = true
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = ["whimo.contrib.admin.*"]
+disable_error_code = ["misc"]
+
+[tool.django-stubs]
+django_settings_module = "whimo.settings"
+
+# Pytest
+# ----------------------------------------------------------------------------------------------------------------------
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "whimo.settings"
+filterwarnings = [
+    "ignore:distutils Version classes are deprecated. Use packaging.version instead.:DeprecationWarning",
+    "ignore:.*received a naive datetime.*:RuntimeWarning:django.db.models.fields",
+]
+
+# Coverage
+# ----------------------------------------------------------------------------------------------------------------------
+
+[tool.coverage.run]
+source = ["whimo"]
+omit = [
+    "gunicorn.conf.py",
+    "*/apps.py",
+    "*/asgi.py",
+    "*/wsgi.py",
+    "*/migrations/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+skip_covered = true
+
+# Tox
+# ----------------------------------------------------------------------------------------------------------------------
+
+[tool.tox]
+requires = ["tox>=4"]
+env_list = ["format", "lint", "typing", "openapi", "test"]
+skipsdist = true
+
+[tool.tox.env_run_base]
+allowlist_externals = ["*"]
+
+[tool.tox.env.format]
+description = "format code"
+commands = [
+    ["ruff", { replace = "posargs", default = ["format", "."], extend = true} ],
+    ["ruff", { replace = "posargs", default = ["check", ".", "--fix"], extend = true} ],
+]
+
+[tool.tox.env.lint]
+description = "lint code"
+commands = [
+    ["ruff", { replace = "posargs", default = ["check", ".", "--output-format", "junit", "--output-file", "./ci/reports/ruff.xml"], extend = true }],
+]
+
+[tool.tox.env.typing]
+description = "check typing"
+setenv = """
+    DJANGO_SECRET_KEY=tox-test-secret-key
+    POSTGRES_PASSWORD=tox-test-password
+    REDIS_PASSWORD=tox-test-password
+    MINIO_ROOT_USER=tox-test-user
+    MINIO_ROOT_PASSWORD=tox-test-password
+    EMAIL_HOST_PASSWORD=tox-test-password
+"""
+commands = [
+    ["mypy", { replace = "posargs", default = [".", "--junit-xml", "./ci/reports/mypy.xml"], extend = true} ],
+]
+
+[tool.tox.env.openapi]
+description = "validate openapi docs"
+commands = [
+    ["openapi-spec-validator", { replace = "posargs", default = ["./docs/openapi.yaml"], extend = true} ],
+]
+
+[tool.tox.env.test]
+description = "run unit tests"
+setenv = """
+    DJANGO_SECRET_KEY=tox-test-secret-key
+    MINIO_ROOT_USER=tox-test-user
+    MINIO_ROOT_PASSWORD=tox-test-password
+    EMAIL_HOST_PASSWORD=tox-test-password
+"""
+skip_install = true
+passenv = ["*"]
+commands = [
+    ["pytest", { replace = "posargs", default = ["tests", "--cov", "--junitxml", "./ci/reports/pytest.xml", "--cov-report", "xml:./ci/reports/coverage.xml", "--cov-report", "term"], extend = true }],
+]

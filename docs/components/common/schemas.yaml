@@ -1,0 +1,68 @@
+BaseResponse:
+  description: Base response structure
+  type: object
+  properties:
+    message:
+      type: [ string, 'null' ]
+    success:
+      type: boolean
+      default: true
+
+ErrorResponse:
+  description: Error response structure
+  allOf:
+    - $ref: '#/BaseResponse'
+    - type: object
+      properties:
+        code:
+          type: string
+        success:
+          type: boolean
+          default: false
+
+DataResponse:
+  description: Data response structure
+  allOf:
+    - $ref: '#/BaseResponse'
+    - type: object
+      properties:
+        data:
+          type: [ object, array ]
+
+Pagination:
+  description: Pagination metadata
+  type: object
+  properties:
+    count:
+      type: integer
+      description: Total number of items
+      examples: [ 42 ]
+    page:
+      type: integer
+      description: Current page number
+      examples: [ 2 ]
+    page_size:
+      type: integer
+      description: Number of items per page
+      examples: [ 20 ]
+    next_page:
+      type: [ integer, 'null' ]
+      description: Next page number or null if there is no next page
+      examples: [ 3 ]
+    previous_page:
+      type: [ integer, 'null' ]
+      description: Previous page number or null if there is no previous page
+      examples: [ 1 ]
+    total_pages:
+      type: integer
+      description: Total number of pages
+      examples: [ 3 ]
+
+PaginatedDataResponse:
+  description: Paginated data response structure
+  allOf:
+    - $ref: '#/DataResponse'
+    - type: object
+      properties:
+        pagination:
+          $ref: '#/Pagination'

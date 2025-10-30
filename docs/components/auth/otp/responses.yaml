@@ -1,0 +1,64 @@
+OTPVerifiedResponse:
+  description: OTP verification successful
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../../common/schemas.yaml#/BaseResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Gadget verified
+
+OTPSentResponse:
+  description: OTP code sent successfully
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../../common/schemas.yaml#/BaseResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Verification code sent
+
+PasswordResetSentResponse:
+  description: Password reset code sent successfully
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../../common/schemas.yaml#/BaseResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Reset code sent
+
+PasswordResetOTPValidResponse:
+  description: Verification code is valid
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../../common/schemas.yaml#/BaseResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Verification code is valid
+
+PasswordResetResponse:
+  description: Password reset successful
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../../common/schemas.yaml#/BaseResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Password reset

@@ -1,0 +1,47 @@
+CommoditiesListResponse:
+  description: List of commodities
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/PaginatedDataResponse'
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: './schemas.yaml#/CommodityWithGroupDTO'
+              message:
+                type: string
+                default: Commodities list
+
+CommoditiesGroupsListResponse:
+  description: List of commodities groups with user balances
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/PaginatedDataResponse'
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: './schemas.yaml#/CommodityGroupWithCommoditiesBalancesDTO'
+              message:
+                type: string
+                default: Commodities groups list
+
+BalanceListResponse:
+  description: List of balances
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/PaginatedDataResponse'
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: './schemas.yaml#/BalanceDTO'

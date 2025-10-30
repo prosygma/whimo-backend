@@ -1,0 +1,114 @@
+OTPSendRequest:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - identifier
+        properties:
+          identifier:
+            type: string
+            description: User's email address or phone number to send OTP
+      examples:
+        email:
+          value:
+            identifier: john@whimo.com
+          summary: Send OTP to email
+        phone:
+          value:
+            identifier: '+256798268908'
+          summary: Send OTP to phone
+
+OTPVerifyRequest:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - code
+          - identifier
+        properties:
+          code:
+            type: string
+            description: One-time password code sent to the user
+          identifier:
+            type: string
+            description: User's email address or phone number
+      examples:
+        email:
+          value:
+            code: '123456'
+            identifier: john@whimo.com
+          summary: OTP verification for email
+        phone:
+          value:
+            code: '123456'
+            identifier: '+256798268908'
+          summary: OTP verification for phone
+
+PasswordResetSendRequest:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - identifier
+        properties:
+          identifier:
+            type: string
+            description: User's email address or phone number
+      examples:
+        email:
+          value:
+            identifier: john@whimo.com
+          summary: Send password reset code to email
+        phone:
+          value:
+            identifier: '+256798268908'
+          summary: Send password reset code to phone
+
+PasswordResetCheckRequest:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - code
+          - identifier
+        properties:
+          code:
+            type: string
+            description: Password reset code sent to the user
+            examples: [ '123456' ]
+          identifier:
+            type: string
+            description: User's email address or phone number
+            examples: [ john@whimo.com ]
+
+PasswordResetVerifyRequest:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - code
+          - password
+          - identifier
+        properties:
+          code:
+            type: string
+            description: Password reset code sent to the user
+            examples: [ '123456' ]
+          password:
+            type: string
+            description: New password
+            examples: [ New-Password-123 ]
+          identifier:
+            type: string
+            description: User's email address or phone number
+            examples: [ john@whimo.com ]

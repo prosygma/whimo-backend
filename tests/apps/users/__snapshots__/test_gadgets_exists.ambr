@@ -1,0 +1,39 @@
+# serializer version: 1
+# name: TestGadgetsExists.test_empty_identifier_parameter
+  dict({
+    'data': dict({
+      'exists': False,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestGadgetsExists.test_not_found
+  dict({
+    'data': dict({
+      'exists': False,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestGadgetsExists.test_success_exists_true
+  dict({
+    'data': dict({
+      'exists': True,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestGadgetsExists.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestGadgetsExists.test_user_deleted
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---

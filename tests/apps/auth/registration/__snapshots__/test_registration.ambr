@@ -1,0 +1,52 @@
+# serializer version: 1
+# name: TestRegistration.test_email_already_exists
+  dict({
+    'code': 'api.conflict',
+    'message': 'Gadget with this identifier already exists',
+    'success': False,
+  })
+# ---
+# name: TestRegistration.test_invalid_email
+  dict({
+    'code': 'pydantic.validation_error',
+    'errors': dict({
+      'email': list([
+        'Value error, Invalid email',
+      ]),
+    }),
+    'message': 'email: Value error, Invalid email',
+    'success': False,
+  })
+# ---
+# name: TestRegistration.test_no_phone_or_email
+  dict({
+    'code': 'api.bad_request',
+    'message': 'Email address or phone number is required',
+    'success': False,
+  })
+# ---
+# name: TestRegistration.test_only_email
+  dict({
+    'message': 'Registered',
+    'success': True,
+  })
+# ---
+# name: TestRegistration.test_only_phone
+  dict({
+    'message': 'Registered',
+    'success': True,
+  })
+# ---
+# name: TestRegistration.test_phone_already_exists
+  dict({
+    'code': 'api.conflict',
+    'message': 'Gadget with this identifier already exists',
+    'success': False,
+  })
+# ---
+# name: TestRegistration.test_success
+  dict({
+    'message': 'Registered',
+    'success': True,
+  })
+# ---

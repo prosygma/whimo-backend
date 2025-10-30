@@ -1,0 +1,57 @@
+StatusParameter:
+  name: status
+  in: query
+  schema:
+    $ref: './schemas.yaml#/TransactionStatus'
+  description: Filter transactions by status
+
+ActionParameter:
+  name: action
+  in: query
+  schema:
+    $ref: './schemas.yaml#/TransactionAction'
+  description: Filter transactions by action (buying or selling)
+
+CreatedAtFromParameter:
+  name: created_at_from
+  in: query
+  schema:
+    type: string
+    format: date-time
+  description: Filter transactions created after this timestamp
+
+CreatedAtToParameter:
+  name: created_at_to
+  in: query
+  schema:
+    type: string
+    format: date-time
+  description: Filter transactions created before this timestamp
+
+CommodityGroupIdParameter:
+  name: commodity_group_id
+  in: query
+  schema:
+    type: string
+    format: uuid
+  description: Unique identifier of the commodity group
+
+BuyerIdParameter:
+  name: buyer_id
+  in: query
+  schema:
+    type: string
+    format: uuid
+  description: |
+    Unique identifier of the transaction buyer_id
+    
+    Note: parameter can be used only with `commodity_group_id` and `status=ACCEPTED` for privacy
+
+TransactionIdParameter:
+  name: transaction_id
+  in: path
+  schema:
+    type: string
+    format: uuid
+  description: Unique identifier of the transaction
+  required: true

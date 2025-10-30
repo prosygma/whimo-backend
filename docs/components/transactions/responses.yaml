@@ -1,0 +1,172 @@
+TransactionListResponse:
+  description: List of transactions
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/PaginatedDataResponse'
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: './schemas.yaml#/TransactionDTO'
+
+TransactionDetailResponse:
+  description: Transaction details
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              data:
+                $ref: './schemas.yaml#/TransactionDTO'
+
+TransactionTraceabilityCountsResponse:
+  description: Transaction traceability counts
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              data:
+                $ref: './schemas.yaml#/TraceabilityCountsDTO'
+
+TransactionCreatedResponse:
+  description: Transaction created successfully
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              data:
+                $ref: './schemas.yaml#/TransactionDTO'
+              message:
+                type: string
+                default: Transaction created
+
+TransactionStatusUpdatedResponse:
+  description: Transaction status updated successfully
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/BaseResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Transaction status updated
+
+TransactionGeodataUpdatedResponse:
+  description: Transaction geodata updated successfully
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/BaseResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Transaction geodata updated
+
+TransactionGeodataRequestedResponse:
+  description: Missing geodata request submitted successfully
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/BaseResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Missing geodata requested
+
+ChainFeatureCollectionDownloadResponse:
+  description: Transaction chain feature collection data
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              data:
+                $ref: './schemas.yaml#/ChainFeatureCollectionDTO'
+              message:
+                type: string
+                default: Chain feature collection
+
+ChainCsvDownloadResponse:
+  description: Transaction chain data as CSV file
+  content:
+    text/csv:
+      schema:
+        type: string
+        format: binary
+        description: CSV file containing transaction chain data with columns for transaction details, commodity information, and user IDs
+      example: |
+        Transaction ID,Transaction Created At,Transaction Type,Transaction Status,Transaction Traceability,Transaction Location,Latitude,Longitude,Volume,Is Automatic,Created By Role,Commodity ID,Commodity Code,Commodity Name,Commodity Unit,Commodity Group,Seller ID,Seller Created At,Buyer ID,Buyer Created At
+        123e4567-e89b-12d3-a456-426614174000,2024-01-15T10:30:00Z,PRODUCER,ACCEPTED,FULL,GPS,1.234,-5.678,100.5,false,seller,456e7890-e89b-12d3-a456-426614174000,CORN001,Corn,kg,Grains,789e0123-e89b-12d3-a456-426614174000,2024-01-10T08:00:00Z,012e3456-e89b-12d3-a456-426614174000,2024-01-12T09:15:00Z
+  headers:
+    Content-Disposition:
+      schema:
+        type: string
+        example: 'attachment; filename="transaction_123e4567-e89b-12d3-a456-426614174000_chain.csv"'
+      description: Suggests downloading the file with a specific filename
+    X-Total-Transactions:
+      schema:
+        type: string
+        example: '2'
+      description: Number of transactions included in CSV
+
+ChainBundleDownloadResponse:
+  description: Transaction chain data as ZIP bundle
+  content:
+    application/zip:
+      schema:
+        type: string
+        format: binary
+        description: ZIP bundle containing GeoJSON files for transaction chain with merged.geojson and individual transaction files
+  headers:
+    Content-Disposition:
+      schema:
+        type: string
+        example: 'attachment; filename="transaction_123e4567-e89b-12d3-a456-426614174000_bundle.zip"'
+      description: Suggests downloading the file with a specific filename
+    X-Geojson-Merged-Transactions:
+      schema:
+        type: string
+        example: '2'
+      description: Number of transactions included in merged GeoJSON
+    X-Custom-Location-File-Transactions:
+      schema:
+        type: string
+        example: '1'
+      description: Number of transactions with custom location files
+    X-No-Location-File-Transactions:
+      schema:
+        type: string
+        example: '3'
+      description: Number of transactions without location files
+
+TransactionNotificationResentResponse:
+  description: Transaction notification resent successfully
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/BaseResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Transaction notification resent

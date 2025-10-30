@@ -1,0 +1,1183 @@
+# serializer version: 1
+# name: TestNotificationsList.test_empty_result
+  dict({
+    'data': list([
+    ]),
+    'pagination': dict({
+      'count': 0,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_filter_by_created_at_from
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-31T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000006',
+              'identifier': 'hollymoore@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000007',
+              'identifier': '76960696027',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000003',
+          'username': '55a83e50fd9bc840',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000002',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'pending',
+        'type': 'geodata_updated',
+      }),
+      dict({
+        'created_at': '2020-01-31T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000008',
+              'identifier': 'robin14@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000009',
+              'identifier': '85124000348',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000004',
+          'username': '5ef01fa9e1d6240c',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000003',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'pending',
+        'type': 'transaction_rejected',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 2,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_filter_by_created_at_to
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': 'f3993a69e2ca7956',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000000',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'read',
+        'type': 'geodata_missing',
+      }),
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000004',
+              'identifier': 'gwhite@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000005',
+              'identifier': '09163457923',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'username': '7b5ad1347120363c',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000001',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'read',
+        'type': 'transaction_pending',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 2,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_filter_by_created_by_id
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': 'af3993a69e2ca795',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000000',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'read',
+        'type': 'transaction_pending',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_filter_by_status[pending]
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': 'f3993a69e2ca7956',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000000',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'pending',
+        'type': 'transaction_rejected',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_filter_by_status[read]
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000004',
+              'identifier': 'gwhite@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000005',
+              'identifier': '09163457923',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'username': '837b5ad134712036',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000001',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'read',
+        'type': 'geodata_updated',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_filter_by_type[geodata_missing]
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-00000000000a',
+              'identifier': 'kevin11@example.net',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-00000000000b',
+              'identifier': '77551717604',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000005',
+          'username': 'b1fedb56c90448aa',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000004',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'read',
+        'type': 'geodata_missing',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_filter_by_type[geodata_updated]
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-00000000000c',
+              'identifier': 'jared03@example.net',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-00000000000d',
+              'identifier': '21376582197',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000006',
+          'username': '45c222671c03c9ef',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000005',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'read',
+        'type': 'geodata_updated',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_filter_by_type[transaction_accepted]
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000004',
+              'identifier': 'gwhite@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000005',
+              'identifier': '09163457923',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'username': '37b5ad1347120363',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000001',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'read',
+        'type': 'transaction_accepted',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_filter_by_type[transaction_expired]
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000008',
+              'identifier': 'robin14@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000009',
+              'identifier': '85124000348',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000004',
+          'username': '85ef01fa9e1d6240',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000003',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'pending',
+        'type': 'transaction_expired',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_filter_by_type[transaction_pending]
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': 'f3993a69e2ca7956',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000000',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'read',
+        'type': 'transaction_pending',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_filter_by_type[transaction_rejected]
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000006',
+              'identifier': 'hollymoore@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000007',
+              'identifier': '76960696027',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000003',
+          'username': '55a83e50fd9bc840',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000002',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'pending',
+        'type': 'transaction_rejected',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_forbidden
+  dict({
+    'code': 'drf.permission_denied',
+    'message': 'At least one verified gadget is required',
+    'success': False,
+  })
+# ---
+# name: TestNotificationsList.test_pagination[1-2]
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000004',
+              'identifier': 'gwhite@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000005',
+              'identifier': '09163457923',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'username': '7b5ad1347120363c',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000001',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'read',
+        'type': 'transaction_pending',
+      }),
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': 'f3993a69e2ca7956',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000000',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'read',
+        'type': 'geodata_missing',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 5,
+      'next_page': 2,
+      'page': 1,
+      'page_size': 2,
+      'previous_page': None,
+      'total_pages': 3,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_pagination[2-2]
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000006',
+              'identifier': 'hollymoore@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000007',
+              'identifier': '76960696027',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000003',
+          'username': '55a83e50fd9bc840',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000002',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'pending',
+        'type': 'geodata_updated',
+      }),
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000008',
+              'identifier': 'robin14@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000009',
+              'identifier': '85124000348',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000004',
+          'username': '5ef01fa9e1d6240c',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000003',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'pending',
+        'type': 'transaction_rejected',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 5,
+      'next_page': 3,
+      'page': 2,
+      'page_size': 2,
+      'previous_page': 1,
+      'total_pages': 3,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_search_by_data
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': 'f3993a69e2ca7956',
+        }),
+        'data': dict({
+          'message': 'New transaction',
+          'transaction_id': 'test-12345',
+        }),
+        'id': '00000000-0000-0000-0000-000000000000',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'read',
+        'type': 'geodata_missing',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_search_by_type
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': 'f3993a69e2ca7956',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000000',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'read',
+        'type': 'transaction_pending',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_success
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': 'f3993a69e2ca7956',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000000',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'read',
+        'type': 'geodata_missing',
+      }),
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000004',
+              'identifier': 'gwhite@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000005',
+              'identifier': '09163457923',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'username': '7b5ad1347120363c',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000001',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'read',
+        'type': 'transaction_pending',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 2,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestNotificationsList.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestNotificationsList.test_user_deleted
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---

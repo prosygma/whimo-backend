@@ -1,0 +1,21 @@
+CreateUserDTO:
+  type: object
+  properties:
+    email:
+      type: string
+      description: User's email address
+      example: 'john@whimo.com'
+    phone:
+      type: string
+      description: User's phone number
+      example: '+256798268908'
+
+RegistrationDTO:
+  allOf:
+    - $ref: '#/CreateUserDTO'
+    - type: object
+      properties:
+        password:
+          type: string
+          description: User's password
+          example: 'John-Password-123'

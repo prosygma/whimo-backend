@@ -1,0 +1,56 @@
+# serializer version: 1
+# name: TestGadgetsCreate.test_error_both_identifiers_provided
+  dict({
+    'code': 'api.bad_request',
+    'message': 'Exactly one identifier must be specified',
+    'success': False,
+  })
+# ---
+# name: TestGadgetsCreate.test_error_gadget_already_exists
+  dict({
+    'code': 'api.conflict',
+    'message': 'Gadget with this identifier already exists',
+    'success': False,
+  })
+# ---
+# name: TestGadgetsCreate.test_error_missing_identifiers
+  dict({
+    'code': 'api.bad_request',
+    'message': 'Exactly one identifier must be specified',
+    'success': False,
+  })
+# ---
+# name: TestGadgetsCreate.test_success_create_email
+  dict({
+    'data': dict({
+      'identifier': 'johndoe@whimo.com',
+      'is_verified': False,
+      'type': 'email',
+    }),
+    'success': True,
+  })
+# ---
+# name: TestGadgetsCreate.test_success_create_phone
+  dict({
+    'data': dict({
+      'identifier': '12223334455',
+      'is_verified': False,
+      'type': 'phone',
+    }),
+    'success': True,
+  })
+# ---
+# name: TestGadgetsCreate.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestGadgetsCreate.test_user_deleted
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---

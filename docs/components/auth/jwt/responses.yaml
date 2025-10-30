@@ -1,0 +1,21 @@
+TokenPairResponse:
+  description: Successful authentication
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Authorized
+              data:
+                type: object
+                properties:
+                  access:
+                    type: string
+                    examples: [ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... ]
+                  refresh:
+                    type: string
+                    examples: [ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... ]

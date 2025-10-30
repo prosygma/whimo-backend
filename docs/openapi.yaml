@@ -1,0 +1,754 @@
+openapi: 3.1.0
+
+info:
+  title: Whimo API
+  description: API documentation for the Whimo application
+  version: 1.0.0
+
+servers:
+  - url: https://staging.whimo.net/api/v1
+    description: Staging API V1
+  - url: https://whimo.net/api/v1
+    description: Production API V1
+  - url: https://whimo.krasnopolsky.dev/api/v1
+    description: Dev API V1
+  - url: http://127.0.0.1:8000/api/v1
+    description: Local API V1
+
+paths:
+  /system/healthcheck/:
+    get:
+      tags: [ System ]
+      security: [ ]
+      summary: Healthcheck
+      description: Checks the health of the system
+      operationId: healthcheck
+      responses:
+        '200':
+          $ref: './components/system/responses.yaml#/HealthcheckResponse'
+
+  /auth/registration/:
+    post:
+      tags: [ Registration ]
+      security: [ ]
+      summary: Register new user
+      description: Creates a new user account with email, phone, or both
+      operationId: registerUser
+      requestBody:
+        $ref: './components/auth/registration/requests.yaml#/RegistrationRequest'
+      responses:
+        '201':
+          $ref: './components/auth/registration/responses.yaml#/RegisteredResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '409':
+          $ref: './components/auth/registration/errors.yaml#/GadgetAlreadyExistsError'
+
+  /auth/social/google/login/:
+    post:
+      tags: [ Social ]
+      security: [ ]
+      summary: Google OAuth login
+      description: Authorize Google OAuth ID token
+      operationId: googleLogin
+      requestBody:
+        $ref: './components/auth/social/requests.yaml#/OAuthIdTokenRequest'
+      responses:
+        '200':
+          $ref: './components/auth/jwt/responses.yaml#/TokenPairResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+
+  /auth/social/apple/login/:
+    post:
+      tags: [ Social ]
+      security: [ ]
+      summary: Apple OAuth login
+      description: Authorize Apple OAuth ID token
+      operationId: appleLogin
+      requestBody:
+        $ref: './components/auth/social/requests.yaml#/OAuthIdTokenRequest'
+      responses:
+        '200':
+          $ref: './components/auth/jwt/responses.yaml#/TokenPairResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+
+  /auth/jwt/:
+    post:
+      tags: [ JWT ]
+      security: [ ]
+      summary: Obtain JWT token pair
+      description: Creates access and refresh tokens
+      operationId: obtainTokenPair
+      requestBody:
+        $ref: './components/auth/jwt/requests.yaml#/TokenObtainRequest'
+      responses:
+        '200':
+          $ref: './components/auth/jwt/responses.yaml#/TokenPairResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+
+  /auth/jwt/refresh/:
+    post:
+      tags: [ JWT ]
+      security: [ ]
+      summary: Refresh JWT token pair
+      description: Refreshes access and refresh tokens
+      operationId: refreshToken
+      requestBody:
+        $ref: './components/auth/jwt/requests.yaml#/TokenRefreshRequest'
+      responses:
+        '200':
+          $ref: './components/auth/jwt/responses.yaml#/TokenPairResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+
+  /auth/otp/send/:
+    post:
+      tags: [ OTP ]
+      security: [ ]
+      summary: Send OTP code
+      description: Sends a one-time password to a user's gadget
+      operationId: sendOTP
+      requestBody:
+        $ref: './components/auth/otp/requests.yaml#/OTPSendRequest'
+      responses:
+        '200':
+          $ref: './components/auth/otp/responses.yaml#/OTPSentResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+
+  /auth/otp/verify/:
+    post:
+      tags: [ OTP ]
+      security: [ ]
+      summary: Verify OTP code
+      description: Verifies a one-time password code for a user gadget
+      operationId: verifyOTP
+      requestBody:
+        $ref: './components/auth/otp/requests.yaml#/OTPVerifyRequest'
+      responses:
+        '200':
+          $ref: './components/auth/otp/responses.yaml#/OTPVerifiedResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+
+  /auth/otp/password-reset/send/:
+    post:
+      tags: [ OTP ]
+      summary: Send password reset code
+      description: Sends a password reset code to a user's gadget
+      operationId: sendPasswordResetCode
+      security: [ ]
+      requestBody:
+        $ref: './components/auth/otp/requests.yaml#/PasswordResetSendRequest'
+      responses:
+        '200':
+          $ref: './components/auth/otp/responses.yaml#/PasswordResetSentResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+
+  /auth/otp/password-reset/check/:
+    post:
+      tags: [ OTP ]
+      security: [ ]
+      summary: Check password reset code
+      description: Checks a password reset code
+      operationId: checkPasswordResetCode
+      requestBody:
+        $ref: './components/auth/otp/requests.yaml#/PasswordResetCheckRequest'
+      responses:
+        '200':
+          $ref: './components/auth/otp/responses.yaml#/PasswordResetOTPValidResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+
+  /auth/otp/password-reset/verify/:
+    post:
+      tags: [ OTP ]
+      security: [ ]
+      summary: Verify password reset code and set new password
+      description: Verifies a password reset code and sets a new password
+      operationId: verifyPasswordResetCode
+      requestBody:
+        $ref: './components/auth/otp/requests.yaml#/PasswordResetVerifyRequest'
+      responses:
+        '200':
+          $ref: './components/auth/otp/responses.yaml#/PasswordResetResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+
+  /users/profile/:
+    get:
+      tags: [ Users ]
+      summary: Get user profile
+      description: Returns the authenticated user's profile with their gadgets
+      operationId: getUserProfile
+      responses:
+        '200':
+          $ref: './components/users/responses.yaml#/ProfileResponse'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+    delete:
+      tags: [ Users ]
+      summary: Delete user account
+      description: Deletes the user's account
+      operationId: deleteUserProfile
+      responses:
+        '200':
+          $ref: './components/users/responses.yaml#/ProfileDeletedResponse'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+
+  /users/profile/password/:
+    patch:
+      tags: [ Users ]
+      summary: Change user password
+      description: Changes the user's password
+      operationId: changeUserPassword
+      requestBody:
+        $ref: './components/users/requests.yaml#/PasswordChangeRequest'
+      responses:
+        '200':
+          $ref: './components/users/responses.yaml#/PasswordChangedResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+
+  /users/gadgets/exists/:
+    get:
+      tags: [ Users ]
+      summary: Check if gadget exists
+      description: Checks if a gadget identifier (email or phone) exists
+      operationId: checkGadgetExists
+      parameters:
+        - $ref: './components/users/parameters.yaml#/GadgetIdentifierParameter'
+      responses:
+        '200':
+          $ref: './components/users/responses.yaml#/GadgetExistsResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+
+  /users/gadgets/:
+    post:
+      tags: [ Users ]
+      summary: Create user gadget
+      description: Creates a new gadget (email or phone) for the authenticated user
+      operationId: createGadget
+      requestBody:
+        $ref: './components/users/requests.yaml#/GadgetCreateRequest'
+      responses:
+        '200':
+          $ref: './components/users/responses.yaml#/GadgetCreatedResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '409':
+          $ref: './components/auth/registration/errors.yaml#/GadgetAlreadyExistsError'
+    delete:
+      tags: [ Users ]
+      summary: Delete user gadget
+      description: Deletes a user's gadget by identifier. Cannot delete the last verified gadget.
+      operationId: deleteGadget
+      requestBody:
+        $ref: './components/users/requests.yaml#/GadgetDeleteRequest'
+      responses:
+        '200':
+          $ref: './components/users/responses.yaml#/GadgetDeletedResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+
+  /notifications/:
+    get:
+      tags: [ Notifications ]
+      summary: List notifications
+      description: Returns a paginated list of user's notifications
+      operationId: listNotifications
+      parameters:
+        - $ref: './components/common/parameters.yaml#/SearchParameter'
+        - $ref: './components/common/parameters.yaml#/PageParameter'
+        - $ref: './components/common/parameters.yaml#/PageSizeParameter'
+        - $ref: './components/notifications/parameters.yaml#/NotificationTypesParam'
+        - $ref: './components/notifications/parameters.yaml#/NotificationStatusParam'
+        - $ref: './components/notifications/parameters.yaml#/NotificationCreatedAtFromParam'
+        - $ref: './components/notifications/parameters.yaml#/NotificationCreatedAtToParam'
+        - $ref: './components/notifications/parameters.yaml#/NotificationCreatedByParam'
+      responses:
+        '200':
+          $ref: './components/notifications/responses.yaml#/NotificationsListResponse'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+
+  /notifications/{notification_id}/:
+    get:
+      tags: [ Notifications ]
+      summary: Get notification details
+      description: Returns detailed information about a specific notification
+      operationId: getNotificationDetails
+      parameters:
+        - $ref: './components/notifications/parameters.yaml#/NotificationIdParameter'
+      responses:
+        '200':
+          $ref: './components/notifications/responses.yaml#/NotificationDetailResponse'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+
+  /notifications/{notification_id}/status/:
+    patch:
+      tags: [ Notifications ]
+      summary: Update notification status
+      description: Updates the status of a notification (mark as read)
+      operationId: updateNotificationStatus
+      parameters:
+        - $ref: './components/notifications/parameters.yaml#/NotificationIdParameter'
+      requestBody:
+        $ref: './components/notifications/requests.yaml#/NotificationStatusUpdateRequest'
+      responses:
+        '200':
+          $ref: './components/notifications/responses.yaml#/NotificationStatusUpdatedResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+
+  /notifications/settings/:
+    get:
+      tags: [ Notifications ]
+      summary: List notification settings
+      description: Returns the user's notification settings for all notification types
+      operationId: listNotificationSettings
+      responses:
+        '200':
+          $ref: './components/notifications/responses.yaml#/NotificationSettingsListResponse'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+    put:
+      tags: [ Notifications ]
+      summary: Update notification settings
+      description: Updates the user's notification settings for specific notification types
+      operationId: updateNotificationSettings
+      requestBody:
+        $ref: './components/notifications/requests.yaml#/NotificationSettingsUpdateRequest'
+      responses:
+        '200':
+          $ref: './components/notifications/responses.yaml#/NotificationSettingsUpdatedResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+
+  /notifications/devices/:
+    get:
+      tags: [ Notifications ]
+      summary: List push notification devices
+      description: Returns a list of user's registered push notification devices
+      operationId: listNotificationDevices
+      responses:
+        '200':
+          $ref: './components/notifications/responses.yaml#/DevicesListResponse'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+    post:
+      tags: [ Notifications ]
+      summary: Add push notification device
+      description: Registers a new push notification device for the user
+      operationId: addNotificationDevice
+      requestBody:
+        $ref: './components/notifications/requests.yaml#/DeviceAddRequest'
+      responses:
+        '200':
+          $ref: './components/notifications/responses.yaml#/DeviceAddedResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+
+  /commodities/:
+    get:
+      tags: [ Commodities ]
+      summary: List commodities
+      description: Returns a paginated list of available commodities
+      operationId: listCommodities
+      parameters:
+        - $ref: './components/common/parameters.yaml#/SearchParameter'
+        - $ref: './components/common/parameters.yaml#/PageParameter'
+        - $ref: './components/common/parameters.yaml#/PageSizeParameter'
+        - $ref: './components/commodities/parameters.yaml#/CommodityGroupIdParameter'
+      responses:
+        '200':
+          $ref: './components/commodities/responses.yaml#/CommoditiesListResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+
+  /commodities/groups/:
+    get:
+      tags: [ Commodities ]
+      summary: List commodities groups
+      description: Returns a paginated list of available commodities groups and their commodities with user's current balances
+      operationId: listCommoditiesGroups
+      parameters:
+        - $ref: './components/common/parameters.yaml#/SearchParameter'
+        - $ref: './components/common/parameters.yaml#/PageParameter'
+        - $ref: './components/common/parameters.yaml#/PageSizeParameter'
+      responses:
+        '200':
+          $ref: './components/commodities/responses.yaml#/CommoditiesGroupsListResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+
+  /commodities/balances/:
+    get:
+      tags: [ Commodities ]
+      summary: List user balances
+      description: Returns a paginated list of user's commodity balances
+      operationId: listBalances
+      parameters:
+        - $ref: './components/common/parameters.yaml#/SearchParameter'
+        - $ref: './components/common/parameters.yaml#/PageParameter'
+        - $ref: './components/common/parameters.yaml#/PageSizeParameter'
+        - $ref: './components/commodities/parameters.yaml#/CommodityGroupIdParameter'
+        - $ref: './components/commodities/parameters.yaml#/CommodityIdParameter'
+      responses:
+        '200':
+          $ref: './components/commodities/responses.yaml#/BalanceListResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+
+  /transactions/:
+    get:
+      tags: [ Transactions ]
+      summary: List transactions
+      description: Returns a paginated list of transactions
+      operationId: listTransactions
+      parameters:
+        - $ref: './components/common/parameters.yaml#/SearchParameter'
+        - $ref: './components/common/parameters.yaml#/PageParameter'
+        - $ref: './components/common/parameters.yaml#/PageSizeParameter'
+        - $ref: './components/transactions/parameters.yaml#/StatusParameter'
+        - $ref: './components/transactions/parameters.yaml#/ActionParameter'
+        - $ref: './components/transactions/parameters.yaml#/CreatedAtFromParameter'
+        - $ref: './components/transactions/parameters.yaml#/CreatedAtToParameter'
+        - $ref: './components/transactions/parameters.yaml#/CommodityGroupIdParameter'
+        - $ref: './components/transactions/parameters.yaml#/BuyerIdParameter'
+      responses:
+        '200':
+          $ref: './components/transactions/responses.yaml#/TransactionListResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+
+  /transactions/producer/:
+    post:
+      tags: [ Transactions ]
+      summary: Create producer transaction
+      description: Creates a new producer transaction where the authenticated user is the buyer
+      operationId: createProducerTransaction
+      requestBody:
+        $ref: './components/transactions/requests.yaml#/TransactionProducerCreateRequest'
+      responses:
+        '201':
+          $ref: './components/transactions/responses.yaml#/TransactionCreatedResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+
+  /transactions/downstream/:
+    post:
+      tags: [ Transactions ]
+      summary: Create downstream transaction
+      description: Creates a new downstream transaction where the authenticated user can be either buyer or seller
+      operationId: createDownstreamTransaction
+      requestBody:
+        $ref: './components/transactions/requests.yaml#/TransactionDownstreamCreateRequest'
+      responses:
+        '201':
+          $ref: './components/transactions/responses.yaml#/TransactionCreatedResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+
+  /transactions/{transaction_id}/:
+    get:
+      tags: [ Transactions ]
+      summary: Get transaction details
+      description: Returns detailed information about a specific transaction
+      operationId: getTransactionDetails
+      parameters:
+        - $ref: './components/transactions/parameters.yaml#/TransactionIdParameter'
+      responses:
+        '200':
+          $ref: './components/transactions/responses.yaml#/TransactionDetailResponse'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+
+  /transactions/{transaction_id}/traceability-counts/:
+    get:
+      tags: [ Transactions ]
+      summary: Get transaction traceability counts
+      description: Returns traceability counts for a specific transaction
+      operationId: getTransactionTraceabilityCounts
+      parameters:
+        - $ref: './components/transactions/parameters.yaml#/TransactionIdParameter'
+      responses:
+        '200':
+          $ref: './components/transactions/responses.yaml#/TransactionTraceabilityCountsResponse'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+
+  /transactions/{transaction_id}/status/:
+    patch:
+      tags: [ Transactions ]
+      summary: Update transaction status
+      description: Updates the status of a pending transaction (accept or reject)
+      operationId: updateTransactionStatus
+      parameters:
+        - $ref: './components/transactions/parameters.yaml#/TransactionIdParameter'
+      requestBody:
+        $ref: './components/transactions/requests.yaml#/TransactionStatusUpdateRequest'
+      responses:
+        '200':
+          $ref: './components/transactions/responses.yaml#/TransactionStatusUpdatedResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+
+  /transactions/{transaction_id}/geodata/:
+    patch:
+      tags: [ Transactions ]
+      summary: Update transaction geodata
+      description: Updates the location source and uploads geodata file for a transaction
+      operationId: updateTransactionGeodata
+      parameters:
+        - $ref: './components/transactions/parameters.yaml#/TransactionIdParameter'
+      requestBody:
+        $ref: './components/transactions/requests.yaml#/TransactionGeodataUpdateRequest'
+      responses:
+        '200':
+          $ref: './components/transactions/responses.yaml#/TransactionGeodataUpdatedResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+
+  /transactions/{transaction_id}/geodata/request/:
+    post:
+      tags: [ Transactions ]
+      summary: Request missing geodata
+      description: Request missing geodata for a transaction
+      operationId: requestMissingGeodata
+      parameters:
+        - $ref: './components/transactions/parameters.yaml#/TransactionIdParameter'
+      responses:
+        '200':
+          $ref: './components/transactions/responses.yaml#/TransactionGeodataRequestedResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+
+  /transactions/{transaction_id}/download/geojson/:
+    get:
+      tags: [ Transactions ]
+      summary: Download transaction chain feature collection
+      description: Downloads GeoJSON feature collection data for the entire transaction chain
+      operationId: downloadTransactionChain
+      parameters:
+        - $ref: './components/transactions/parameters.yaml#/TransactionIdParameter'
+      responses:
+        '200':
+          $ref: './components/transactions/responses.yaml#/ChainFeatureCollectionDownloadResponse'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+        '500':
+          $ref: './components/common/errors.yaml#/InternalServerError'
+
+  /transactions/{transaction_id}/download/csv/:
+    get:
+      tags: [ Transactions ]
+      summary: Download transaction chain as CSV
+      description: Downloads CSV file containing all transactions data in the transaction chain
+      operationId: downloadTransactionChainCsv
+      parameters:
+        - $ref: './components/transactions/parameters.yaml#/TransactionIdParameter'
+      responses:
+        '200':
+          $ref: './components/transactions/responses.yaml#/ChainCsvDownloadResponse'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+        '500':
+          $ref: './components/common/errors.yaml#/InternalServerError'
+
+  /transactions/{transaction_id}/download/bundle/:
+    get:
+      tags: [ Transactions ]
+      summary: Download transaction chain bundle
+      description: Downloads ZIP bundle containing GeoJSON files for the entire transaction chain
+      operationId: downloadTransactionChainBundle
+      parameters:
+        - $ref: './components/transactions/parameters.yaml#/TransactionIdParameter'
+      responses:
+        '200':
+          $ref: './components/transactions/responses.yaml#/ChainBundleDownloadResponse'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+        '500':
+          $ref: './components/common/errors.yaml#/InternalServerError'
+
+  /transactions/{transaction_id}/notification/resend/:
+    post:
+      tags: [ Transactions ]
+      summary: Resend transaction notification
+      description: Resends a pending transaction notification
+      operationId: resendTransactionNotification
+      parameters:
+        - $ref: './components/transactions/parameters.yaml#/TransactionIdParameter'
+      responses:
+        '200':
+          $ref: './components/transactions/responses.yaml#/TransactionNotificationResentResponse'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+
+  /analytics/:
+    get:
+      tags: [ Analytics ]
+      summary: Get analytics data
+      description: Returns comprehensive analytics data including KPIs, balance summary, traceability statistics, and user growth data
+      operationId: getAnalytics
+      responses:
+        '200':
+          $ref: './components/analytics/responses.yaml#/AnalyticsResponse'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+
+  /analytics/user/:
+    get:
+      tags: [ Analytics ]
+      summary: Get user analytics
+      description: Returns user-specific analytics metrics including transaction counts, supplier relationships, supply chain traceability, and file uploads
+      operationId: getUserAnalytics
+      responses:
+        '200':
+          $ref: './components/analytics/responses.yaml#/UserAnalyticsResponse'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: [ ]

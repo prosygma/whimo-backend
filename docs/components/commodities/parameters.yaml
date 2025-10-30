@@ -1,0 +1,15 @@
+CommodityGroupIdParameter:
+  name: group_id
+  in: query
+  schema:
+    type: string
+    format: uuid
+  description: Filter by commodity group ID
+
+CommodityIdParameter:
+  name: commodity_id
+  in: query
+  schema:
+    type: string
+    format: uuid
+  description: Filter by commodity ID

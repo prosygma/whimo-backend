@@ -1,0 +1,38 @@
+# serializer version: 1
+# name: TestUsersProfile.test_success
+  dict({
+    'data': dict({
+      'gadgets': list([
+        dict({
+          'id': '00000000-0000-0000-0000-000000000001',
+          'identifier': '51393328711',
+          'is_verified': False,
+          'type': 'phone',
+        }),
+        dict({
+          'id': '00000000-0000-0000-0000-000000000000',
+          'identifier': 'vclayton@example.org',
+          'is_verified': False,
+          'type': 'email',
+        }),
+      ]),
+      'id': '00000000-0000-0000-0000-000000000000',
+      'username': 'cd18fc9fb6494384',
+    }),
+    'success': True,
+  })
+# ---
+# name: TestUsersProfile.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestUsersProfile.test_user_deleted
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---

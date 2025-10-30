@@ -1,0 +1,1916 @@
+# serializer version: 1
+# name: TestTransactionsList.test_combined_filters
+  dict({
+    'data': list([
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '4232',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'name': 'maybe',
+          }),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'alone',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': -56.19,
+        'farm_longitude': -81.93,
+        'id': '00000000-0000-0000-0000-000000000000',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'gps',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'reidcatherine@example.net',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '16151090321',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': '412c876d8efb2a3f',
+        }),
+        'status': 'pending',
+        'traceability': 'full',
+        'transaction_latitude': -70.41,
+        'transaction_longitude': -138.39,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 71.12,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_empty_result
+  dict({
+    'data': list([
+    ]),
+    'pagination': dict({
+      'count': 0,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_filter_by_action[buying]
+  dict({
+    'data': list([
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '6345',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000001',
+            'name': 'this',
+          }),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'name': 'west',
+          'unit': 'liters',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000002',
+        'expires_at': None,
+        'farm_latitude': -55.2,
+        'farm_longitude': -10.91,
+        'id': '00000000-0000-0000-0000-000000000001',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'manual',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000004',
+              'identifier': 'hollymoore@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000005',
+              'identifier': '76960696027',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'username': '6155a83e50fd9bc8',
+        }),
+        'status': 'pending',
+        'traceability': 'full',
+        'transaction_latitude': -79.14,
+        'transaction_longitude': 56.14,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 924.92,
+      }),
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '4232',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'name': 'maybe',
+          }),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'alone',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': -56.19,
+        'farm_longitude': -81.93,
+        'id': '00000000-0000-0000-0000-000000000000',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'gps',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'reidcatherine@example.net',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '16151090321',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': '412c876d8efb2a3f',
+        }),
+        'status': 'pending',
+        'traceability': 'partial',
+        'transaction_latitude': -90.0,
+        'transaction_longitude': -138.39,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 71.12,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 2,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_filter_by_action[selling]
+  dict({
+    'data': list([
+      dict({
+        'action': 'selling',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000008',
+              'identifier': 'davidsanders@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000009',
+              'identifier': '03921376582',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000004',
+          'username': 'f3fd19a45c222671',
+        }),
+        'commodity': dict({
+          'code': '4611',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000003',
+            'name': 'matter',
+          }),
+          'id': '00000000-0000-0000-0000-000000000003',
+          'name': 'option',
+          'unit': 'liters',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000000',
+        'expires_at': None,
+        'farm_latitude': 39.28,
+        'farm_longitude': 77.65,
+        'id': '00000000-0000-0000-0000-000000000003',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'manual',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'accepted',
+        'traceability': 'partial',
+        'transaction_latitude': -50.82,
+        'transaction_longitude': -29.73,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 346.51,
+      }),
+      dict({
+        'action': 'selling',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000006',
+              'identifier': 'jaredmatthews@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000007',
+              'identifier': '22455515900',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000003',
+          'username': '36369853fc208e38',
+        }),
+        'commodity': dict({
+          'code': '6503',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000002',
+            'name': 'test',
+          }),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'name': 'address',
+          'unit': 'kg',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000003',
+        'expires_at': None,
+        'farm_latitude': -6.63,
+        'farm_longitude': 33.06,
+        'id': '00000000-0000-0000-0000-000000000002',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'file',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'accepted',
+        'traceability': 'incomplete',
+        'transaction_latitude': -71.9,
+        'transaction_longitude': 126.54,
+        'type': 'producer',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 692.89,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 2,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_filter_by_buyer
+  dict({
+    'data': list([
+      dict({
+        'action': None,
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': 'af3993a69e2ca795',
+        }),
+        'commodity': dict({
+          'code': '9916',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'name': 'these',
+          }),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'benefit',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000002',
+        'expires_at': None,
+        'farm_latitude': 73.89,
+        'farm_longitude': 6.13,
+        'id': '00000000-0000-0000-0000-000000000000',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'qr',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000004',
+              'identifier': 'carlsonscott@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000005',
+              'identifier': '07698456428',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'username': '0653f610d382729b',
+        }),
+        'status': 'accepted',
+        'traceability': 'conditional',
+        'transaction_latitude': -21.56,
+        'transaction_longitude': 25.23,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 119.09,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_filter_by_buyer_without_commodity_group
+  dict({
+    'code': 'api.bad_request',
+    'message': 'Commodity group is required',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsList.test_filter_by_buyer_without_status_accepted
+  dict({
+    'code': 'api.bad_request',
+    'message': 'Only accepted status is allowed',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsList.test_filter_by_commodity_group
+  dict({
+    'data': list([
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '4232',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'name': 'maybe',
+          }),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'alone',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': -56.19,
+        'farm_longitude': -81.93,
+        'id': '00000000-0000-0000-0000-000000000000',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'gps',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'reidcatherine@example.net',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '16151090321',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': '412c876d8efb2a3f',
+        }),
+        'status': 'pending',
+        'traceability': 'partial',
+        'transaction_latitude': -90.0,
+        'transaction_longitude': -138.39,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 71.12,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_filter_by_created_at_from
+  dict({
+    'data': list([
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '4611',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000003',
+            'name': 'matter',
+          }),
+          'id': '00000000-0000-0000-0000-000000000003',
+          'name': 'option',
+          'unit': 'liters',
+        }),
+        'created_at': '2020-01-31T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000004',
+        'expires_at': None,
+        'farm_latitude': 39.28,
+        'farm_longitude': 77.65,
+        'id': '00000000-0000-0000-0000-000000000003',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'manual',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000008',
+              'identifier': 'davidsanders@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000009',
+              'identifier': '03921376582',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000004',
+          'username': 'f3fd19a45c222671',
+        }),
+        'status': 'accepted',
+        'traceability': 'partial',
+        'transaction_latitude': -50.82,
+        'transaction_longitude': -29.73,
+        'type': 'downstream',
+        'updated_at': '2020-01-31T00:00:00Z',
+        'volume': 346.51,
+      }),
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '6503',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000002',
+            'name': 'test',
+          }),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'name': 'address',
+          'unit': 'kg',
+        }),
+        'created_at': '2020-01-31T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000000',
+        'expires_at': None,
+        'farm_latitude': -6.63,
+        'farm_longitude': 33.06,
+        'id': '00000000-0000-0000-0000-000000000002',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'file',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000006',
+              'identifier': 'jaredmatthews@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000007',
+              'identifier': '22455515900',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000003',
+          'username': '36369853fc208e38',
+        }),
+        'status': 'accepted',
+        'traceability': 'incomplete',
+        'transaction_latitude': -71.9,
+        'transaction_longitude': 126.54,
+        'type': 'producer',
+        'updated_at': '2020-01-31T00:00:00Z',
+        'volume': 692.89,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 2,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_filter_by_created_at_to
+  dict({
+    'data': list([
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '6345',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000001',
+            'name': 'this',
+          }),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'name': 'west',
+          'unit': 'liters',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000002',
+        'expires_at': None,
+        'farm_latitude': -55.2,
+        'farm_longitude': -10.91,
+        'id': '00000000-0000-0000-0000-000000000001',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'manual',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000004',
+              'identifier': 'hollymoore@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000005',
+              'identifier': '76960696027',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'username': '6155a83e50fd9bc8',
+        }),
+        'status': 'pending',
+        'traceability': 'full',
+        'transaction_latitude': -79.14,
+        'transaction_longitude': 56.14,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 924.92,
+      }),
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '4232',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'name': 'maybe',
+          }),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'alone',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': -56.19,
+        'farm_longitude': -81.93,
+        'id': '00000000-0000-0000-0000-000000000000',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'gps',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'reidcatherine@example.net',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '16151090321',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': '412c876d8efb2a3f',
+        }),
+        'status': 'pending',
+        'traceability': 'partial',
+        'transaction_latitude': -90.0,
+        'transaction_longitude': -138.39,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 71.12,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 2,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_filter_by_status[accepted]
+  dict({
+    'data': list([
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '7091',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000001',
+            'name': 'decision',
+          }),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'name': 'scene',
+          'unit': 'liters',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000002',
+        'expires_at': None,
+        'farm_latitude': 82.45,
+        'farm_longitude': -46.08,
+        'id': '00000000-0000-0000-0000-000000000001',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'manual',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000004',
+              'identifier': 'fpoole@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000005',
+              'identifier': '93523376960',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'username': '56155a83e50fd9bc',
+        }),
+        'status': 'accepted',
+        'traceability': 'full',
+        'transaction_latitude': 69.69,
+        'transaction_longitude': 66.13,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 267.57,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_filter_by_status[no_response]
+  dict({
+    'data': list([
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '1465',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000003',
+            'name': 'boy',
+          }),
+          'id': '00000000-0000-0000-0000-000000000003',
+          'name': 'firm',
+          'unit': 'liters',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000000',
+        'expires_at': None,
+        'farm_latitude': -14.73,
+        'farm_longitude': 78.28,
+        'id': '00000000-0000-0000-0000-000000000003',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'qr',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000008',
+              'identifier': 'danny08@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000009',
+              'identifier': '31764303921',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000004',
+          'username': 'faa3f3fd19a45c22',
+        }),
+        'status': 'no_response',
+        'traceability': 'partial',
+        'transaction_latitude': 19.94,
+        'transaction_longitude': -101.82,
+        'type': 'producer',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 102.87,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_filter_by_status[pending]
+  dict({
+    'data': list([
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '4232',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'name': 'maybe',
+          }),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'alone',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': -56.19,
+        'farm_longitude': -81.93,
+        'id': '00000000-0000-0000-0000-000000000000',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'gps',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'reidcatherine@example.net',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '16151090321',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': '412c876d8efb2a3f',
+        }),
+        'status': 'pending',
+        'traceability': 'full',
+        'transaction_latitude': -70.41,
+        'transaction_longitude': -138.39,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 71.12,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_filter_by_status[rejected]
+  dict({
+    'data': list([
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '3812',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000002',
+            'name': 'resource',
+          }),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'name': 'administration',
+          'unit': 'liters',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000003',
+        'expires_at': None,
+        'farm_latitude': 4.75,
+        'farm_longitude': -119.06,
+        'id': '00000000-0000-0000-0000-000000000002',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'gps',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000006',
+              'identifier': 'monica23@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000007',
+              'identifier': '94022455515',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000003',
+          'username': '60036369853fc208',
+        }),
+        'status': 'rejected',
+        'traceability': 'full',
+        'transaction_latitude': 57.14,
+        'transaction_longitude': 114.87,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 428.5,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_forbidden
+  dict({
+    'code': 'drf.permission_denied',
+    'message': 'At least one verified gadget is required',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsList.test_pagination[1-2]
+  dict({
+    'data': list([
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '4926',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000004',
+            'name': 'serious',
+          }),
+          'id': '00000000-0000-0000-0000-000000000004',
+          'name': 'pass',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000000',
+        'expires_at': None,
+        'farm_latitude': 1.55,
+        'farm_longitude': -9.82,
+        'id': '00000000-0000-0000-0000-000000000004',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'gps',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-00000000000a',
+              'identifier': 'marvin74@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-00000000000b',
+              'identifier': '66602234500',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000005',
+          'username': '21274190ea54ebc1',
+        }),
+        'status': 'accepted',
+        'traceability': 'incomplete',
+        'transaction_latitude': -66.75,
+        'transaction_longitude': -127.38,
+        'type': 'producer',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 724.71,
+      }),
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '4611',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000003',
+            'name': 'matter',
+          }),
+          'id': '00000000-0000-0000-0000-000000000003',
+          'name': 'option',
+          'unit': 'liters',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000004',
+        'expires_at': None,
+        'farm_latitude': 39.28,
+        'farm_longitude': 77.65,
+        'id': '00000000-0000-0000-0000-000000000003',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'manual',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000008',
+              'identifier': 'davidsanders@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000009',
+              'identifier': '03921376582',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000004',
+          'username': 'f3fd19a45c222671',
+        }),
+        'status': 'accepted',
+        'traceability': 'partial',
+        'transaction_latitude': -50.82,
+        'transaction_longitude': -29.73,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 346.51,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 5,
+      'next_page': 2,
+      'page': 1,
+      'page_size': 2,
+      'previous_page': None,
+      'total_pages': 3,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_pagination[2-2]
+  dict({
+    'data': list([
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '6503',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000002',
+            'name': 'test',
+          }),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'name': 'address',
+          'unit': 'kg',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000000',
+        'expires_at': None,
+        'farm_latitude': -6.63,
+        'farm_longitude': 33.06,
+        'id': '00000000-0000-0000-0000-000000000002',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'file',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000006',
+              'identifier': 'jaredmatthews@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000007',
+              'identifier': '22455515900',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000003',
+          'username': '36369853fc208e38',
+        }),
+        'status': 'accepted',
+        'traceability': 'incomplete',
+        'transaction_latitude': -71.9,
+        'transaction_longitude': 126.54,
+        'type': 'producer',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 692.89,
+      }),
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '6345',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000001',
+            'name': 'this',
+          }),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'name': 'west',
+          'unit': 'liters',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000002',
+        'expires_at': None,
+        'farm_latitude': -55.2,
+        'farm_longitude': -10.91,
+        'id': '00000000-0000-0000-0000-000000000001',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'manual',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000004',
+              'identifier': 'hollymoore@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000005',
+              'identifier': '76960696027',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'username': '6155a83e50fd9bc8',
+        }),
+        'status': 'pending',
+        'traceability': 'full',
+        'transaction_latitude': -79.14,
+        'transaction_longitude': 56.14,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 924.92,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 5,
+      'next_page': 3,
+      'page': 2,
+      'page_size': 2,
+      'previous_page': 1,
+      'total_pages': 3,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_search_by_commodity_code
+  dict({
+    'data': list([
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '4232',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'name': 'maybe',
+          }),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'alone',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': -56.19,
+        'farm_longitude': -81.93,
+        'id': '00000000-0000-0000-0000-000000000000',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'gps',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'reidcatherine@example.net',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '16151090321',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': '412c876d8efb2a3f',
+        }),
+        'status': 'pending',
+        'traceability': 'partial',
+        'transaction_latitude': -90.0,
+        'transaction_longitude': -138.39,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 71.12,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_search_by_commodity_name
+  dict({
+    'data': list([
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '4232',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'name': 'maybe',
+          }),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'alone',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': -56.19,
+        'farm_longitude': -81.93,
+        'id': '00000000-0000-0000-0000-000000000000',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'gps',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'reidcatherine@example.net',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '16151090321',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': '412c876d8efb2a3f',
+        }),
+        'status': 'pending',
+        'traceability': 'partial',
+        'transaction_latitude': -90.0,
+        'transaction_longitude': -138.39,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 71.12,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_success
+  dict({
+    'data': list([
+      dict({
+        'action': 'selling',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000008',
+              'identifier': 'davidsanders@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000009',
+              'identifier': '03921376582',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000004',
+          'username': 'f3fd19a45c222671',
+        }),
+        'commodity': dict({
+          'code': '4611',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000003',
+            'name': 'matter',
+          }),
+          'id': '00000000-0000-0000-0000-000000000003',
+          'name': 'option',
+          'unit': 'liters',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000000',
+        'expires_at': None,
+        'farm_latitude': 39.28,
+        'farm_longitude': 77.65,
+        'id': '00000000-0000-0000-0000-000000000003',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'manual',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'accepted',
+        'traceability': 'partial',
+        'transaction_latitude': -50.82,
+        'transaction_longitude': -29.73,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 346.51,
+      }),
+      dict({
+        'action': 'selling',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000006',
+              'identifier': 'jaredmatthews@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000007',
+              'identifier': '22455515900',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000003',
+          'username': '36369853fc208e38',
+        }),
+        'commodity': dict({
+          'code': '6503',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000002',
+            'name': 'test',
+          }),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'name': 'address',
+          'unit': 'kg',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000003',
+        'expires_at': None,
+        'farm_latitude': -6.63,
+        'farm_longitude': 33.06,
+        'id': '00000000-0000-0000-0000-000000000002',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'file',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'accepted',
+        'traceability': 'incomplete',
+        'transaction_latitude': -71.9,
+        'transaction_longitude': 126.54,
+        'type': 'producer',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 692.89,
+      }),
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '6345',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000001',
+            'name': 'this',
+          }),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'name': 'west',
+          'unit': 'liters',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000002',
+        'expires_at': None,
+        'farm_latitude': -55.2,
+        'farm_longitude': -10.91,
+        'id': '00000000-0000-0000-0000-000000000001',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'manual',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000004',
+              'identifier': 'hollymoore@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000005',
+              'identifier': '76960696027',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'username': '6155a83e50fd9bc8',
+        }),
+        'status': 'pending',
+        'traceability': 'full',
+        'transaction_latitude': -79.14,
+        'transaction_longitude': 56.14,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 924.92,
+      }),
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '4232',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'name': 'maybe',
+          }),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'alone',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': -56.19,
+        'farm_longitude': -81.93,
+        'id': '00000000-0000-0000-0000-000000000000',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'gps',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'reidcatherine@example.net',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '16151090321',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': '412c876d8efb2a3f',
+        }),
+        'status': 'pending',
+        'traceability': 'partial',
+        'transaction_latitude': -90.0,
+        'transaction_longitude': -138.39,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 71.12,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 4,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsList.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsList.test_user_deleted
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---

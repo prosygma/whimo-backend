@@ -1,0 +1,63 @@
+NotificationTypesParam:
+  name: types
+  in: query
+  description: Filter notifications by type
+  required: false
+  schema:
+    type: array
+    items:
+      type: string
+      enum:
+        - transaction_pending
+        - transaction_accepted
+        - transaction_rejected
+        - transaction_expired
+        - geodata_missing
+        - geodata_updated
+
+NotificationStatusParam:
+  name: status
+  in: query
+  description: Filter notifications by status
+  required: false
+  schema:
+    type: string
+    enum:
+      - pending
+      - read
+
+NotificationCreatedAtFromParam:
+  name: created_at_from
+  in: query
+  description: Filter notifications created after specified date
+  required: false
+  schema:
+    type: string
+    format: date-time
+
+NotificationCreatedAtToParam:
+  name: created_at_to
+  in: query
+  description: Filter notifications created before specified date
+  required: false
+  schema:
+    type: string
+    format: date-time
+
+NotificationCreatedByParam:
+  name: created_by_id
+  in: query
+  description: Filter notifications by creator user ID
+  required: false
+  schema:
+    type: string
+    format: uuid
+
+NotificationIdParameter:
+  name: notification_id
+  in: path
+  schema:
+    type: string
+    format: uuid
+  description: Unique identifier of the notification
+  required: true

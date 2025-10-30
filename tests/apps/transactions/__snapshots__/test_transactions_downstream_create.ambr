@@ -1,0 +1,1226 @@
+# serializer version: 1
+# name: TestTransactionsDownstreamCreate.test_commodity_does_not_exist
+  dict({
+    'code': 'api.not_found',
+    'errors': dict({
+      'commodity': list([
+        '12345678-1234-1234-1234-123456789012',
+      ]),
+    }),
+    'message': 'Object Not Found',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_create_recipient_and_send_invite_email[buying]
+  dict({
+    'data': dict({
+      'action': 'buying',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'commodity': dict({
+        'code': '5871',
+        'group': dict({
+          'name': 'seat',
+        }),
+        'name': 'fish',
+        'unit': 'tons',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+        ]),
+        'username': 'John Doe',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': None,
+      'transaction_longitude': None,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_create_recipient_and_send_invite_email[selling]
+  dict({
+    'data': dict({
+      'action': 'selling',
+      'buyer': dict({
+        'gadgets': list([
+        ]),
+        'username': 'John Doe',
+      }),
+      'commodity': dict({
+        'code': '5871',
+        'group': dict({
+          'name': 'seat',
+        }),
+        'name': 'fish',
+        'unit': 'tons',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': None,
+      'transaction_longitude': None,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_create_recipient_and_send_invite_phone[buying]
+  dict({
+    'data': dict({
+      'action': 'buying',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'commodity': dict({
+        'code': '5871',
+        'group': dict({
+          'name': 'seat',
+        }),
+        'name': 'fish',
+        'unit': 'tons',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+        ]),
+        'username': 'John Doe',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': None,
+      'transaction_longitude': None,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_create_recipient_and_send_invite_phone[selling]
+  dict({
+    'data': dict({
+      'action': 'selling',
+      'buyer': dict({
+        'gadgets': list([
+        ]),
+        'username': 'John Doe',
+      }),
+      'commodity': dict({
+        'code': '5871',
+        'group': dict({
+          'name': 'seat',
+        }),
+        'name': 'fish',
+        'unit': 'tons',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': None,
+      'transaction_longitude': None,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_find_recipient_with_email[buying]
+  dict({
+    'data': dict({
+      'action': 'buying',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'commodity': dict({
+        'code': '5871',
+        'group': dict({
+          'name': 'seat',
+        }),
+        'name': 'fish',
+        'unit': 'tons',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'skeller@example.com',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '15917953304',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': '3a69e2ca7956518f',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': None,
+      'transaction_longitude': None,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_find_recipient_with_email[selling]
+  dict({
+    'data': dict({
+      'action': 'selling',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'skeller@example.com',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '15917953304',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': '3a69e2ca7956518f',
+      }),
+      'commodity': dict({
+        'code': '5871',
+        'group': dict({
+          'name': 'seat',
+        }),
+        'name': 'fish',
+        'unit': 'tons',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': None,
+      'transaction_longitude': None,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_find_recipient_with_phone[buying]
+  dict({
+    'data': dict({
+      'action': 'buying',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'commodity': dict({
+        'code': '5871',
+        'group': dict({
+          'name': 'seat',
+        }),
+        'name': 'fish',
+        'unit': 'tons',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'skeller@example.com',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '15917953304',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': '3a69e2ca7956518f',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': None,
+      'transaction_longitude': None,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_find_recipient_with_phone[selling]
+  dict({
+    'data': dict({
+      'action': 'selling',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'skeller@example.com',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '15917953304',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': '3a69e2ca7956518f',
+      }),
+      'commodity': dict({
+        'code': '5871',
+        'group': dict({
+          'name': 'seat',
+        }),
+        'name': 'fish',
+        'unit': 'tons',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': None,
+      'transaction_longitude': None,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_forbidden
+  dict({
+    'code': 'drf.permission_denied',
+    'message': 'At least one verified gadget is required',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_latitude_without_longitude
+  dict({
+    'code': 'api.bad_request',
+    'message': 'Location must be complete or must be empty',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_longitude_without_latitude
+  dict({
+    'code': 'api.bad_request',
+    'message': 'Location must be complete or must be empty',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_no_location[buying]
+  dict({
+    'data': dict({
+      'action': 'buying',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'commodity': dict({
+        'code': '4135',
+        'group': dict({
+          'name': 'go',
+        }),
+        'name': 'study',
+        'unit': 'pcs',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'criley@example.com',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51591795330',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'af3993a69e2ca795',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': None,
+      'transaction_longitude': None,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_no_location[selling]
+  dict({
+    'data': dict({
+      'action': 'selling',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'criley@example.com',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51591795330',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'af3993a69e2ca795',
+      }),
+      'commodity': dict({
+        'code': '4135',
+        'group': dict({
+          'name': 'go',
+        }),
+        'name': 'study',
+        'unit': 'pcs',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': None,
+      'transaction_longitude': None,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_no_recipient[buying]
+  dict({
+    'data': dict({
+      'action': 'buying',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'commodity': dict({
+        'code': '5871',
+        'group': dict({
+          'name': 'seat',
+        }),
+        'name': 'fish',
+        'unit': 'tons',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': None,
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': None,
+      'transaction_longitude': None,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_no_recipient[selling]
+  dict({
+    'data': dict({
+      'action': 'selling',
+      'buyer': None,
+      'commodity': dict({
+        'code': '5871',
+        'group': dict({
+          'name': 'seat',
+        }),
+        'name': 'fish',
+        'unit': 'tons',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': None,
+      'transaction_longitude': None,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_recipient_does_not_exist
+  dict({
+    'code': 'api.not_found',
+    'errors': dict({
+      'username': list([
+        'Not Existing Recipient',
+      ]),
+    }),
+    'message': 'Object Not Found',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_recipient_name_with_data
+  dict({
+    'code': 'api.bad_request',
+    'message': 'Transaction recipient data must contain only one identifier at a time',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_recipient_same_as_user
+  dict({
+    'code': 'api.conflict',
+    'message': 'Transaction recipient cannot be the same as the user',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_success[buying-file]
+  dict({
+    'data': dict({
+      'action': 'buying',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'commodity': dict({
+        'code': '4135',
+        'group': dict({
+          'name': 'go',
+        }),
+        'name': 'study',
+        'unit': 'pcs',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'criley@example.com',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51591795330',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'af3993a69e2ca795',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': 0.0,
+      'transaction_longitude': 0.0,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_success[buying-gps]
+  dict({
+    'data': dict({
+      'action': 'buying',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'commodity': dict({
+        'code': '4135',
+        'group': dict({
+          'name': 'go',
+        }),
+        'name': 'study',
+        'unit': 'pcs',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'criley@example.com',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51591795330',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'af3993a69e2ca795',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': 0.0,
+      'transaction_longitude': 0.0,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_success[buying-manual]
+  dict({
+    'data': dict({
+      'action': 'buying',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'commodity': dict({
+        'code': '4135',
+        'group': dict({
+          'name': 'go',
+        }),
+        'name': 'study',
+        'unit': 'pcs',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'criley@example.com',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51591795330',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'af3993a69e2ca795',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': 0.0,
+      'transaction_longitude': 0.0,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_success[buying-qr]
+  dict({
+    'data': dict({
+      'action': 'buying',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'commodity': dict({
+        'code': '4135',
+        'group': dict({
+          'name': 'go',
+        }),
+        'name': 'study',
+        'unit': 'pcs',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'criley@example.com',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51591795330',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'af3993a69e2ca795',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': 0.0,
+      'transaction_longitude': 0.0,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_success[selling-file]
+  dict({
+    'data': dict({
+      'action': 'selling',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'criley@example.com',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51591795330',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'af3993a69e2ca795',
+      }),
+      'commodity': dict({
+        'code': '4135',
+        'group': dict({
+          'name': 'go',
+        }),
+        'name': 'study',
+        'unit': 'pcs',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': 0.0,
+      'transaction_longitude': 0.0,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_success[selling-gps]
+  dict({
+    'data': dict({
+      'action': 'selling',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'criley@example.com',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51591795330',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'af3993a69e2ca795',
+      }),
+      'commodity': dict({
+        'code': '4135',
+        'group': dict({
+          'name': 'go',
+        }),
+        'name': 'study',
+        'unit': 'pcs',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': 0.0,
+      'transaction_longitude': 0.0,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_success[selling-manual]
+  dict({
+    'data': dict({
+      'action': 'selling',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'criley@example.com',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51591795330',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'af3993a69e2ca795',
+      }),
+      'commodity': dict({
+        'code': '4135',
+        'group': dict({
+          'name': 'go',
+        }),
+        'name': 'study',
+        'unit': 'pcs',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': 0.0,
+      'transaction_longitude': 0.0,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_success[selling-qr]
+  dict({
+    'data': dict({
+      'action': 'selling',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'criley@example.com',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51591795330',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'af3993a69e2ca795',
+      }),
+      'commodity': dict({
+        'code': '4135',
+        'group': dict({
+          'name': 'go',
+        }),
+        'name': 'study',
+        'unit': 'pcs',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': '2020-01-31T00:00:00Z',
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'is_automatic': False,
+      'is_buying_from_farmer': False,
+      'location': None,
+      'seller': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'status': 'pending',
+      'traceability': None,
+      'transaction_latitude': 0.0,
+      'transaction_longitude': 0.0,
+      'type': 'downstream',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestTransactionsDownstreamCreate.test_user_deleted
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---

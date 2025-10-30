@@ -1,0 +1,15 @@
+GadgetAlreadyExistsError:
+  description: Conflict
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../../common/schemas.yaml#/ErrorResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Gadget with this identifier already exists
+              code:
+                type: string
+                default: api.conflict

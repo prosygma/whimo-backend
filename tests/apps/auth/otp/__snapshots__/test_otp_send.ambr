@@ -1,0 +1,32 @@
+# serializer version: 1
+# name: TestOTPSend.test_gadget_does_not_exist
+  dict({
+    'code': 'api.not_found',
+    'errors': dict({
+      'gadget': list([
+        'nonexistent@example.com',
+      ]),
+    }),
+    'message': 'Object Not Found',
+    'success': False,
+  })
+# ---
+# name: TestOTPSend.test_success[email]
+  dict({
+    'message': 'Verification code sent',
+    'success': True,
+  })
+# ---
+# name: TestOTPSend.test_success[phone]
+  dict({
+    'message': 'Verification code sent',
+    'success': True,
+  })
+# ---
+# name: TestOTPSend.test_throttling
+  dict({
+    'code': 'drf.throttled',
+    'message': 'Request was throttled. Expected available in 60 seconds.',
+    'success': False,
+  })
+# ---

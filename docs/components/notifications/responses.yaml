@@ -1,0 +1,92 @@
+NotificationsListResponse:
+  description: List of notifications
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/PaginatedDataResponse'
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: './schemas.yaml#/NotificationDTO'
+
+NotificationDetailResponse:
+  description: Notification details
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              data:
+                $ref: './schemas.yaml#/NotificationDTO'
+
+NotificationStatusUpdatedResponse:
+  description: Notification status updated successfully
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/BaseResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Notification status updated
+
+NotificationSettingsListResponse:
+  description: List of user notification settings
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: './schemas.yaml#/NotificationSettingsDTO'
+
+NotificationSettingsUpdatedResponse:
+  description: Notification settings updated successfully
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/BaseResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Notification settings updated
+
+DevicesListResponse:
+  description: List of user's push notification devices
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: './schemas.yaml#/DeviceDTO'
+
+DeviceAddedResponse:
+  description: Device added successfully
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/BaseResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Device added

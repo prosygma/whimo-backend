@@ -1,0 +1,48 @@
+GadgetType:
+  description: Type of gadget
+  type: string
+  enum:
+    - phone
+    - email
+
+GadgetDTO:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Unique identifier for the gadget
+    type:
+      $ref: '#/GadgetType'
+    identifier:
+      type: string
+      description: Contact identifier (e.g., email address or phone number)
+      examples: [ john@whimo.com ]
+    is_verified:
+      type: boolean
+      description: Indicates whether this contact method has been verified by the user
+
+UserDTO:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Unique identifier for the user
+    username:
+      type: string
+      description: Username of the user
+      examples: [ 7fda78c4 ]
+    gadgets:
+      type: array
+      description: List of user's gadgets
+      items:
+        $ref: '#/GadgetDTO'
+
+GadgetExistsDTO:
+  type: object
+  properties:
+    exists:
+      type: boolean
+      description: Indicates whether the gadget identifier exists in the system
+      examples: [ true ]

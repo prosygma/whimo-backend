@@ -1,0 +1,83 @@
+BadRequestError:
+  description: Bad request
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: './schemas.yaml#/ErrorResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Bad Request
+              code:
+                type: string
+                default: api.bad_request
+              errors:
+                type: object
+                examples:
+                  - username: [ 'This field is required' ]
+
+UnauthorizedError:
+  description: Unauthorized
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: './schemas.yaml#/ErrorResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Unauthorized
+              code:
+                type: string
+                default: api.unauthorized
+
+ForbiddenError:
+  description: Forbidden
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: './schemas.yaml#/ErrorResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Forbidden
+              code:
+                type: string
+                default: api.forbidden
+
+NotFoundError:
+  description: Not Found
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: './schemas.yaml#/ErrorResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Resource not found error
+              code:
+                type: string
+                default: api.not_found
+
+InternalServerError:
+  description: Internal Server Error
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: './schemas.yaml#/ErrorResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Internal Server Error
+              code:
+                type: string
+                default: api.internal

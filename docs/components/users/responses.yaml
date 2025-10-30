@@ -1,0 +1,74 @@
+ProfileResponse:
+  description: User profile information
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              data:
+                $ref: './schemas.yaml#/UserDTO'
+
+PasswordChangedResponse:
+  description: Password changed successfully
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/BaseResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Password changed
+
+ProfileDeletedResponse:
+  description: Profile deleted successfully
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/BaseResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Profile deleted
+
+GadgetExistsResponse:
+  description: Gadget existence check result
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              data:
+                $ref: './schemas.yaml#/GadgetExistsDTO'
+
+GadgetCreatedResponse:
+  description: Gadget created successfully
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              data:
+                $ref: './schemas.yaml#/GadgetDTO'
+
+GadgetDeletedResponse:
+  description: Gadget deleted successfully
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/BaseResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Gadget deleted

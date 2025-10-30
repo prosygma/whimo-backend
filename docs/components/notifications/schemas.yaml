@@ -1,0 +1,83 @@
+NotificationType:
+  type: string
+  description: Type of notification
+  enum:
+    - transaction_pending
+    - transaction_accepted
+    - transaction_rejected
+    - transaction_expired
+    - geodata_missing
+    - geodata_updated
+
+NotificationStatus:
+  type: string
+  description: Status of notification
+  enum:
+    - pending
+    - read
+
+NotificationData:
+  type: object
+  description: Data specific to notification type
+  nullable: true
+  example:
+    transaction_id: '123e4567-e89b-12d3-a456-426614174000'
+
+NotificationDTO:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Unique identifier of the notification
+      example: '123e4567-e89b-12d3-a456-426614174000'
+    created_at:
+      type: string
+      format: date-time
+      description: Creation timestamp of the notification
+    data:
+      $ref: '#/NotificationData'
+    type:
+      $ref: '#/NotificationType'
+    status:
+      $ref: '#/NotificationStatus'
+    received_by:
+      $ref: '../users/schemas.yaml#/UserDTO'
+      description: User who received this notification
+    created_by:
+      $ref: '../users/schemas.yaml#/UserDTO'
+      nullable: true
+      description: User who created this notification
+
+NotificationSettingsDTO:
+  type: object
+  required:
+    - type
+    - is_enabled
+  properties:
+    type:
+      $ref: '#/NotificationType'
+    is_enabled:
+      type: boolean
+      description: Whether notifications of this type are enabled for the user
+      example: true
+
+NotificationDeviceType:
+  type: string
+  description: Type of push notification device
+  enum:
+    - fcm
+    - apns
+
+DeviceDTO:
+  type: object
+  required:
+    - type
+    - registration_id
+  properties:
+    type:
+      $ref: '#/NotificationDeviceType'
+    registration_id:
+      type: string
+      description: Unique registration identifier for the device
+      example: 'fGKbfEcvQJW5FuX...'

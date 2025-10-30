@@ -1,0 +1,244 @@
+# serializer version: 1
+# name: TestCommoditiesList.test_basic_mapper
+  dict({
+    'data': list([
+      dict({
+        'code': '1858',
+        'id': '00000000-0000-0000-0000-000000000001',
+        'name': 'Democrat',
+        'unit': 'tons',
+      }),
+      dict({
+        'code': '5871',
+        'id': '00000000-0000-0000-0000-000000000000',
+        'name': 'fish',
+        'unit': 'tons',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 2,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestCommoditiesList.test_empty_result
+  dict({
+    'data': list([
+    ]),
+    'pagination': dict({
+      'count': 0,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestCommoditiesList.test_filter_by_group_id
+  dict({
+    'data': list([
+      dict({
+        'code': '8714',
+        'group': dict({
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'front',
+        }),
+        'id': '00000000-0000-0000-0000-000000000000',
+        'name': 'ok',
+        'unit': 'tons',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestCommoditiesList.test_forbidden
+  dict({
+    'code': 'drf.permission_denied',
+    'message': 'At least one verified gadget is required',
+    'success': False,
+  })
+# ---
+# name: TestCommoditiesList.test_pagination[1-2]
+  dict({
+    'data': list([
+      dict({
+        'code': '1122',
+        'group': dict({
+          'id': '00000000-0000-0000-0000-000000000004',
+          'name': 'thousand',
+        }),
+        'id': '00000000-0000-0000-0000-000000000004',
+        'name': 'wind',
+        'unit': 'kg',
+      }),
+      dict({
+        'code': '1858',
+        'group': dict({
+          'id': '00000000-0000-0000-0000-000000000001',
+          'name': 'light',
+        }),
+        'id': '00000000-0000-0000-0000-000000000001',
+        'name': 'Democrat',
+        'unit': 'tons',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 5,
+      'next_page': 2,
+      'page': 1,
+      'page_size': 2,
+      'previous_page': None,
+      'total_pages': 3,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestCommoditiesList.test_pagination[2-2]
+  dict({
+    'data': list([
+      dict({
+        'code': '1965',
+        'group': dict({
+          'id': '00000000-0000-0000-0000-000000000002',
+          'name': 'fill',
+        }),
+        'id': '00000000-0000-0000-0000-000000000002',
+        'name': 'parent',
+        'unit': 'pcs',
+      }),
+      dict({
+        'code': '2320',
+        'group': dict({
+          'id': '00000000-0000-0000-0000-000000000003',
+          'name': 'maybe',
+        }),
+        'id': '00000000-0000-0000-0000-000000000003',
+        'name': 'position',
+        'unit': 'tons',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 5,
+      'next_page': 3,
+      'page': 2,
+      'page_size': 2,
+      'previous_page': 1,
+      'total_pages': 3,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestCommoditiesList.test_search_by_code
+  dict({
+    'data': list([
+      dict({
+        'code': '5871',
+        'group': dict({
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'seat',
+        }),
+        'id': '00000000-0000-0000-0000-000000000000',
+        'name': 'fish',
+        'unit': 'tons',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestCommoditiesList.test_search_by_name
+  dict({
+    'data': list([
+      dict({
+        'code': '5871',
+        'group': dict({
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'seat',
+        }),
+        'id': '00000000-0000-0000-0000-000000000000',
+        'name': 'fish',
+        'unit': 'tons',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 1,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestCommoditiesList.test_success
+  dict({
+    'data': list([
+      dict({
+        'code': '1858',
+        'group': dict({
+          'id': '00000000-0000-0000-0000-000000000001',
+          'name': 'light',
+        }),
+        'id': '00000000-0000-0000-0000-000000000001',
+        'name': 'Democrat',
+        'unit': 'tons',
+      }),
+      dict({
+        'code': '5871',
+        'group': dict({
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'seat',
+        }),
+        'id': '00000000-0000-0000-0000-000000000000',
+        'name': 'fish',
+        'unit': 'tons',
+      }),
+    ]),
+    'pagination': dict({
+      'count': 2,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestCommoditiesList.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
+# name: TestCommoditiesList.test_user_deleted
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---
