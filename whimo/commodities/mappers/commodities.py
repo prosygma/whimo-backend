@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 
-from django.utils.translation import gettext as _
-
 from whimo.commodities.mappers.commodities_groups import CommoditiesGroupsMapper
 from whimo.commodities.schemas.dto import CommodityDTO, CommodityWithBalanceDTO, CommodityWithGroupDTO
+from whimo.common.utils import localized_name
 from whimo.db.models import Commodity
 
 
@@ -18,7 +17,7 @@ class CommoditiesMapper:
         return CommodityDTO(
             id=commodity.id,
             code=commodity.code,
-            name=_(commodity.name),
+            name=localized_name(commodity.name, commodity.name_variants),
             unit=commodity.unit,
             has_recipe=has_recipe,
         )
@@ -33,7 +32,7 @@ class CommoditiesMapper:
         return CommodityWithGroupDTO(
             id=commodity.id,
             code=commodity.code,
-            name=_(commodity.name),
+            name=localized_name(commodity.name, commodity.name_variants),
             unit=commodity.unit,
             group=group,
             has_recipe=has_recipe,
@@ -57,7 +56,7 @@ class CommoditiesMapper:
         return CommodityWithBalanceDTO(
             id=commodity.id,
             code=commodity.code,
-            name=_(commodity.name),
+            name=localized_name(commodity.name, commodity.name_variants),
             unit=commodity.unit,
             group=group,
             balance=commodity.balance,

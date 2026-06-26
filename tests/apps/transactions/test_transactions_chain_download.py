@@ -30,8 +30,8 @@ from whimo.transactions.schemas.dto import (
     ChainFeatureCollectionDTO,
     Feature,
     FeatureCollection,
-    FeatureGeometry,
     FeatureProperties,
+    PolygonGeometry,
 )
 from whimo.transactions.schemas.errors import LocationFileDownloadError
 from whimo.transactions.services import TransactionsService
@@ -60,8 +60,7 @@ class TestTransactionsChainDownload:
             features=[
                 Feature(
                     type="Feature",
-                    geometry=FeatureGeometry(
-                        type="Polygon",
+                    geometry=PolygonGeometry(
                         coordinates=[[[Decimal("-122.4194"), Decimal("37.7749"), Decimal("0")]]],
                     ),
                     properties=FeatureProperties(
@@ -124,8 +123,7 @@ class TestTransactionsChainDownload:
             features=[
                 Feature(
                     type="Feature",
-                    geometry=FeatureGeometry(
-                        type="Polygon",
+                    geometry=PolygonGeometry(
                         coordinates=[[[Decimal("-122.4194"), Decimal("37.7749"), Decimal("0")]]],
                     ),
                     properties=FeatureProperties(

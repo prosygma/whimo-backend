@@ -22,7 +22,7 @@ from whimo.analytics.schemas.dto import (
     UserGrowthItemDTO,
     UserMetricsDTO,
 )
-from whimo.common.utils import get_user_model
+from whimo.common.utils import get_user_model, localized_name
 from whimo.db.enums.transactions import TransactionTraceability
 from whimo.db.models import Balance, Season, Transaction
 from whimo.transactions.constants import LOCATION_S3_PREFIX
@@ -74,7 +74,7 @@ class AnalyticsService:
     def _get_balance_summary() -> list[BalanceSummaryItemDTO]:
         balance_summary = (
             Balance.objects.select_related("commodity")
-            .values("commodity_id", "commodity__code", "commodity__name", "commodity__unit")
+            .values("commodity_id", "commodity__code", "commodity__name", "commodity__name_variants", "commodity__unit")
             .annotate(total_volume=Sum("volume"))
             .filter(total_volume__gt=0)
             .order_by("commodity__code")
@@ -84,7 +84,7 @@ class AnalyticsService:
             BalanceSummaryItemDTO(
                 commodity_id=str(item["commodity_id"]),
                 commodity_code=item["commodity__code"],
-                commodity_name=_(item["commodity__name"]),
+                commodity_name=localized_name(item["commodity__name"], item["commodity__name_variants"]),
                 commodity_unit=item["commodity__unit"],
                 total_volume=item["total_volume"],
             )

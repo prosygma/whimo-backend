@@ -115,6 +115,8 @@ build:docs:
         docker compose -f $WORKING_DIRECTORY/deploy/docker-compose.yaml pull
         docker compose -f $WORKING_DIRECTORY/deploy/docker-compose.yaml down
         docker compose -f $WORKING_DIRECTORY/deploy/docker-compose.yaml up -d
+        docker image prune -f
+        docker builder prune -f
       "
 
 deploy:dev:

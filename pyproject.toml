@@ -31,6 +31,8 @@ dependencies = [
     "requests>=2.32.3",
     "django-push-notifications[apns-async,fcm]>=3.2.1",
     "sentry-sdk[django]>=2.34.1",
+    "plivo>=4.0.0,<5",
+    "telnyx>=4,<5",
 ]
 package-mode = false
 
@@ -119,8 +121,10 @@ module = [
     "environ.*",
     "firebase_admin.*",
     "import_export.*",
+    "plivo.*",
     "push_notifications.*",
     "simple_history.*",
+    "telnyx.*",
     "unfold.*",
 ]
 follow_untyped_imports = true

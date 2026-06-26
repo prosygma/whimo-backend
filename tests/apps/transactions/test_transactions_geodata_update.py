@@ -1,3 +1,4 @@
+import json
 from http import HTTPStatus
 from io import BufferedReader
 from unittest.mock import MagicMock
@@ -71,6 +72,41 @@ class TestTransactionsGeodataUpdate:
         mock_default_storage.save.assert_called_once()
 
         assert Notification.objects.filter(type=NotificationType.GEODATA_UPDATED).count() == SMALL_BATCH_SIZE
+
+    def test_location_file_bare_feature(
+        self,
+        client: APIClient,
+        geo_feature_file: BufferedReader,
+        mock_default_storage: MagicMock,
+        freezer: FrozenDateTimeFactory,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        transaction = TransactionFactory.create(buyer=user)
+
+        saved_contents: list[bytes] = []
+        mock_default_storage.save.side_effect = lambda _, file: saved_contents.append(file.read())
+
+        url = reverse(self.URL, args=(transaction.id,))
+        request_data = {
+            "location": TransactionLocation.QR,
+            "location_file": geo_feature_file,
+        }
+
+        client.login(user)
+
+        # Act
+        response = client.patch(path=url, data=request_data, format="multipart")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+
+        stored = json.loads(saved_contents[0].decode())
+        assert stored["type"] == "FeatureCollection"
+        assert len(stored["features"]) == 1
 
     @pytest.mark.parametrize("location", [TransactionLocation.MANUAL, TransactionLocation.GPS])
     def test_invalid_location_type(

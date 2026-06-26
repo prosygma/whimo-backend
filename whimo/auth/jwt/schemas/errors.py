@@ -16,3 +16,8 @@ class AuthenticationFailedError(Unauthorized):
 class NoVerifiedGadgetError(Forbidden):
     message = _("No verified gadget found")
     code = "jwt.no_verified_gadget"
+
+
+class SocialAccountError(Unauthorized):
+    message = _("This account uses social sign-in. Please continue with Google or Apple.")
+    code = "jwt.social_account"
