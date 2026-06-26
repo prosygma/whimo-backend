@@ -20,6 +20,13 @@
     'success': False,
   })
 # ---
+# name: TestTokenObtain.test_social_account
+  dict({
+    'code': 'jwt.social_account',
+    'message': 'This account uses social sign-in. Please continue with Google or Apple.',
+    'success': False,
+  })
+# ---
 # name: TestTokenObtain.test_throttling
   dict({
     'code': 'drf.throttled',

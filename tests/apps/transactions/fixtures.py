@@ -24,6 +24,12 @@ def geo_json_file() -> BufferedReader:
 
 
 @pytest.fixture
+def geo_feature_file() -> BufferedReader:
+    geo_feature = FIXTURES_PATH / "location_file" / "feature.json"
+    return geo_feature.open("rb")
+
+
+@pytest.fixture
 def mock_invite_email(mocker: MockerFixture) -> MagicMock:
     return mocker.patch("whimo.contrib.tasks.users.send_email.delay")
 

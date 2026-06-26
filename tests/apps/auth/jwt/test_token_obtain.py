@@ -91,6 +91,26 @@ class TestTokenObtain:
         assert response.status_code == HTTPStatus.UNAUTHORIZED, response_json
         assert response_json == snapshot
 
+    def test_social_account(self, client: APIClient, snapshot: SnapshotAssertion) -> None:
+        # Arrange
+        user = UserFactory.create(with_gadgets=False)
+        user.set_password(None)
+        user.save()
+        gadget = GadgetFactory.create(user=user, type=GadgetType.EMAIL, is_verified=True)
+
+        request_data = {
+            "username": gadget.identifier,
+            "password": USER_PASSWORD,
+        }
+
+        # Act
+        response = client.post(path=self.URL, data=request_data)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.UNAUTHORIZED, response_json
+        assert response_json == snapshot
+
     def test_user_deleted(self, client: APIClient, snapshot: SnapshotAssertion) -> None:
         # Arrange
         gadget = GadgetFactory(user__password=USER_PASSWORD, user__is_deleted=True)

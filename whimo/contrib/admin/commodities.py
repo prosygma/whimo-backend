@@ -8,14 +8,14 @@ from unfold.admin import ModelAdmin, TabularInline
 from unfold.contrib.filters.admin import AutocompleteSelectFilter
 from unfold.decorators import display
 
-from whimo.contrib.utils import ArrayJSONWidget, ReadOnlyAdminMixin, change_link_with_icon, colored_text
+from whimo.contrib.utils import NameVariantsWidget, ReadOnlyAdminMixin, change_link_with_icon, colored_text
 from whimo.db.models import Commodity, CommodityGroup, Transaction
 
 
 class CommodityInline(TabularInline):
     model = Commodity
     extra = 0
-    fields = ("short_id", "code", "name", "name_variants", "unit")
+    fields = ("short_id", "code", "name", "unit")
     readonly_fields = ("short_id",)
     can_delete = False
 
@@ -55,7 +55,7 @@ class TransactionInline(ReadOnlyAdminMixin, TabularInline):
 @admin.register(CommodityGroup)
 class CommodityGroupAdmin(ModelAdmin, SimpleHistoryAdmin):
     formfield_overrides = {
-        JSONField: {"widget": ArrayJSONWidget},
+        JSONField: {"widget": NameVariantsWidget},
     }
     list_display = ("short_id", "name")
     search_fields = ("id", "name", "name_variants")
@@ -77,7 +77,7 @@ class CommodityGroupAdmin(ModelAdmin, SimpleHistoryAdmin):
 @admin.register(Commodity)
 class CommodityAdmin(ModelAdmin, SimpleHistoryAdmin):
     formfield_overrides = {
-        JSONField: {"widget": ArrayJSONWidget},
+        JSONField: {"widget": NameVariantsWidget},
     }
     list_display = ("short_id", "code", "name", "unit", "group_link")
     list_filter = (("group", AutocompleteSelectFilter),)

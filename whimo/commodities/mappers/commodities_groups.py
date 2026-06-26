@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 
-from django.utils.translation import gettext as _
-
 from whimo.commodities.schemas.dto import (
     CommodityGroupDTO,
     CommodityGroupWithCommoditiesBalancesDTO,
 )
+from whimo.common.utils import localized_name
 from whimo.db.models import CommodityGroup
 
 
@@ -15,7 +14,7 @@ class CommoditiesGroupsMapper:
     def to_dto(commodity_group: CommodityGroup) -> CommodityGroupDTO:
         return CommodityGroupDTO(
             id=commodity_group.id,
-            name=_(commodity_group.name),
+            name=localized_name(commodity_group.name, commodity_group.name_variants),
         )
 
     @staticmethod
@@ -26,7 +25,7 @@ class CommoditiesGroupsMapper:
 
         return CommodityGroupWithCommoditiesBalancesDTO(
             id=commodity_group.id,
-            name=_(commodity_group.name),
+            name=localized_name(commodity_group.name, commodity_group.name_variants),
             commodities=commodities,
         )
 

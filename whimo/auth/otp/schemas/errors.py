@@ -4,5 +4,5 @@ from whimo.common.schemas.errors import BadRequest
 
 
 class InvalidOTPCodeError(BadRequest):
-    message = _("Bad Request")
+    message = _("Invalid or expired verification code")
     code = "otp.invalid_code"

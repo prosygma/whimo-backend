@@ -1,3 +1,4 @@
+import io
 import json
 from copy import deepcopy
 from datetime import datetime
@@ -42,6 +43,22 @@ def validate_longitude(longitude: Decimal | None) -> Decimal | None:
     if not (-180 <= Decimal(longitude) <= 180):  # noqa: PLR2004 Magic value used in comparison
         raise InvalidLongitudeError
     return longitude
+
+
+def normalize_qr_location_file(location_file: InMemoryUploadedFile) -> InMemoryUploadedFile:
+    try:
+        data = json.loads(deepcopy(location_file).read().decode())
+        collection = FeatureCollection.from_geojson(data)
+    except Exception as err:
+        raise LocationFileInvalidSyntaxError from err
+
+    match data:
+        case {"type": "Feature"}:
+            content = collection.model_dump_json(by_alias=True).encode()
+            location_file.file = io.BytesIO(content)
+            location_file.size = len(content)
+
+    return location_file
 
 
 class RecipientRequest(BaseRequest, CreateGadgetDTO):
@@ -130,12 +147,7 @@ class TransactionProducerCreateRequest(BaseTransactionRequest):
             raise LocationFileMustBeProvidedError
 
         if self.location_file and self.location == TransactionLocation.QR:
-            try:
-                location_content = deepcopy(self.location_file).read().decode()
-                location_data = json.loads(location_content)
-                FeatureCollection.model_validate(location_data)
-            except Exception as err:
-                raise LocationFileInvalidSyntaxError from err
+            self.location_file = normalize_qr_location_file(self.location_file)
 
         return self
 
@@ -192,6 +204,9 @@ class TransactionGeodataUpdateRequest(BaseRequest):
     def validate_location_file(self) -> "TransactionGeodataUpdateRequest":
         if self.location not in {TransactionLocation.FILE, TransactionLocation.QR}:
             raise LocationFileNotSupportedError
+
+        if self.location == TransactionLocation.QR:
+            self.location_file = normalize_qr_location_file(self.location_file)
 
         return self
 

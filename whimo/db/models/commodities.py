@@ -34,9 +34,9 @@ class CommodityManager(models.Manager):
 class CommodityGroup(BaseModel):
     name = models.CharField(max_length=50, help_text=_("Name of the commodity group"))
     name_variants = models.JSONField(
-        default=list,
+        default=dict,
         blank=True,
-        help_text=_("Alternative name variations and translations"),
+        help_text=_("Name translations keyed by language code"),
     )
 
     history = HistoricalRecords(
@@ -66,9 +66,9 @@ class Commodity(BaseModel):
     code = models.CharField(max_length=20, unique=True, help_text=_("Commodity code"))
     name = models.CharField(max_length=255, help_text=_("Name of the commodity"))
     name_variants = models.JSONField(
-        default=list,
+        default=dict,
         blank=True,
-        help_text=_("Alternative name variations and translations"),
+        help_text=_("Name translations keyed by language code"),
     )
     unit = models.CharField(max_length=10, help_text=_("Unit of measurement"))
     group = models.ForeignKey(

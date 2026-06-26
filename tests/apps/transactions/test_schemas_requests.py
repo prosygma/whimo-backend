@@ -10,6 +10,7 @@ from whimo.db.enums.transactions import TransactionLocation
 from whimo.transactions.schemas.errors import (
     InvalidLatitudeError,
     InvalidLongitudeError,
+    LocationFileInvalidSyntaxError,
     PartialLocationError,
     RecipientInvalidError,
 )
@@ -109,12 +110,9 @@ class TestSchemasValidators:
             BytesIO(invalid_json_content), None, "test.json", "application/json", len(invalid_json_content), None
         )
 
-        # Act
-        request = TransactionGeodataUpdateRequest(location=TransactionLocation.QR, location_file=mock_file)
-
-        # Assert
-        assert request.location == TransactionLocation.QR
-        assert request.location_file == mock_file
+        # Act & Assert
+        with pytest.raises(LocationFileInvalidSyntaxError):
+            TransactionGeodataUpdateRequest(location=TransactionLocation.QR, location_file=mock_file)
 
     def test_transaction_geodata_update_request_invalid_geojson(self) -> None:
         # Arrange
@@ -123,12 +121,9 @@ class TestSchemasValidators:
             BytesIO(invalid_geojson_content), None, "test.json", "application/json", len(invalid_geojson_content), None
         )
 
-        # Act
-        request = TransactionGeodataUpdateRequest(location=TransactionLocation.QR, location_file=mock_file)
-
-        # Assert
-        assert request.location == TransactionLocation.QR
-        assert request.location_file == mock_file
+        # Act & Assert
+        with pytest.raises(LocationFileInvalidSyntaxError):
+            TransactionGeodataUpdateRequest(location=TransactionLocation.QR, location_file=mock_file)
 
     def test_recipient_request_invalid_multiple_fields(self) -> None:
         with pytest.raises(RecipientInvalidError):

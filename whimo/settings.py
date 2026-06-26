@@ -298,6 +298,8 @@ SMS_GATEWAY_TIMEOUT = env.int("SMS_GATEWAY_TIMEOUT", default=30)
 
 SMS_GATEWAY_DEFAULT_TAG = env.str("SMS_GATEWAY_DEFAULT_TAG", default="GSM")
 
+SMS_PROVIDER = env.str("SMS_PROVIDER", default="gateway")
+
 if env.bool("SMS_GATEWAY_ENABLED", default=False):  # pragma: no cover
     SMS_GATEWAY_PORT = env.str("SMS_GATEWAY_PORT")
 
@@ -308,6 +310,20 @@ if env.bool("SMS_GATEWAY_ENABLED", default=False):  # pragma: no cover
     SMS_GATEWAY_PASSWORD = env.str("SMS_GATEWAY_PASSWORD")
 
     SMS_GATEWAY_SENDER_ID = env.str("SMS_GATEWAY_SENDER_ID")
+
+if env.bool("SMS_PLIVO_ENABLED", default=False):  # pragma: no cover
+    SMS_PLIVO_AUTH_ID = env.str("SMS_PLIVO_AUTH_ID")
+
+    SMS_PLIVO_AUTH_TOKEN = env.str("SMS_PLIVO_AUTH_TOKEN")
+
+    SMS_PLIVO_SENDER_ID = env.str("SMS_PLIVO_SENDER_ID")
+
+if env.bool("SMS_TELNYX_ENABLED", default=False):  # pragma: no cover
+    SMS_TELNYX_API_KEY = env.str("SMS_TELNYX_API_KEY")
+
+    SMS_TELNYX_SENDER_ID = env.str("SMS_TELNYX_SENDER_ID")
+
+    SMS_TELNYX_MESSAGING_PROFILE_ID = env.str("SMS_TELNYX_MESSAGING_PROFILE_ID", default="")
 
 # Firebase
 # ______________________________________________________________________________________________________________________

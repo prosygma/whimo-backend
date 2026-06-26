@@ -4,12 +4,14 @@ import hashlib
 import json
 from typing import Any, Sequence, Type
 
+from django import forms
+from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import Model
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import SafeString
-from unfold.contrib.forms.widgets import ArrayWidget
+from unfold.widgets import INPUT_CLASSES, SELECT_CLASSES
 
 from whimo.db.models import BaseModel
 
@@ -25,13 +27,36 @@ class ReadOnlyAdminMixin:
         return False
 
 
-class ArrayJSONWidget(ArrayWidget):
-    def decompress(self, value: str | list) -> list:
-        if isinstance(value, list):
-            return value
-        if isinstance(value, str):
-            return json.loads(value)
-        return []
+class NameVariantsWidget(forms.Widget):
+    template_name = "admin/widgets/name_variants.html"
+
+    def get_context(self, name: str, value: Any, attrs: dict | None) -> dict:
+        context = super().get_context(name, value, attrs)
+
+        variants = value
+        if isinstance(variants, str):
+            try:
+                variants = json.loads(variants)
+            except ValueError:
+                variants = {}
+        if not isinstance(variants, dict):
+            variants = {}
+
+        context["widget"]["rows"] = list(variants.items())
+        context["widget"]["languages"] = settings.LANGUAGES
+        context["widget"]["input_class"] = " ".join(INPUT_CLASSES)
+        context["widget"]["select_class"] = " ".join(SELECT_CLASSES)
+        return context
+
+    def value_from_datadict(self, data: Any, _files: Any, name: str) -> str:
+        languages = data.getlist(f"{name}_language")
+        values = data.getlist(f"{name}_value")
+        variants = {
+            language: value.strip()
+            for language, value in zip(languages, values, strict=False)
+            if language and value.strip()
+        }
+        return json.dumps(variants)
 
 
 def get_admin_url(

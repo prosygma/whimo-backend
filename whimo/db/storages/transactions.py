@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Any, cast
 from uuid import UUID
 
-from django.db.models import Count, Q, QuerySet
+from django.db.models import Count, Exists, OuterRef, Q, QuerySet, Subquery
 from django.utils import timezone
 
 from whimo.common.schemas.errors import NotFound
@@ -163,7 +163,8 @@ class TransactionsStorage:
     @staticmethod
     def get_chain_transactions(transaction_id: UUID) -> QuerySet[Transaction]:
         chain_transactions = Transaction.objects.none()
-        base_query = Transaction.objects.all()
+        cutoff = Subquery(Transaction.objects.filter(pk=transaction_id).values("updated_at")[:1])
+        base_query = Transaction.objects.filter(created_at__lte=cutoff)
 
         transactions_ids = {transaction_id}
         filters: dict[str, Any] = {}
@@ -177,8 +178,12 @@ class TransactionsStorage:
             filters["status"] = TransactionStatus.ACCEPTED
             visited |= transactions_ids
 
-            sellers_ids = transactions_query.filter(seller_id__isnull=False).values_list("seller_id", flat=True)
-            transactions_ids = set(base_query.filter(buyer_id__in=sellers_ids).values_list("pk", flat=True))
+            matching_sellers = transactions_query.filter(
+                seller_id__isnull=False,
+                seller_id=OuterRef("buyer_id"),
+                commodity_id=OuterRef("commodity_id"),
+            )
+            transactions_ids = set(base_query.filter(Exists(matching_sellers)).values_list("pk", flat=True))
 
             conversion_outputs = transactions_query.filter(
                 type=TransactionType.CONVERSION,
@@ -190,6 +195,7 @@ class TransactionsStorage:
                     type=TransactionType.CONVERSION,
                     buyer_id__isnull=True,
                     group_id=conversion_output.group_id,
+                    created_at__lte=cutoff,
                 ).exclude(pk__in=visited)
 
                 chain_transactions |= input_transactions

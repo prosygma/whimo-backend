@@ -1013,6 +1013,43 @@ class TestTransactionsProducerCreate:
         assert response.status_code == HTTPStatus.BAD_REQUEST, response_json
         assert response_json == snapshot
 
+    def test_location_file_bare_feature(
+        self,
+        client: APIClient,
+        geo_feature_file: BufferedReader,
+        mock_default_storage: MagicMock,
+        freezer: FrozenDateTimeFactory,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        commodity = CommodityFactory.create()
+
+        saved_contents: list[bytes] = []
+        mock_default_storage.save.side_effect = lambda _, file: saved_contents.append(file.read())
+
+        request_data = {
+            "commodity_id": str(commodity.id),
+            "volume": 1,
+            "is_buying_from_farmer": True,
+            "location": TransactionLocation.QR,
+            "location_file": geo_feature_file,
+        }
+
+        client.login(user)
+
+        # Act
+        response = client.post(path=self.URL, data=request_data, format="multipart")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+
+        stored = json.loads(saved_contents[0].decode())
+        assert stored["type"] == "FeatureCollection"
+        assert len(stored["features"]) == 1
+
     def test_location_file_invalid_json(
         self,
         client: APIClient,

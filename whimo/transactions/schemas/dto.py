@@ -1,9 +1,9 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import Annotated
+from typing import Annotated, Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field, PlainSerializer
+from pydantic import BaseModel, ConfigDict, Field, PlainSerializer
 
 from whimo.commodities.schemas.dto import CommodityWithGroupDTO
 from whimo.common.schemas.dto import BaseModelDTO
@@ -48,15 +48,25 @@ class TraceabilityCountsDTO(BaseModel):
 
 
 class FeatureProperties(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     producer_name: str | None = Field(alias="ProducerName", default=None)
     producer_country: str | None = Field(alias="ProducerCountry", default=None)
     production_place: str | None = Field(alias="ProductionPlace", default=None)
     transaction_id: str | None = Field(alias="TransactionId", default=None)
 
 
-class FeatureGeometry(BaseModel):
-    type: str = "Polygon"
-    coordinates: list[list[list[Decimal]]]
+class PolygonGeometry(BaseModel):
+    type: Literal["Polygon"] = "Polygon"
+    coordinates: list[list[list[FloatDecimal]]]
+
+
+class PointGeometry(BaseModel):
+    type: Literal["Point"] = "Point"
+    coordinates: list[FloatDecimal]
+
+
+FeatureGeometry = Annotated[PolygonGeometry | PointGeometry, Field(discriminator="type")]
 
 
 class Feature(BaseModel):
@@ -68,6 +78,14 @@ class Feature(BaseModel):
 class FeatureCollection(BaseModel):
     type: str = "FeatureCollection"
     features: list[Feature]
+
+    @classmethod
+    def from_geojson(cls, data: dict[str, Any]) -> "FeatureCollection":
+        match data:
+            case {"type": "Feature"}:
+                return cls(features=[Feature.model_validate(data)])
+            case _:
+                return cls.model_validate(data)
 
 
 class ChainFeatureCollectionDTO(BaseModel):

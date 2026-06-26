@@ -3,6 +3,7 @@ from typing import Type, TypeVar
 
 from django.contrib.auth import get_user_model as get_untyped_user_model
 from django.db.models import Model, QuerySet
+from django.utils.translation import get_language
 
 from whimo.common.schemas.base import Pagination, PaginationRequest
 from whimo.db.models import User
@@ -12,6 +13,15 @@ T = TypeVar("T", bound=Model)
 
 def get_user_model() -> Type[User]:
     return get_untyped_user_model()
+
+
+def localized_name(name: str, name_variants: dict[str, str] | None) -> str:
+    if not isinstance(name_variants, dict):
+        return name
+
+    language = (get_language() or "").lower()
+    normalized = {key.lower(): value for key, value in name_variants.items()}
+    return normalized.get(language) or name
 
 
 def paginate_queryset(
