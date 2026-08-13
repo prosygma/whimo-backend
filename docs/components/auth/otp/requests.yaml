@@ -10,14 +10,19 @@ OTPSendRequest:
           identifier:
             type: string
             description: User's email address or phone number to send OTP
+          captcha_token:
+            type: string
+            description: Cloudflare Turnstile token, required when captcha is enabled
       examples:
         email:
           value:
             identifier: john@whimo.com
+            captcha_token: 0.abcdef
           summary: Send OTP to email
         phone:
           value:
             identifier: '+256798268908'
+            captcha_token: 0.abcdef
           summary: Send OTP to phone
 
 OTPVerifyRequest:
@@ -60,14 +65,19 @@ PasswordResetSendRequest:
           identifier:
             type: string
             description: User's email address or phone number
+          captcha_token:
+            type: string
+            description: Cloudflare Turnstile token, required when captcha is enabled
       examples:
         email:
           value:
             identifier: john@whimo.com
+            captcha_token: 0.abcdef
           summary: Send password reset code to email
         phone:
           value:
             identifier: '+256798268908'
+            captcha_token: 0.abcdef
           summary: Send password reset code to phone
 
 PasswordResetCheckRequest:

@@ -31,7 +31,6 @@ dependencies = [
     "requests>=2.32.3",
     "django-push-notifications[apns-async,fcm]>=3.2.1",
     "sentry-sdk[django]>=2.34.1",
-    "plivo>=4.0.0,<5",
     "telnyx>=4,<5",
 ]
 package-mode = false
@@ -121,7 +120,6 @@ module = [
     "environ.*",
     "firebase_admin.*",
     "import_export.*",
-    "plivo.*",
     "push_notifications.*",
     "simple_history.*",
     "telnyx.*",
@@ -198,6 +196,9 @@ setenv = """
     MINIO_ROOT_USER=tox-test-user
     MINIO_ROOT_PASSWORD=tox-test-password
     EMAIL_HOST_PASSWORD=tox-test-password
+    SMS_TELNYX_API_KEY=tox-test-api-key
+    SMS_TELNYX_SENDER_ID=WHIMO
+    SMS_TELNYX_MESSAGING_PROFILE_ID=tox-test-profile-id
 """
 commands = [
     ["mypy", { replace = "posargs", default = [".", "--junit-xml", "./ci/reports/mypy.xml"], extend = true} ],
@@ -216,6 +217,9 @@ setenv = """
     MINIO_ROOT_USER=tox-test-user
     MINIO_ROOT_PASSWORD=tox-test-password
     EMAIL_HOST_PASSWORD=tox-test-password
+    SMS_TELNYX_API_KEY=tox-test-api-key
+    SMS_TELNYX_SENDER_ID=WHIMO
+    SMS_TELNYX_MESSAGING_PROFILE_ID=tox-test-profile-id
 """
 skip_install = true
 passenv = ["*"]

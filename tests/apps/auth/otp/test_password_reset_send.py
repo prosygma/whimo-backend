@@ -47,6 +47,26 @@ class TestPasswordResetSend:
         cache_key = PASSWORD_RESET_CACHE_KEY.format(user_id=gadget.user_id, identifier=gadget.identifier)
         assert cache.get(cache_key) is not None
 
+    def test_identifier_cooldown(
+        self,
+        client: APIClient,
+        mock_otp_send_mail: MagicMock,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        gadget = GadgetFactory.create(type=GadgetType.EMAIL)
+        request_data = {"identifier": gadget.identifier}
+
+        # Act
+        client.post(path=self.URL, data=request_data)
+        response = client.post(path=self.URL, data=request_data)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.TOO_MANY_REQUESTS, response_json
+        assert response_json == snapshot
+        mock_otp_send_mail.assert_called_once()
+
     def test_gadget_does_not_exist(self, client: APIClient, snapshot: SnapshotAssertion) -> None:
         # Arrange
         request_data = {

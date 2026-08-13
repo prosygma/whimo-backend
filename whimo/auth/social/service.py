@@ -24,7 +24,7 @@ class OAuthService:
         except AuthlibBaseError as err:
             raise OAuthError(errors={err.error: err.description}) from err
         except Exception as err:
-            raise OAuthError(errors={"OAuth unexpected error": err}) from err
+            raise OAuthError(errors={"oauth_error": str(err)}) from err
         user_info = OAuthUserInfo(**data)
         return OAuthService._process_user_info(user_info)
 
@@ -35,7 +35,7 @@ class OAuthService:
         except AuthlibBaseError as err:
             raise OAuthError(errors={err.error: err.description}) from err
         except Exception as err:
-            raise OAuthError(errors={"OAuth unexpected error": err}) from err
+            raise OAuthError(errors={"oauth_error": str(err)}) from err
         user_info = OAuthUserInfo(**data)
         return OAuthService._process_user_info(user_info)
 
@@ -126,7 +126,7 @@ class OAuthService:
             }
 
         oauth.register(
-            name="google",
+            name="apple",
             server_metadata_url="https://account.apple.com/.well-known/openid-configuration",
             client_kwargs={"scope": "openid email"},
             **params,

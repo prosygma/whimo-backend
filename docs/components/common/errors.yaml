@@ -66,6 +66,26 @@ NotFoundError:
                 type: string
                 default: api.not_found
 
+TooManyRequestsError:
+  description: Too Many Requests
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: './schemas.yaml#/ErrorResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Too many requests. Please try again in 1 minute
+              code:
+                type: string
+                default: api.too_many_requests
+              errors:
+                type: object
+                examples:
+                  - retry_after: [ 58 ]
+
 InternalServerError:
   description: Internal Server Error
   content:

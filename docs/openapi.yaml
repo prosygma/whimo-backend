@@ -164,6 +164,8 @@ paths:
           $ref: './components/common/errors.yaml#/UnauthorizedError'
         '404':
           $ref: './components/common/errors.yaml#/NotFoundError'
+        '429':
+          $ref: './components/common/errors.yaml#/TooManyRequestsError'
 
   /auth/otp/verify/:
     post:
@@ -198,6 +200,8 @@ paths:
           $ref: './components/common/errors.yaml#/BadRequestError'
         '404':
           $ref: './components/common/errors.yaml#/NotFoundError'
+        '429':
+          $ref: './components/common/errors.yaml#/TooManyRequestsError'
 
   /auth/otp/password-reset/check/:
     post:

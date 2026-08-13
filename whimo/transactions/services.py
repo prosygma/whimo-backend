@@ -506,7 +506,7 @@ class TransactionsService:
                 raise LocationFileDownloadError from exc
 
             try:
-                collection = FeatureCollection.model_validate(location_data)
+                collection = FeatureCollection.from_geojson(location_data)
             except ValidationError as exc:
                 logger.info("Transaction %s location file validation error: %s", transaction.pk, exc.json())
                 failed_transactions.append(transaction.pk)
@@ -549,7 +549,7 @@ class TransactionsService:
                 continue
 
             try:
-                collection = FeatureCollection.model_validate(location_data)
+                collection = FeatureCollection.from_geojson(location_data)
             except ValidationError:
                 no_location_file_transactions.append(tx.pk)
                 continue
