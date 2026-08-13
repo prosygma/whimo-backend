@@ -116,6 +116,8 @@ REST_FRAMEWORK = {
         "anon": "100/hour",
         "user": "1000/hour",
         "otp": "5/minute",
+        "otp_identifier_cooldown": "1/minute",
+        "otp_identifier": "5/hour",
         "auth": "20/minute",
         "downloads": "10/hour",
     },
@@ -294,36 +296,16 @@ EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
 # SMS
 # ______________________________________________________________________________________________________________________
 
-SMS_GATEWAY_TIMEOUT = env.int("SMS_GATEWAY_TIMEOUT", default=30)
+SMS_TELNYX_API_KEY = env.str("SMS_TELNYX_API_KEY")
 
-SMS_GATEWAY_DEFAULT_TAG = env.str("SMS_GATEWAY_DEFAULT_TAG", default="GSM")
+SMS_TELNYX_SENDER_ID = env.str("SMS_TELNYX_SENDER_ID")
 
-SMS_PROVIDER = env.str("SMS_PROVIDER", default="gateway")
+SMS_TELNYX_MESSAGING_PROFILE_ID = env.str("SMS_TELNYX_MESSAGING_PROFILE_ID")
 
-if env.bool("SMS_GATEWAY_ENABLED", default=False):  # pragma: no cover
-    SMS_GATEWAY_PORT = env.str("SMS_GATEWAY_PORT")
+# Captcha
+# ______________________________________________________________________________________________________________________
 
-    SMS_GATEWAY_BASE_URL = f"http://smsgw.gtsnetwork.cloud:{SMS_GATEWAY_PORT}/message"
-
-    SMS_GATEWAY_USERNAME = env.str("SMS_GATEWAY_USERNAME")
-
-    SMS_GATEWAY_PASSWORD = env.str("SMS_GATEWAY_PASSWORD")
-
-    SMS_GATEWAY_SENDER_ID = env.str("SMS_GATEWAY_SENDER_ID")
-
-if env.bool("SMS_PLIVO_ENABLED", default=False):  # pragma: no cover
-    SMS_PLIVO_AUTH_ID = env.str("SMS_PLIVO_AUTH_ID")
-
-    SMS_PLIVO_AUTH_TOKEN = env.str("SMS_PLIVO_AUTH_TOKEN")
-
-    SMS_PLIVO_SENDER_ID = env.str("SMS_PLIVO_SENDER_ID")
-
-if env.bool("SMS_TELNYX_ENABLED", default=False):  # pragma: no cover
-    SMS_TELNYX_API_KEY = env.str("SMS_TELNYX_API_KEY")
-
-    SMS_TELNYX_SENDER_ID = env.str("SMS_TELNYX_SENDER_ID")
-
-    SMS_TELNYX_MESSAGING_PROFILE_ID = env.str("SMS_TELNYX_MESSAGING_PROFILE_ID", default="")
+CAPTCHA_TURNSTILE_SECRET_KEY = env.str("CAPTCHA_TURNSTILE_SECRET_KEY", default="")
 
 # Firebase
 # ______________________________________________________________________________________________________________________

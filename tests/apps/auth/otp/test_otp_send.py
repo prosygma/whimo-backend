@@ -1,5 +1,6 @@
+import time
 from http import HTTPStatus
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from django.core.cache import cache
@@ -66,30 +67,111 @@ class TestOTPSend:
 
     def test_throttling(self, client: APIClient, snapshot: SnapshotAssertion) -> None:
         # Arrange
-        gadget = GadgetFactory.create(type=GadgetType.EMAIL)
-        request_data = {"identifier": gadget.identifier}
+        gadgets = GadgetFactory.create_batch(6, type=GadgetType.EMAIL)
 
         # Act & Assert - Test within rate limit
         with patch("whimo.auth.otp.services.verify_gadget.VerifyGadgetService.send_otp_code"):
-            for i in range(5):
-                response = client.post(path=self.URL, data=request_data)
+            for i, gadget in enumerate(gadgets[:5]):
+                response = client.post(path=self.URL, data={"identifier": gadget.identifier})
                 assert response.status_code == HTTPStatus.OK, f"Request {i + 1} should succeed"
 
             # Act - Exceed rate limit
-            response = client.post(path=self.URL, data=request_data)
+            response = client.post(path=self.URL, data={"identifier": gadgets[5].identifier})
             response_json = response.json()
 
             # Assert
             assert response.status_code == HTTPStatus.TOO_MANY_REQUESTS, response_json
             assert response_json == snapshot
 
+    def test_identifier_cooldown(
+        self,
+        client: APIClient,
+        mock_otp_send_mail: MagicMock,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        gadget = GadgetFactory.create(type=GadgetType.EMAIL)
+        request_data = {"identifier": gadget.identifier}
+
+        # Act
+        client.post(path=self.URL, data=request_data)
+        response = client.post(path=self.URL, data=request_data)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.TOO_MANY_REQUESTS, response_json
+        assert response_json == snapshot
+        mock_otp_send_mail.assert_called_once()
+
+    def test_identifier_cooldown_normalized_identifier(
+        self,
+        client: APIClient,
+        mock_otp_send_sms: MagicMock,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        gadget = GadgetFactory.create(type=GadgetType.PHONE)
+
+        # Act
+        client.post(path=self.URL, data={"identifier": gadget.identifier})
+        response = client.post(path=self.URL, data={"identifier": f"+{gadget.identifier}"})
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.TOO_MANY_REQUESTS, response_json
+        assert response_json == snapshot
+        mock_otp_send_sms.assert_called_once()
+
+    def test_identifier_cooldown_does_not_affect_others(
+        self,
+        client: APIClient,
+        mock_otp_send_mail: MagicMock,
+    ) -> None:
+        # Arrange
+        gadgets = GadgetFactory.create_batch(2, type=GadgetType.EMAIL)
+
+        # Act
+        client.post(path=self.URL, data={"identifier": gadgets[0].identifier})
+        response = client.post(path=self.URL, data={"identifier": gadgets[1].identifier})
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert mock_otp_send_mail.call_count == len(gadgets)
+
+    def test_identifier_hourly_limit(
+        self,
+        client: APIClient,
+        mocker: MockerFixture,
+        mock_otp_send_mail: MagicMock,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        gadget = GadgetFactory.create(type=GadgetType.EMAIL)
+        request_data = {"identifier": gadget.identifier}
+        attempts = 5
+        clock = [time.time()]
+        mocker.patch("rest_framework.throttling.SimpleRateThrottle.timer", side_effect=lambda: clock[0])
+
+        # Act & Assert - Test within hourly limit
+        for i in range(attempts):
+            response = client.post(path=self.URL, data=request_data)
+            assert response.status_code == HTTPStatus.OK, f"Request {i + 1} should succeed"
+            clock[0] += 61
+
+        # Act - Exceed hourly limit
+        response = client.post(path=self.URL, data=request_data)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.TOO_MANY_REQUESTS, response_json
+        assert response_json == snapshot
+        assert mock_otp_send_mail.call_count == attempts
+
     @override_settings(
-        SMS_GATEWAY_ENABLED=True,
-        SMS_GATEWAY_PORT=80,
-        SMS_GATEWAY_USERNAME="test_user",
-        SMS_GATEWAY_PASSWORD="test_pass",
-        SMS_GATEWAY_SENDER_ID="WHIMO",
-        SMS_GATEWAY_BASE_URL="http://smsgw.test.local:80/message",
+        SMS_TELNYX_API_KEY="test_api_key",
+        SMS_TELNYX_SENDER_ID="WHIMO",
+        SMS_TELNYX_MESSAGING_PROFILE_ID="test_profile_id",
     )
     def test_sms_task(
         self,
@@ -99,9 +181,7 @@ class TestOTPSend:
         # Arrange
         gadget = GadgetFactory.create(type=GadgetType.PHONE)
 
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mocker.patch("whimo.contrib.tasks.users.requests.get", return_value=mock_response)
+        mocker.patch("whimo.contrib.tasks.users.telnyx.Telnyx")
 
         def mock_sms_delay(recipient: str, message: str) -> None:
             return send_sms(recipient, message)

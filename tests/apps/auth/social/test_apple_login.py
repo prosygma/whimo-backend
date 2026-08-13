@@ -11,6 +11,7 @@ from tests.factories.users import GadgetFactory
 from tests.helpers.clients import APIClient
 from tests.helpers.constants import USER_EMAIL
 from whimo.auth.jwt.schemas.dto import AccessRefreshTokenDTO
+from whimo.auth.social.service import OAuthService
 from whimo.common.schemas.base import DataResponse
 from whimo.db.enums import GadgetType
 from whimo.db.models import Gadget, User
@@ -20,6 +21,21 @@ pytestmark = [pytest.mark.django_db]
 
 class TestAppleLogin:
     URL = reverse("apple_login")
+
+    def test_oauth_client_is_registered_as_apple(self, mocker: MockerFixture) -> None:
+        # Arrange
+        mock_oauth = MagicMock()
+        mocker.patch("whimo.auth.social.service.OAuth", return_value=mock_oauth)
+
+        # Act
+        OAuthService._get_apple_oauth(with_client_claims=False)
+
+        # Assert
+        mock_oauth.register.assert_called_once_with(
+            name="apple",
+            server_metadata_url="https://account.apple.com/.well-known/openid-configuration",
+            client_kwargs={"scope": "openid email"},
+        )
 
     def test_user_exists(self, client: APIClient, mock_id_token: MagicMock) -> None:
         # Arrange
@@ -137,3 +153,19 @@ class TestAppleLogin:
         # Assert
         assert response.status_code == HTTPStatus.UNAUTHORIZED, response_json
         assert response_json == snapshot
+
+    def test_unexpected_oauth_error_is_json_serializable(self, client: APIClient, mocker: MockerFixture) -> None:
+        # Arrange
+        mock_oauth = MagicMock()
+        mock_apple_client = MagicMock()
+        mock_apple_client.parse_id_token.side_effect = Exception("Token parsing failed")
+        mock_oauth.apple = mock_apple_client
+
+        mocker.patch("whimo.auth.social.service.OAuth", return_value=mock_oauth)
+
+        # Act
+        response = client.post(path=self.URL, data={"id_token": "invalid-token"})
+
+        # Assert
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert response.json()["errors"] == {"oauth_error": "Token parsing failed"}

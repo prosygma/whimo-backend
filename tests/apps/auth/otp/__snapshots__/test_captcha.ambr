@@ -1,0 +1,29 @@
+# serializer version: 1
+# name: TestOTPSendCaptcha.test_missing_token
+  dict({
+    'code': 'captcha.invalid',
+    'message': 'Invalid captcha',
+    'success': False,
+  })
+# ---
+# name: TestOTPSendCaptcha.test_rejected_token
+  dict({
+    'code': 'captcha.invalid',
+    'message': 'Invalid captcha',
+    'success': False,
+  })
+# ---
+# name: TestOTPSendCaptcha.test_verification_unavailable
+  dict({
+    'code': 'captcha.invalid',
+    'message': 'Invalid captcha',
+    'success': False,
+  })
+# ---
+# name: TestPasswordResetSendCaptcha.test_rejected_token
+  dict({
+    'code': 'captcha.invalid',
+    'message': 'Invalid captcha',
+    'success': False,
+  })
+# ---

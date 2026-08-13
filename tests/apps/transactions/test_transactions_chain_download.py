@@ -979,6 +979,39 @@ class TestTransactionsChainDownload:
             feature = collections[0].features[0]
             assert feature.properties.transaction_id == str(transaction.pk)
 
+    def test_get_feature_collections_bare_feature(self) -> None:
+        # Arrange
+        transaction = TransactionFactory.create(location=TransactionLocation.QR)
+        transactions = Transaction.objects.filter(id=transaction.id)
+
+        bare_feature = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[-122.4194, 37.7749, 0]]],
+            },
+            "properties": {
+                "ProducerName": "Test Producer",
+            },
+        }
+
+        mock_file = Mock()
+        mock_file.read.return_value.decode.return_value = json.dumps(bare_feature)
+
+        with patch("whimo.transactions.services.default_storage.open", return_value=mock_file):
+            # Act
+            collections, succeed_transactions, failed_transactions = TransactionsService._get_feature_collections(
+                transactions
+            )
+
+            # Assert
+            assert len(collections) == 1
+            assert transaction.pk in succeed_transactions
+            assert len(failed_transactions) == 0
+
+            feature = collections[0].features[0]
+            assert feature.properties.transaction_id == str(transaction.pk)
+
     def test_process_chain_location_bundle_non_qr_location(self) -> None:
         # Arrange
         transaction = TransactionFactory.create(location=TransactionLocation.MANUAL)
@@ -1095,6 +1128,40 @@ class TestTransactionsChainDownload:
 
         mock_file = Mock()
         mock_file.read.return_value.decode.return_value = json.dumps(valid_geojson)
+
+        with patch("whimo.transactions.services.default_storage.open", return_value=mock_file):
+            # Act
+            result = TransactionsService._process_chain_location_bundle(transactions, zip_file)
+            zip_file.close()
+
+            geojson_merged, custom_location_file, no_location_file = result
+
+            # Assert
+            assert transaction.pk in geojson_merged
+            assert transaction.pk in custom_location_file
+            assert len(no_location_file) == 0
+
+    def test_process_chain_location_bundle_bare_feature(self) -> None:
+        # Arrange
+        transaction = TransactionFactory.create(location=TransactionLocation.QR)
+        transactions = Transaction.objects.filter(id=transaction.id)
+
+        zip_buffer = BytesIO()
+        zip_file = zipfile.ZipFile(zip_buffer, "w")
+
+        bare_feature = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[[-122.4194, 37.7749, 0]]],
+            },
+            "properties": {
+                "ProducerName": "Test Producer",
+            },
+        }
+
+        mock_file = Mock()
+        mock_file.read.return_value.decode.return_value = json.dumps(bare_feature)
 
         with patch("whimo.transactions.services.default_storage.open", return_value=mock_file):
             # Act

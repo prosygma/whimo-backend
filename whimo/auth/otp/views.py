@@ -21,15 +21,17 @@ from whimo.auth.otp.schemas.responses import (
 )
 from whimo.auth.otp.services.reset_password import ResetPasswordService
 from whimo.auth.otp.services.verify_gadget import VerifyGadgetService
-from whimo.common.throttling import OTPThrottle
+from whimo.common.captcha import CaptchaService
+from whimo.common.throttling import OTPIdentifierCooldownThrottle, OTPIdentifierThrottle, OTPThrottle
 
 
 class OTPSendView(views.APIView):
     permission_classes = (AllowAny,)
-    throttle_classes = [OTPThrottle]
+    throttle_classes = [OTPThrottle, OTPIdentifierCooldownThrottle, OTPIdentifierThrottle]
 
     def post(self, request: Request, *_: Any, **__: Any) -> Response:
         payload = OTPSendRequest.parse(request)
+        CaptchaService.verify(payload.captcha_token)
         VerifyGadgetService.send_otp_code(payload)
         return OTPSentResponse().as_response()
 
@@ -46,10 +48,11 @@ class OTPVerifyView(views.APIView):
 
 class PasswordResetSendView(views.APIView):
     permission_classes = (AllowAny,)
-    throttle_classes = [OTPThrottle]
+    throttle_classes = [OTPThrottle, OTPIdentifierCooldownThrottle, OTPIdentifierThrottle]
 
     def post(self, request: Request, *_: Any, **__: Any) -> Response:
         payload = PasswordResetSendRequest.parse(request)
+        CaptchaService.verify(payload.captcha_token)
         ResetPasswordService.send_otp_code(payload)
         return PasswordResetSentResponse().as_response()
 

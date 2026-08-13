@@ -20,11 +20,11 @@ class OTPVerifyRequest(BaseIdentifierRequest):
 
 
 class OTPSendRequest(BaseIdentifierRequest):
-    pass
+    captcha_token: str | None = None
 
 
 class PasswordResetSendRequest(BaseIdentifierRequest):
-    pass
+    captcha_token: str | None = None
 
 
 class PasswordResetCheckRequest(BaseIdentifierRequest):

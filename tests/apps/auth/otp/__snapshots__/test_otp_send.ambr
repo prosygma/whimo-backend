@@ -11,6 +11,42 @@
     'success': False,
   })
 # ---
+# name: TestOTPSend.test_identifier_cooldown
+  dict({
+    'code': 'api.too_many_requests',
+    'errors': dict({
+      'retry_after': list([
+        60,
+      ]),
+    }),
+    'message': 'Too many requests. Please try again in 1 minute',
+    'success': False,
+  })
+# ---
+# name: TestOTPSend.test_identifier_cooldown_normalized_identifier
+  dict({
+    'code': 'api.too_many_requests',
+    'errors': dict({
+      'retry_after': list([
+        60,
+      ]),
+    }),
+    'message': 'Too many requests. Please try again in 1 minute',
+    'success': False,
+  })
+# ---
+# name: TestOTPSend.test_identifier_hourly_limit
+  dict({
+    'code': 'api.too_many_requests',
+    'errors': dict({
+      'retry_after': list([
+        3295,
+      ]),
+    }),
+    'message': 'Too many requests. Please try again in 55 minutes',
+    'success': False,
+  })
+# ---
 # name: TestOTPSend.test_success[email]
   dict({
     'message': 'Verification code sent',
