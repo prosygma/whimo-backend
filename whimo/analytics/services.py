@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from datetime import timedelta
 from typing import Any, cast
@@ -28,6 +29,8 @@ from whimo.db.models import Balance, Season, Transaction
 from whimo.transactions.constants import LOCATION_S3_PREFIX
 
 User = get_user_model()
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(slots=True)
@@ -188,8 +191,18 @@ class AnalyticsService:
 
         total_transactions = AnalyticsService._get_user_transactions_count(user_id)
         total_suppliers = AnalyticsService._get_user_suppliers_count(user_id)
-        initial_plots = AnalyticsService._get_user_plots_count(user_id)
-        files_uploaded = AnalyticsService._get_user_files_count(user_id)
+
+        try:
+            initial_plots = AnalyticsService._get_user_plots_count(user_id)
+        except Exception:
+            logger.exception("Failed to get plots count for user %s", user_id)
+            initial_plots = 0
+
+        try:
+            files_uploaded = AnalyticsService._get_user_files_count(user_id)
+        except Exception:
+            logger.exception("Failed to get files count for user %s", user_id)
+            files_uploaded = 0
 
         analytics_data = UserMetricsDTO(
             total_transactions=total_transactions,
@@ -262,8 +275,12 @@ class AnalyticsService:
 
         files_count = 0
         for transaction_id in transactions:
-            file_path = f"{LOCATION_S3_PREFIX}/{transaction_id}"
-            if default_storage.exists(file_path):
-                files_count += 1
+            try:
+                file_path = f"{LOCATION_S3_PREFIX}/{transaction_id}"
+                if default_storage.exists(file_path):
+                    files_count += 1
+            except Exception:
+                logger.warning("Storage check failed for transaction %s", transaction_id, exc_info=True)
+                continue
 
         return files_count
