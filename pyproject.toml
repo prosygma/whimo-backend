@@ -32,7 +32,6 @@ dependencies = [
     "django-push-notifications[apns-async,fcm]>=3.2.1",
     "sentry-sdk[django]>=2.34.1",
 ]
-package-mode = false
 
 [dependency-groups]
 dev = [
@@ -53,6 +52,13 @@ dev = [
     "tox>=4.25.0,<5",
     "types-authlib>=1.5.0.20250416",
 ]
+
+[tool.poetry]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 # Ruff
 # ----------------------------------------------------------------------------------------------------------------------

@@ -1,21 +1,20 @@
 FROM python:3.12 AS base
 
-WORKDIR app
+WORKDIR /app
 
-ADD https://astral.sh/uv/install.sh /uv-installer.sh
+ENV POETRY_VIRTUALENVS_CREATE=false \
+    POETRY_NO_INTERACTION=1 \
+    PATH="/root/.local/bin:$PATH"
 
-RUN sh /uv-installer.sh && \
-    rm /uv-installer.sh && \
-    apt update && \
-    apt install -y gettext
+RUN apt update && \
+    apt install -y gettext curl && \
+    curl -sSL https://install.python-poetry.org | python3 -
 
-ENV PATH="/root/.local/bin/:$PATH"
-
-COPY pyproject.toml uv.lock ./
+COPY pyproject.toml poetry.lock ./
 
 FROM base AS development
 
-RUN uv sync --locked
+RUN poetry install --no-root
 
 COPY manage.py .
 
@@ -25,7 +24,7 @@ COPY whimo whimo
 
 FROM base AS production
 
-RUN uv sync --locked --no-dev
+RUN poetry install --without dev --no-root
 
 COPY manage.py .
 

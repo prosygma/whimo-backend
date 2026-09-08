@@ -113,7 +113,7 @@ REST_FRAMEWORK = {
         "whimo.common.throttling.DefaultAnonThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "100/hour",
+        "anon": "300/hour",
         "user": "1000/hour",
         "otp": "5/minute",
         "auth": "20/minute",
@@ -471,3 +471,28 @@ UNFOLD = {
         ],
     },
 }
+
+# SendMail API
+# ______________________________________________________________________________________________________________________
+
+SENDMAIL_API_URL = env.str(
+    "SENDMAIL_API_URL",
+    default="https://api.pallitracks.com/apis/sendmail-api/public/send",
+)
+SENDMAIL_API_KEY = env.str("SENDMAIL_API_KEY", default="")
+SENDMAIL_API_TIMEOUT = env.int("SENDMAIL_API_TIMEOUT", default=30)
+
+SENDMAIL_API_SMTP_HOST = env.str("SENDMAIL_API_SMTP_HOST", default="")
+SENDMAIL_API_SMTP_PORT = env.int("SENDMAIL_API_SMTP_PORT", default=25)
+SENDMAIL_API_SMTP_AUTH = env.bool("SENDMAIL_API_SMTP_AUTH", default=True)
+SENDMAIL_API_SMTP_USERNAME = env.str("SENDMAIL_API_SMTP_USERNAME", default="")
+SENDMAIL_API_SMTP_PASSWORD = env.str("SENDMAIL_API_SMTP_PASSWORD", default="")
+SENDMAIL_API_SMTP_ENCRYPTION = env.str("SENDMAIL_API_SMTP_ENCRYPTION", default="none")
+SENDMAIL_API_SMTP_AUTO_TLS = env.bool("SENDMAIL_API_SMTP_AUTO_TLS", default=False)
+SENDMAIL_API_SMTP_TIMEOUT = env.int("SENDMAIL_API_SMTP_TIMEOUT", default=30)
+SENDMAIL_API_SMTP_DEBUG = env.int("SENDMAIL_API_SMTP_DEBUG", default=0)
+
+SENDMAIL_API_FROM_EMAIL = env.str("SENDMAIL_API_FROM_EMAIL", default="")
+SENDMAIL_API_FROM_NAME = env.str("SENDMAIL_API_FROM_NAME", default="WHIMO")
+SENDMAIL_API_CC = env.list("SENDMAIL_API_CC", default=[])
+SENDMAIL_API_REPLY_TO = env.list("SENDMAIL_API_REPLY_TO", default=[])
