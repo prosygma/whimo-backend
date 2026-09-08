@@ -62,3 +62,8 @@ class DefaultUserThrottle(UserRateThrottle):
 class DefaultAnonThrottle(AnonRateThrottle):
     scope = "anon"
     cache = caches["default"]
+
+    def allow_request(self, request: "Request", view: "APIView") -> bool:
+        if request.path == "/api/v1/system/healthcheck/":
+            return True
+        return super().allow_request(request, view)
