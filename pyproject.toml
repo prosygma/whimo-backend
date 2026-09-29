@@ -146,6 +146,9 @@ django_settings_module = "whimo.settings"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "whimo.settings"
+# tests/e2e holds the Playwright admin suite (TypeScript + node_modules), which
+# pytest must not try to collect.
+norecursedirs = ["tests/e2e"]
 filterwarnings = [
     "ignore:distutils Version classes are deprecated. Use packaging.version instead.:DeprecationWarning",
     "ignore:.*received a naive datetime.*:RuntimeWarning:django.db.models.fields",

@@ -1,0 +1,78 @@
+# Local development stack for the Django admin end-to-end suite.
+#
+# Differs from deploy/docker-compose.yaml on purpose:
+#   - no nginx / gunicorn / docs / celery: the api container runs `manage.py runserver`
+#     with DJANGO_DEBUG=True, so static files are served by Django and 500s render a
+#     full technical traceback that Playwright can capture.
+#   - source is bind-mounted, so edits reload without rebuilding the image.
+#   - no minio: the codebase has no FileField/ImageField, so S3 storage is never touched.
+#
+#   docker compose -p whimo-local -f deploy/docker-compose.local.yaml up -d --build
+
+services:
+  api:
+    image: whimo-api-local
+    build:
+      context: ..
+      dockerfile: deploy/api.local.Dockerfile
+    hostname: api.local
+    command: [ "poetry", "run", "./manage.py", "runserver", "0.0.0.0:8000" ]
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      - POSTGRES_HOST=postgres.local
+      - REDIS_HOST=redis.local
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - ../config/.env.local
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../whimo:/app/whimo
+      - ../manage.py:/app/manage.py
+      - ../locale:/app/locale
+      - ../tests:/app/tests
+      - ../pyproject.toml:/app/pyproject.toml
+      - ../config:/app/config
+      - static_data:/app/static/
+
+  postgres:
+    hostname: postgres.local
+    image: postgres:17.4-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5432:5432"
+    env_file:
+      - ../config/.env.local
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "$$POSTGRES_USER", "-d", "$$POSTGRES_DB" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    hostname: redis.local
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: [ "/bin/sh", "-c", "redis-server --requirepass $$REDIS_PASSWORD" ]
+    ports:
+      - "127.0.0.1:6379:6379"
+    env_file:
+      - ../config/.env.local
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  static_data: { }
+  postgres_data: { }
+  redis_data: { }

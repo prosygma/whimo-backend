@@ -48,3 +48,10 @@ push/
 # ----------------------------------------------------------------------------------------------------------------------
 .ruff_cache/
 .mypy_cache/
+
+# Local e2e stack (not part of the tracked deployment)
+# ----------------------------------------------------------------------------------------------------------------------
+tests/e2e/admin/node_modules/
+tests/e2e/admin/reports/
+tests/e2e/admin/.auth/
+tests/e2e/admin/.data/
