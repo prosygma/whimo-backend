@@ -138,7 +138,6 @@ class Transaction(BaseModel):
 
     history = HistoricalRecords(
         excluded_fields=(
-            "pk",
             "created_at",
             "updated_at",
         ),

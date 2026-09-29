@@ -60,7 +60,6 @@ class User(AbstractUser, BaseModel):
 
     history = HistoricalRecords(
         excluded_fields=(
-            "pk",
             "password",
             "created_at",
             "updated_at",
@@ -113,7 +112,6 @@ class Gadget(BaseModel):
 
     history = HistoricalRecords(
         excluded_fields=(
-            "pk",
             "created_at",
             "updated_at",
         ),

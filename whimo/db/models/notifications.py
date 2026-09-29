@@ -41,7 +41,6 @@ class Notification(BaseModel):
 
     history = HistoricalRecords(
         excluded_fields=(
-            "pk",
             "created_at",
             "updated_at",
         ),
@@ -76,7 +75,6 @@ class NotificationSettings(BaseModel):
 
     history = HistoricalRecords(
         excluded_fields=(
-            "pk",
             "created_at",
             "updated_at",
         ),

@@ -95,7 +95,6 @@ class HarvestSeason(BaseModel):
 
     history = HistoricalRecords(
         excluded_fields=(
-            "pk",
             "created_at",
             "updated_at",
         ),
@@ -204,7 +203,6 @@ class HarvestSeasonCommodity(BaseModel):
 
     history = HistoricalRecords(
         excluded_fields=(
-            "pk",
             "created_at",
             "updated_at",
         ),

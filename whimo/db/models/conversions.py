@@ -39,7 +39,6 @@ class ConversionRecipe(BaseModel):
 
     history = HistoricalRecords(
         excluded_fields=(
-            "pk",
             "created_at",
             "updated_at",
         ),
@@ -98,7 +97,6 @@ class ConversionInput(BaseModel):
 
     history = HistoricalRecords(
         excluded_fields=(
-            "pk",
             "created_at",
             "updated_at",
         ),
@@ -138,7 +136,6 @@ class ConversionOutput(BaseModel):
 
     history = HistoricalRecords(
         excluded_fields=(
-            "pk",
             "created_at",
             "updated_at",
         ),
