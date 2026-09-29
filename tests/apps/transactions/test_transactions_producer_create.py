@@ -16,6 +16,7 @@ from tests.factories.commodities import CommodityFactory
 from tests.factories.users import GadgetFactory, UserFactory
 from tests.helpers.clients import APIClient
 from tests.helpers.constants import DEFAULT_DATETIME, USER_EMAIL, USER_PHONE
+from whimo import brand
 from whimo.db.enums import GadgetType, TransactionLocation, TransactionStatus, TransactionType
 from whimo.db.enums.transactions import TransactionTraceability
 from whimo.db.models import Balance, Transaction
@@ -350,8 +351,8 @@ class TestTransactionsProducerCreate:
 
         mock_invite_email.assert_called_once_with(
             recipients=[USER_EMAIL],
-            subject="Welcome to WHIMO!",
-            message="You have been invited to Whimo!",
+            subject=f"Welcome to {brand.NAME}!",
+            message=f"You have been invited to {brand.NAME}!",
         )
 
     def test_find_recipient_with_email(
@@ -431,7 +432,7 @@ class TestTransactionsProducerCreate:
 
         mock_invite_sms.assert_called_once_with(
             recipient=USER_PHONE.lstrip("+"),
-            message="You have been invited to Whimo!",
+            message=f"You have been invited to {brand.NAME}!",
         )
 
     def test_find_recipient_with_phone(

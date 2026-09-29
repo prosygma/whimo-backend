@@ -9,6 +9,8 @@ from django.utils.translation import gettext_lazy as _
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 
+from whimo.brand.admin import unfold_brand_settings
+
 env = environ.Env()
 
 _not_set = object()
@@ -363,6 +365,9 @@ STATIC_URL = "static/"
 
 STATIC_ROOT = BASE_DIR / "static"
 
+# Logos, favicons and styles of the product brand (see whimo/brand/__init__.py)
+STATICFILES_DIRS = (BASE_DIR / "whimo" / "brand" / "static",)
+
 # Proxy
 # ______________________________________________________________________________________________________________________
 
@@ -379,8 +384,7 @@ WHIMO_TRANSACTION_EXPIRATION_DAYS = env.int("WHIMO_TRANSACTION_EXPIRATION_DAYS",
 # ______________________________________________________________________________________________________________________
 
 UNFOLD = {
-    "SITE_TITLE": "WHIMO Admin",
-    "SITE_HEADER": "WHIMO Administration",
+    **unfold_brand_settings(),
     "SITE_URL": "/",
     "DASHBOARD_CALLBACK": "whimo.contrib.admin.dashboard.dashboard_callback",
     "SIDEBAR": {
