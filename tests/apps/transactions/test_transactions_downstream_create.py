@@ -18,6 +18,7 @@ from tests.factories.harvest_seasons import HarvestSeasonFactory
 from tests.factories.users import GadgetFactory, UserFactory
 from tests.helpers.clients import APIClient
 from tests.helpers.constants import DEFAULT_DATETIME, USER_EMAIL, USER_PHONE
+from whimo import brand
 from whimo.auth.registration.services import RegistrationService
 from whimo.db.enums import GadgetType, TransactionAction, TransactionLocation, TransactionStatus, TransactionType
 from whimo.db.enums.notifications import NotificationStatus, NotificationType
@@ -238,8 +239,8 @@ class TestTransactionsDownstreamCreate:
         # Verify invite email was sent to newly created recipient
         mock_invite_email.assert_called_once_with(
             recipients=[USER_EMAIL],
-            subject="Welcome to WHIMO!",
-            message="You have been invited to Whimo!",
+            subject=f"Welcome to {brand.NAME}!",
+            message=f"You have been invited to {brand.NAME}!",
         )
 
     @pytest.mark.parametrize("action", TransactionAction)
@@ -339,7 +340,7 @@ class TestTransactionsDownstreamCreate:
 
         mock_invite_sms.assert_called_once_with(
             recipient=USER_PHONE.lstrip("+"),
-            message="You have been invited to Whimo!",
+            message=f"You have been invited to {brand.NAME}!",
         )
 
     @pytest.mark.parametrize("action", TransactionAction)
