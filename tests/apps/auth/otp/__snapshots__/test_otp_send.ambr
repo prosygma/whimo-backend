@@ -49,12 +49,14 @@
 # ---
 # name: TestOTPSend.test_success[email]
   dict({
+    'channel': 'email',
     'message': 'Verification code sent',
     'success': True,
   })
 # ---
 # name: TestOTPSend.test_success[phone]
   dict({
+    'channel': 'sms',
     'message': 'Verification code sent',
     'success': True,
   })

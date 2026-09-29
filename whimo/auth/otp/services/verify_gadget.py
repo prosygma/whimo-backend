@@ -8,14 +8,14 @@ from whimo.auth.otp.schemas.errors import InvalidOTPCodeError
 from whimo.auth.otp.schemas.requests import OTPSendRequest, OTPVerifyRequest
 from whimo.auth.otp.services.base import BaseOTPService
 from whimo.common.schemas.errors import NotFound
-from whimo.db.enums import GadgetType
+from whimo.db.enums import GadgetType, OTPChannel
 from whimo.db.models import Gadget
 
 
 @dataclass(slots=True)
 class VerifyGadgetService:
     @staticmethod
-    def send_otp_code(payload: OTPSendRequest) -> None:
+    def send_otp_code(payload: OTPSendRequest) -> OTPChannel:
         try:
             gadget = Gadget.objects.get(identifier=payload.identifier)
         except Gadget.DoesNotExist as err:
@@ -24,7 +24,7 @@ class VerifyGadgetService:
         cache_key = OTP_CACHE_KEY.format(identifier=gadget.identifier)
         code = BaseOTPService.generate_otp_code(cache_key)
 
-        BaseOTPService.send_otp_code(code, GadgetType(gadget.type), gadget.identifier)
+        return BaseOTPService.send_otp_code(code, GadgetType(gadget.type), gadget.identifier)
 
     @staticmethod
     def verify_otp_code(payload: OTPVerifyRequest) -> None:

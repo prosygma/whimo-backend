@@ -13,7 +13,7 @@ from tests.factories.users import GadgetFactory
 from tests.helpers.clients import APIClient
 from whimo.auth.otp.constances import OTP_CACHE_KEY
 from whimo.contrib.tasks import send_sms
-from whimo.db.enums import GadgetType
+from whimo.db.enums import GadgetType, OTPChannel
 
 pytestmark = [pytest.mark.django_db]
 
@@ -70,7 +70,9 @@ class TestOTPSend:
         gadgets = GadgetFactory.create_batch(6, type=GadgetType.EMAIL)
 
         # Act & Assert - Test within rate limit
-        with patch("whimo.auth.otp.services.verify_gadget.VerifyGadgetService.send_otp_code"):
+        with patch(
+            "whimo.auth.otp.services.verify_gadget.VerifyGadgetService.send_otp_code", return_value=OTPChannel.EMAIL
+        ):
             for i, gadget in enumerate(gadgets[:5]):
                 response = client.post(path=self.URL, data={"identifier": gadget.identifier})
                 assert response.status_code == HTTPStatus.OK, f"Request {i + 1} should succeed"

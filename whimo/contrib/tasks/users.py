@@ -5,6 +5,9 @@ from celery import current_app
 from django.conf import settings
 from django.core.mail import send_mail
 
+from whimo.common.whatsapp import WhatsAppClient, WhatsAppError, WhatsAppTemporaryError
+from whimo.db.models import WhatsAppSettings
+
 logger = logging.getLogger(__name__)
 
 
@@ -34,6 +37,27 @@ def _send_sms_via_telnyx(recipient: str, message: str) -> None:
 def send_sms(recipient: str, message: str) -> None:
     logger.info("Sending SMS %s to %s", message, recipient)
     _send_sms_via_telnyx(recipient, message)
+
+
+@current_app.task(
+    autoretry_for=[WhatsAppTemporaryError],
+    retry_backoff=True,
+    max_retries=3,
+)
+def send_whatsapp_otp(recipient: str, code: str, language: str | None = None) -> None:
+    config = WhatsAppSettings.load()
+    if not config.is_active:
+        logger.error("WhatsApp is not configured; verification code for %s not sent", recipient)
+        return
+
+    try:
+        message_id = WhatsAppClient(config).send_otp(recipient, code, language)
+    except WhatsAppError:
+        # Wrong token, template or number: retrying cannot succeed.
+        logger.exception("WhatsApp verification code to %s rejected", recipient)
+        return
+
+    logger.info("WhatsApp verification code to %s sent: %s", recipient, message_id)
 
 
 @current_app.task(

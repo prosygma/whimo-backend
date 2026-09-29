@@ -401,6 +401,11 @@ UNFOLD = {
                         "icon": "task",
                         "link": reverse_lazy("admin:django_celery_beat_periodictask_changelist"),
                     },
+                    {
+                        "title": _("WhatsApp"),
+                        "icon": "chat",
+                        "link": reverse_lazy("admin:db_whatsappsettings_changelist"),
+                    },
                 ],
             },
             {

@@ -23,6 +23,12 @@ OTPSentResponse:
               message:
                 type: string
                 default: Verification code sent
+              channel:
+                type: string
+                enum: [email, sms, whatsapp]
+                description: >-
+                  How the code was delivered. Phone codes use `whatsapp` when WhatsApp is
+                  configured and enabled in the admin, `sms` otherwise.
 
 PasswordResetSentResponse:
   description: Password reset code sent successfully
@@ -36,6 +42,12 @@ PasswordResetSentResponse:
               message:
                 type: string
                 default: Reset code sent
+              channel:
+                type: string
+                enum: [email, sms, whatsapp]
+                description: >-
+                  How the code was delivered. Phone codes use `whatsapp` when WhatsApp is
+                  configured and enabled in the admin, `sms` otherwise.
 
 PasswordResetOTPValidResponse:
   description: Verification code is valid

@@ -4,10 +4,12 @@ from dataclasses import dataclass
 
 from django.conf import settings
 from django.core.cache import cache
+from django.utils import translation
 from django.utils.translation import gettext_lazy as _
 
-from whimo.contrib.tasks.users import send_email, send_sms
-from whimo.db.enums import GadgetType
+from whimo.contrib.tasks.users import send_email, send_sms, send_whatsapp_otp
+from whimo.db.enums import GadgetType, OTPChannel
+from whimo.db.models import WhatsAppSettings
 
 
 @dataclass(slots=True)
@@ -19,11 +21,18 @@ class BaseOTPService:
         return code
 
     @staticmethod
-    def send_otp_code(code: str, gadget_type: GadgetType, identifier: str) -> None:
+    def send_otp_code(code: str, gadget_type: GadgetType, identifier: str) -> OTPChannel:
         if gadget_type == GadgetType.EMAIL:
             BaseOTPService._send_otp_email(identifier, code)
-        elif gadget_type == GadgetType.PHONE:
-            BaseOTPService._send_otp_sms(identifier, code)
+            return OTPChannel.EMAIL
+
+        # Phone codes go through WhatsApp only, once an administrator has configured it.
+        if WhatsAppSettings.load().is_active:
+            BaseOTPService._send_otp_whatsapp(identifier, code)
+            return OTPChannel.WHATSAPP
+
+        BaseOTPService._send_otp_sms(identifier, code)
+        return OTPChannel.SMS
 
     @staticmethod
     def _send_otp_email(email: str, code: str) -> None:
@@ -36,3 +45,8 @@ class BaseOTPService:
     @staticmethod
     def _send_otp_sms(phone: str, code: str) -> None:
         send_sms.delay(recipient=phone, message=_("Your verification code is: %s") % code)
+
+    @staticmethod
+    def _send_otp_whatsapp(phone: str, code: str) -> None:
+        # The template text is managed in WhatsApp Manager; only its language is chosen here.
+        send_whatsapp_otp.delay(recipient=phone, code=code, language=translation.get_language())
