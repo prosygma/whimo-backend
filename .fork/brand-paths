@@ -1,0 +1,3 @@
+# Paths owned by the CamerTrace brand overlay (bash glob patterns).
+whimo/brand/*
+deploy/*camertrace*

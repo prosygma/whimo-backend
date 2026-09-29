@@ -1,0 +1,6 @@
+# Case-insensitive regex alternatives, one per line. Lines added by an
+# upstream-bound branch must not match any of them.
+camertrace
+cicc
+prosygma
+interprofessionnel

@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 
+from whimo import brand
 from whimo.brand.admin import unfold_brand_settings
 
 env = environ.Env()
@@ -495,6 +496,6 @@ SENDMAIL_API_SMTP_TIMEOUT = env.int("SENDMAIL_API_SMTP_TIMEOUT", default=30)
 SENDMAIL_API_SMTP_DEBUG = env.int("SENDMAIL_API_SMTP_DEBUG", default=0)
 
 SENDMAIL_API_FROM_EMAIL = env.str("SENDMAIL_API_FROM_EMAIL", default="")
-SENDMAIL_API_FROM_NAME = env.str("SENDMAIL_API_FROM_NAME", default="WHIMO")
+SENDMAIL_API_FROM_NAME = env.str("SENDMAIL_API_FROM_NAME", default=brand.NAME)
 SENDMAIL_API_CC = env.list("SENDMAIL_API_CC", default=[])
 SENDMAIL_API_REPLY_TO = env.list("SENDMAIL_API_REPLY_TO", default=[])
