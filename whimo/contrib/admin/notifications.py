@@ -30,6 +30,8 @@ class NotificationAdmin(ReadOnlyAdminMixin, ModelAdmin, SimpleHistoryAdmin):
         (_("Metadata"), {"fields": ("id", "created_at", "updated_at")}),
     )
 
+    readonly_fields = ("id", "created_at", "updated_at")
+
     @display(description="ID", ordering="id")
     def short_id(self, obj: Notification) -> SafeString | None:
         return colored_text(obj.short_id)

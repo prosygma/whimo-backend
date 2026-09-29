@@ -41,7 +41,6 @@ class CommodityGroup(BaseModel):
 
     history = HistoricalRecords(
         excluded_fields=(
-            "pk",
             "created_at",
             "updated_at",
             "name_variants",
@@ -89,7 +88,6 @@ class Commodity(BaseModel):
 
     history = HistoricalRecords(
         excluded_fields=(
-            "pk",
             "created_at",
             "updated_at",
             "name_variants",
