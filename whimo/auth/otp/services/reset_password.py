@@ -8,14 +8,14 @@ from whimo.auth.otp.schemas.errors import InvalidOTPCodeError
 from whimo.auth.otp.schemas.requests import PasswordResetSendRequest, PasswordResetVerifyRequest
 from whimo.auth.otp.services.base import BaseOTPService
 from whimo.common.schemas.errors import NotFound
-from whimo.db.enums import GadgetType
+from whimo.db.enums import GadgetType, OTPChannel
 from whimo.db.models import Gadget
 
 
 @dataclass(slots=True)
 class ResetPasswordService:
     @staticmethod
-    def send_otp_code(payload: PasswordResetSendRequest) -> None:
+    def send_otp_code(payload: PasswordResetSendRequest) -> OTPChannel:
         try:
             gadget = Gadget.objects.get(identifier=payload.identifier)
         except Gadget.DoesNotExist as err:
@@ -24,7 +24,7 @@ class ResetPasswordService:
         cache_key = PASSWORD_RESET_CACHE_KEY.format(identifier=payload.identifier)
         code = BaseOTPService.generate_otp_code(cache_key)
 
-        BaseOTPService.send_otp_code(code, GadgetType(gadget.type), payload.identifier)
+        return BaseOTPService.send_otp_code(code, GadgetType(gadget.type), payload.identifier)
 
     @staticmethod
     def check_otp_code(identifier: str, code: str, delete: bool = False) -> None:

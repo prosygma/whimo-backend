@@ -6,6 +6,7 @@ from whimo.db.models.notifications import Notification, NotificationSettings
 from whimo.db.models.seasons import Season, SeasonCommodity
 from whimo.db.models.transactions import Transaction
 from whimo.db.models.users import Gadget, User
+from whimo.db.models.whatsapp import WhatsAppSettings
 
 __all__ = (
     "Balance",
@@ -22,4 +23,5 @@ __all__ = (
     "SeasonCommodity",
     "Transaction",
     "User",
+    "WhatsAppSettings",
 )

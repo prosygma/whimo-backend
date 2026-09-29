@@ -32,8 +32,8 @@ class OTPSendView(views.APIView):
     def post(self, request: Request, *_: Any, **__: Any) -> Response:
         payload = OTPSendRequest.parse(request)
         CaptchaService.verify(payload.captcha_token)
-        VerifyGadgetService.send_otp_code(payload)
-        return OTPSentResponse().as_response()
+        channel = VerifyGadgetService.send_otp_code(payload)
+        return OTPSentResponse(channel=channel).as_response()
 
 
 class OTPVerifyView(views.APIView):
@@ -53,8 +53,8 @@ class PasswordResetSendView(views.APIView):
     def post(self, request: Request, *_: Any, **__: Any) -> Response:
         payload = PasswordResetSendRequest.parse(request)
         CaptchaService.verify(payload.captcha_token)
-        ResetPasswordService.send_otp_code(payload)
-        return PasswordResetSentResponse().as_response()
+        channel = ResetPasswordService.send_otp_code(payload)
+        return PasswordResetSentResponse(channel=channel).as_response()
 
 
 class PasswordResetCheckView(views.APIView):

@@ -12,6 +12,7 @@ from whimo.contrib.admin.notifications import NotificationAdmin
 from whimo.contrib.admin.seasons import SeasonAdmin
 from whimo.contrib.admin.transactions import TransactionAdmin
 from whimo.contrib.admin.users import GadgetAdmin, UserAdmin
+from whimo.contrib.admin.whatsapp import WhatsAppSettingsAdmin
 
 __all__ = (
     "BalanceAdmin",
@@ -28,4 +29,5 @@ __all__ = (
     "SolarScheduleAdmin",
     "TransactionAdmin",
     "UserAdmin",
+    "WhatsAppSettingsAdmin",
 )

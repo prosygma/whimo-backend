@@ -561,3 +561,62 @@ msgstr ""
 
 msgid "Profile deleted"
 msgstr ""
+
+msgid "Send phone verification codes through WhatsApp instead of SMS."
+msgstr ""
+
+msgid "Graph API version, for example v21.0."
+msgstr ""
+
+msgid "Phone number ID of the sender, from WhatsApp Manager > API Setup."
+msgstr ""
+
+msgid "Permanent access token of a system user with the whatsapp_business_messaging permission."
+msgstr ""
+
+msgid "Name of an approved message template of the \"Authentication\" category, with a copy-code button."
+msgstr ""
+
+msgid "Template language to use for each app language, for example {\"en-us\": \"en_US\", \"fr-fr\": \"fr\", \"es-es\": \"es\"}."
+msgstr ""
+
+msgid "Number that receives the code sent by \"Send test message\", with country code."
+msgstr ""
+
+msgid "WhatsApp settings"
+msgstr ""
+
+msgid "Access token"
+msgstr ""
+
+msgid "Leave empty to keep the current token."
+msgstr ""
+
+msgid "Required to enable WhatsApp."
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Meta WhatsApp Cloud API"
+msgstr ""
+
+msgid "Test"
+msgstr ""
+
+msgid "Send test message"
+msgstr ""
+
+msgid "Save a test phone number first."
+msgstr ""
+
+#, python-format
+msgid "Missing settings: %s"
+msgstr ""
+
+#, python-format
+msgid "Sent code %(code)s, message id %(id)s"
+msgstr ""
+
+msgid "WhatsApp"
+msgstr ""

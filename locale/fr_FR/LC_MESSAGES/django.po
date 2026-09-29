@@ -480,3 +480,62 @@ msgstr "Mot de passe modifié"
 
 msgid "Profile deleted"
 msgstr "Profil supprimé"
+
+msgid "Send phone verification codes through WhatsApp instead of SMS."
+msgstr "Envoyer les codes de vérification par WhatsApp au lieu de SMS."
+
+msgid "Graph API version, for example v21.0."
+msgstr "Version de l'API Graph, par exemple v21.0."
+
+msgid "Phone number ID of the sender, from WhatsApp Manager > API Setup."
+msgstr "Identifiant du numéro expéditeur (WhatsApp Manager > Configuration de l'API)."
+
+msgid "Permanent access token of a system user with the whatsapp_business_messaging permission."
+msgstr "Jeton d'accès permanent d'un utilisateur système disposant de l'autorisation whatsapp_business_messaging."
+
+msgid "Name of an approved message template of the \"Authentication\" category, with a copy-code button."
+msgstr "Nom d'un modèle de message approuvé de catégorie « Authentification », avec un bouton de copie du code."
+
+msgid "Template language to use for each app language, for example {\"en-us\": \"en_US\", \"fr-fr\": \"fr\", \"es-es\": \"es\"}."
+msgstr "Langue du modèle à utiliser pour chaque langue de l'application, par exemple {\"en-us\": \"en_US\", \"fr-fr\": \"fr\", \"es-es\": \"es\"}."
+
+msgid "Number that receives the code sent by \"Send test message\", with country code."
+msgstr "Numéro qui reçoit le code envoyé par « Envoyer un message de test », avec l'indicatif du pays."
+
+msgid "WhatsApp settings"
+msgstr "Paramètres WhatsApp"
+
+msgid "Access token"
+msgstr "Jeton d'accès"
+
+msgid "Leave empty to keep the current token."
+msgstr "Laisser vide pour conserver le jeton actuel."
+
+msgid "Required to enable WhatsApp."
+msgstr "Obligatoire pour activer WhatsApp."
+
+msgid "Status"
+msgstr "Statut"
+
+msgid "Meta WhatsApp Cloud API"
+msgstr "API WhatsApp Cloud de Meta"
+
+msgid "Test"
+msgstr "Test"
+
+msgid "Send test message"
+msgstr "Envoyer un message de test"
+
+msgid "Save a test phone number first."
+msgstr "Enregistrez d'abord un numéro de test."
+
+#, python-format
+msgid "Missing settings: %s"
+msgstr "Paramètres manquants : %s"
+
+#, python-format
+msgid "Sent code %(code)s, message id %(id)s"
+msgstr "Code %(code)s envoyé, identifiant du message %(id)s"
+
+msgid "WhatsApp"
+msgstr "WhatsApp"
