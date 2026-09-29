@@ -527,10 +527,12 @@ msgstr ""
 msgid "Conversion completed successfully"
 msgstr ""
 
-msgid "Welcome to WHIMO!"
+#, python-format
+msgid "Welcome to %(app_name)s!"
 msgstr ""
 
-msgid "You have been invited to Whimo!"
+#, python-format
+msgid "You have been invited to %(app_name)s!"
 msgstr ""
 
 msgid "Current password is incorrect"

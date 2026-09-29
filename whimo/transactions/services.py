@@ -14,6 +14,7 @@ from django.db.models import Q, QuerySet
 from django.utils.translation import gettext_lazy as _
 from pydantic import ValidationError
 
+from whimo import brand
 from whimo.auth.registration.services import RegistrationService
 from whimo.common.schemas.base import Pagination
 from whimo.common.schemas.errors import NotFound
@@ -580,13 +581,13 @@ class TransactionsService:
     def _send_invite_email(email: str) -> None:
         send_email.delay(
             recipients=[email],
-            subject=_("Welcome to WHIMO!"),
-            message=_("You have been invited to Whimo!"),
+            subject=_("Welcome to %(app_name)s!") % {"app_name": brand.NAME},
+            message=_("You have been invited to %(app_name)s!") % {"app_name": brand.NAME},
         )
 
     @staticmethod
     def _send_invite_sms(phone: str) -> None:
-        send_sms.delay(recipient=phone, message=_("You have been invited to Whimo!"))
+        send_sms.delay(recipient=phone, message=_("You have been invited to %(app_name)s!") % {"app_name": brand.NAME})
 
     @staticmethod
     def _validate_conversion_commodities(commodity_ids: set[UUID]) -> None:
