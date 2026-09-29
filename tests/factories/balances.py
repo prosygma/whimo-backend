@@ -11,6 +11,7 @@ class BalanceFactory(BaseFactory[Balance]):
 
     commodity = factory.SubFactory("tests.factories.commodities.CommodityFactory")
     user = factory.SubFactory("tests.factories.users.UserFactory")
+    harvest_season = factory.LazyAttribute(lambda balance: balance.commodity.harvest_seasons.first())
     volume = factory.Faker("pydecimal", min_value=1, max_value=1000, right_digits=2)
 
 

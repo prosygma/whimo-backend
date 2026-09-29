@@ -38,7 +38,11 @@ class CommoditiesService:
 
     @staticmethod
     def _filter_commodities_groups(user_id: UUID, params: CommodityGroupListRequest) -> QuerySet[CommodityGroup]:
-        commodities_with_balances = Commodity.objects.annotate_balances(user_id)
+        commodities_with_balances = Commodity.objects.annotate_balances(
+            user_id,
+            harvest_season_id=params.harvest_season_id,
+            harvest_season_status=params.harvest_season_status,
+        )
         queryset = CommodityGroup.objects.prefetch_related(Prefetch("commodities", queryset=commodities_with_balances))
 
         if search := params.search:

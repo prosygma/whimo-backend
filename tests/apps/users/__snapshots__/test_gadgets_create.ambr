@@ -8,7 +8,7 @@
 # ---
 # name: TestGadgetsCreate.test_error_gadget_already_exists
   dict({
-    'code': 'api.conflict',
+    'code': 'registration.gadget_already_exists',
     'message': 'Gadget with this identifier already exists',
     'success': False,
   })

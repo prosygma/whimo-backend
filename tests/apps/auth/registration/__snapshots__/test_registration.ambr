@@ -1,7 +1,7 @@
 # serializer version: 1
 # name: TestRegistration.test_email_already_exists
   dict({
-    'code': 'api.conflict',
+    'code': 'registration.gadget_already_exists',
     'message': 'Gadget with this identifier already exists',
     'success': False,
   })
@@ -39,7 +39,7 @@
 # ---
 # name: TestRegistration.test_phone_already_exists
   dict({
-    'code': 'api.conflict',
+    'code': 'registration.gadget_already_exists',
     'message': 'Gadget with this identifier already exists',
     'success': False,
   })

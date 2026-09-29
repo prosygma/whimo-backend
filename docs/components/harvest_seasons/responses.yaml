@@ -1,0 +1,16 @@
+HarvestSeasonsListResponse:
+  description: Paginated list of harvest seasons ordered by start_date descending
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/PaginatedDataResponse'
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: './schemas.yaml#/HarvestSeasonDTO'
+              message:
+                type: string
+                default: Harvest seasons list

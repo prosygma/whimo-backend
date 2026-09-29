@@ -1,13 +1,15 @@
 from decimal import Decimal
-from typing import cast
+from typing import Any, cast
 from uuid import UUID
 
 from django.contrib.postgres.indexes import GinIndex
-from django.db import models
-from django.db.models import Exists, OuterRef, QuerySet, Subquery
+from django.core.exceptions import ValidationError
+from django.db import models, transaction
+from django.db.models import Exists, OuterRef, QuerySet, Subquery, Sum
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
 
+from whimo.db.enums import HarvestSeasonStatus
 from whimo.db.models import Balance, BaseModel
 
 COMMODITY_BALANCE_FIELD = "_balance"
@@ -16,8 +18,19 @@ _not_set = object()
 
 
 class CommodityManager(models.Manager):
-    def annotate_balances(self, user_id: UUID) -> QuerySet["Commodity"]:
-        balance_subquery = Balance.objects.filter(user_id=user_id, commodity=OuterRef("pk")).values("volume")[:1]
+    def annotate_balances(
+        self,
+        user_id: UUID,
+        harvest_season_id: UUID | None = None,
+        harvest_season_status: HarvestSeasonStatus | None = None,
+    ) -> QuerySet["Commodity"]:
+        balances = Balance.objects.filter(user_id=user_id, commodity=OuterRef("pk"))
+        if harvest_season_id:
+            balances = balances.filter(harvest_season_id=harvest_season_id)
+        if harvest_season_status:
+            balances = balances.filter(harvest_season__status=harvest_season_status)
+
+        balance_subquery = balances.values("commodity").annotate(total=Sum("volume")).values("total")
         return (
             self.annotate_has_recipe()
             .select_related("group")
@@ -79,6 +92,30 @@ class Commodity(BaseModel):
     )
 
     objects = CommodityManager()
+
+    def clean(self) -> None:
+        super().clean()
+        if self._state.adding:
+            return
+
+        previous = Commodity.objects.get(pk=self.pk)
+        if previous.group_id != self.group_id and previous.harvest_seasons.exists():
+            raise ValidationError({"group": _("A commodity with harvest seasons cannot move to another group.")})
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        with transaction.atomic():
+            CommodityGroup.objects.select_for_update().get(pk=self.group_id)
+            self.clean()
+            super().save(*args, **kwargs)
+            through = self.harvest_seasons.through
+            seasons = (
+                through.objects.filter(commodity__group_id=self.group_id)
+                .exclude(harvest_season_id__in=self.harvest_seasons.values("pk"))
+                .order_by()
+                .values("harvest_season_id", "period", "status")
+                .distinct()
+            )
+            through.objects.bulk_create(through(commodity=self, **season) for season in seasons)
 
     @property
     def balance(self) -> Decimal | None:

@@ -1,3 +1,6 @@
+include:
+  - local: ci/cleanup.yml
+
 stages:
   - test
   - build

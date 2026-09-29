@@ -7,11 +7,17 @@ from typing import Any
 from uuid import UUID
 
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from pydantic import Field, field_validator, model_validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from whimo.common.schemas.base import BaseRequest, OrderingRequestMixin, PaginationRequest
 from whimo.common.schemas.dto import CreateGadgetDTO
-from whimo.db.enums import TransactionAction, TransactionLocation, TransactionStatus
+from whimo.db.enums import (
+    HarvestSeasonStatus,
+    TransactionAction,
+    TransactionLocation,
+    TransactionStatus,
+    TransactionType,
+)
 from whimo.transactions.schemas.dto import FeatureCollection
 from whimo.transactions.schemas.errors import (
     CommodityGroupRequiredError,
@@ -113,6 +119,8 @@ class BaseTransactionRequest(BaseRequest):
 class TransactionProducerCreateRequest(BaseTransactionRequest):
     is_buying_from_farmer: bool
 
+    harvest_season_id: UUID | None = None
+
     farm_latitude: Decimal | None = None
     farm_longitude: Decimal | None = None
 
@@ -154,9 +162,12 @@ class TransactionProducerCreateRequest(BaseTransactionRequest):
 
 class TransactionDownstreamCreateRequest(BaseTransactionRequest):
     action: TransactionAction
+    harvest_season_id: UUID
 
 
 class TransactionStatusUpdateRequest(BaseRequest):
+    model_config = ConfigDict(extra="forbid")
+
     status: TransactionStatus
 
     @field_validator("status", mode="before")
@@ -168,6 +179,7 @@ class TransactionStatusUpdateRequest(BaseRequest):
 
 class TransactionListRequest(PaginationRequest, OrderingRequestMixin):
     search: str | None = None
+    type: TransactionType | None = None
     status: TransactionStatus | None = None
     action: TransactionAction | None = None
     created_at_from: datetime | None = None
@@ -175,6 +187,10 @@ class TransactionListRequest(PaginationRequest, OrderingRequestMixin):
     commodity_group_id: UUID | None = None
     commodity_id: UUID | None = None
     buyer_id: UUID | None = None
+    harvest_season_id: UUID | None = None
+    harvest_season_status: HarvestSeasonStatus | None = None
+    group_conversions: bool = False
+    include_chain: bool = False
 
     @property
     def orderings_map(self) -> dict[str, str]:
@@ -223,6 +239,7 @@ class CommodityQuantityOverride(BaseRequest):
 
 class ConversionCreateRequest(BaseRequest):
     recipe_id: UUID
+    harvest_season_id: UUID
     input_overrides: list[CommodityQuantityOverride] | None = None
     output_overrides: list[CommodityQuantityOverride] | None = None
 

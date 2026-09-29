@@ -1,0 +1,154 @@
+# serializer version: 1
+# name: TestTransactionsListGroupedConversions.test_conversion_is_one_item
+  dict({
+    'data': list([
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'group_id': '00000000-0000-0000-0000-000000000001',
+        'harvest_season': dict({
+          'end_date': '2026-09-01',
+          'id': '00000000-0000-0000-0000-000000000001',
+          'name': 'measure 2025/26',
+          'start_date': '2025-09-01',
+          'status': 'active',
+        }),
+        'inputs': list([
+          dict({
+            'commodity': dict({
+              'code': '000000000001-0',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000002',
+                'name': 'write',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000001',
+              'name': 'develop',
+              'unit': 'kg',
+            }),
+            'id': '00000000-0000-0000-0000-000000000001',
+            'volume': -1000.0,
+          }),
+        ]),
+        'outputs': list([
+          dict({
+            'commodity': dict({
+              'code': '000000000001-1',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000003',
+                'name': 'decision',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000002',
+              'name': 'scene',
+              'unit': 'liters',
+            }),
+            'id': '00000000-0000-0000-0000-000000000002',
+            'volume': 850.0,
+          }),
+          dict({
+            'commodity': dict({
+              'code': '000000000001-2',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000004',
+                'name': 'we',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000003',
+              'name': 'market',
+              'unit': 'liters',
+            }),
+            'id': '00000000-0000-0000-0000-000000000003',
+            'volume': 150.0,
+          }),
+        ]),
+        'status': 'accepted',
+        'traceability': 'incomplete',
+        'type': 'conversion',
+      }),
+      dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '4232',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'name': 'maybe',
+          }),
+          'has_recipe': False,
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'alone',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': -56.19,
+        'farm_longitude': -81.93,
+        'group_id': None,
+        'harvest_season': dict({
+          'end_date': '2026-09-01',
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'maybe 2025/26',
+          'start_date': '2025-09-01',
+          'status': 'active',
+        }),
+        'id': '00000000-0000-0000-0000-000000000000',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'file',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'reidcatherine@example.net',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '16151090321',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': '412c876d8efb2a3f',
+        }),
+        'signed_volume': 71.12,
+        'status': 'no_response',
+        'traceability': 'full',
+        'transaction_latitude': -70.41,
+        'transaction_longitude': -138.39,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 71.12,
+      }),
+    ]),
+    'pagination': dict({
+      'count': 2,
+      'next_page': None,
+      'page': 1,
+      'page_size': 20,
+      'previous_page': None,
+      'total_pages': 1,
+    }),
+    'success': True,
+  })
+# ---

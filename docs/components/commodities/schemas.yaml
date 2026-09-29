@@ -62,7 +62,10 @@ CommodityWithBalanceDTO:
           type: number
           format: double
           nullable: true
-          description: User's current balance for this commodity (null if no balance)
+          description: |
+            User balance summed within the requested harvest season and status filters, or across all
+            seasons when both filters are omitted. Null if no matching balance exists.
+            Use /commodities/balances/ for separate rows per season and their traceability.
 
 BalanceDTO:
   type: object
@@ -78,6 +81,18 @@ BalanceDTO:
     commodity:
       $ref: '../commodities/schemas.yaml#/CommodityWithGroupDTO'
       description: Commodity information
+    harvest_season:
+      $ref: '../harvest_seasons/schemas.yaml#/HarvestSeasonDTO'
+      description: |
+        Harvest season this balance belongs to. One item represents one commodity and harvest season pair;
+        volumes of different seasons are never summed by the API.
+    traceability:
+      $ref: '../transactions/schemas.yaml#/TransactionTraceability'
+      description: |
+        Worst traceability among the holder's accepted incoming transactions of this commodity in this
+        season. Selling and a season status change do not reset this history. An automatic balance
+        adjustment is incomplete and contributes to this status. A balance with no accepted incoming
+        transactions reads incomplete.
     has_recipe:
       type: boolean
       description: Whether the commodity has a conversion recipe

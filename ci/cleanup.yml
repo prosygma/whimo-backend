@@ -1,0 +1,27 @@
+# Cleanup
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Frees disk space on the runner host once it gets too full, otherwise image pulls fail with "no space left on device"
+cleanup:runner:
+  stage: .post
+  image: docker:28
+  tags:
+    - aws
+  when: always
+  variables:
+    DOCKER_HOST: unix:///var/run/docker.sock
+    DISK_USAGE_THRESHOLD: 80
+  script:
+    - df -h /
+    - docker system df
+    - USAGE=$(df / | awk 'NR==2 {gsub("%", "", $5); print $5}')
+    - |
+      if [ "$USAGE" -lt "$DISK_USAGE_THRESHOLD" ]; then
+        echo "Disk usage ${USAGE}% is below ${DISK_USAGE_THRESHOLD}%, skipping cleanup"
+        exit 0
+      fi
+    - docker container prune -f --filter "label=com.gitlab.gitlab-runner.managed=true"
+    - docker volume ls -q --filter "name=runner-" | xargs -r docker volume rm || true
+    - docker image prune -af --filter "until=24h"
+    - docker builder prune -af
+    - df -h /

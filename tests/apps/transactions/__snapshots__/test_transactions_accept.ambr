@@ -34,18 +34,292 @@
 # ---
 # name: TestTransactionsAccept.test_negative_volume
   dict({
+    'data': dict({
+      'automatic_transaction': dict({
+        'action': None,
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'username': 'af3993a69e2ca795',
+        }),
+        'commodity': dict({
+          'code': '9916',
+          'group': dict({
+            'name': 'these',
+          }),
+          'has_recipe': False,
+          'name': 'benefit',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': None,
+        'farm_longitude': None,
+        'group_id': None,
+        'harvest_season': dict({
+          'end_date': '2026-09-01',
+          'name': 'these 2025/26',
+          'start_date': '2025-09-01',
+          'status': 'active',
+        }),
+        'is_automatic': True,
+        'is_buying_from_farmer': False,
+        'location': None,
+        'seller': None,
+        'signed_volume': 67.0,
+        'status': 'accepted',
+        'traceability': 'incomplete',
+        'transaction_latitude': None,
+        'transaction_longitude': None,
+        'type': 'producer',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 67.0,
+      }),
+      'transaction': dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '9916',
+          'group': dict({
+            'name': 'these',
+          }),
+          'has_recipe': False,
+          'name': 'benefit',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': 5.98,
+        'farm_longitude': 6.13,
+        'group_id': None,
+        'harvest_season': dict({
+          'end_date': '2026-09-01',
+          'name': 'these 2025/26',
+          'start_date': '2025-09-01',
+          'status': 'active',
+        }),
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'file',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'username': 'af3993a69e2ca795',
+        }),
+        'signed_volume': 100.0,
+        'status': 'accepted',
+        'traceability': 'incomplete',
+        'transaction_latitude': 47.25,
+        'transaction_longitude': -15.12,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 100.0,
+      }),
+    }),
     'message': 'Transaction status updated',
     'success': True,
   })
 # ---
 # name: TestTransactionsAccept.test_no_previous_transactions
   dict({
+    'data': dict({
+      'automatic_transaction': None,
+      'transaction': dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '9916',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'name': 'these',
+          }),
+          'has_recipe': False,
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'benefit',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': 5.98,
+        'farm_longitude': 6.13,
+        'group_id': None,
+        'harvest_season': dict({
+          'end_date': '2026-09-01',
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'these 2025/26',
+          'start_date': '2025-09-01',
+          'status': 'active',
+        }),
+        'id': '00000000-0000-0000-0000-000000000000',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'file',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': 'af3993a69e2ca795',
+        }),
+        'signed_volume': 100.0,
+        'status': 'accepted',
+        'traceability': 'incomplete',
+        'transaction_latitude': 47.25,
+        'transaction_longitude': -15.12,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 100.0,
+      }),
+    }),
     'message': 'Transaction status updated',
     'success': True,
   })
 # ---
 # name: TestTransactionsAccept.test_traceability_full
   dict({
+    'data': dict({
+      'automatic_transaction': None,
+      'transaction': dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '9916',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'name': 'these',
+          }),
+          'has_recipe': False,
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'benefit',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': 5.98,
+        'farm_longitude': 6.13,
+        'group_id': None,
+        'harvest_season': dict({
+          'end_date': '2026-09-01',
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'these 2025/26',
+          'start_date': '2025-09-01',
+          'status': 'active',
+        }),
+        'id': '00000000-0000-0000-0000-000000000000',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'file',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': 'af3993a69e2ca795',
+        }),
+        'signed_volume': 100.0,
+        'status': 'accepted',
+        'traceability': 'full',
+        'transaction_latitude': 47.25,
+        'transaction_longitude': -15.12,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 100.0,
+      }),
+    }),
     'message': 'Transaction status updated',
     'success': True,
   })
@@ -114,24 +388,336 @@
 # ---
 # name: TestTransactionsAccept.test_worst_previous_traceability[traceability_list0]
   dict({
+    'data': dict({
+      'automatic_transaction': None,
+      'transaction': dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '9916',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'name': 'these',
+          }),
+          'has_recipe': False,
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'benefit',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': 5.98,
+        'farm_longitude': 6.13,
+        'group_id': None,
+        'harvest_season': dict({
+          'end_date': '2026-09-01',
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'these 2025/26',
+          'start_date': '2025-09-01',
+          'status': 'active',
+        }),
+        'id': '00000000-0000-0000-0000-000000000000',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'file',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': 'af3993a69e2ca795',
+        }),
+        'signed_volume': 100.0,
+        'status': 'accepted',
+        'traceability': 'incomplete',
+        'transaction_latitude': 47.25,
+        'transaction_longitude': -15.12,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 100.0,
+      }),
+    }),
     'message': 'Transaction status updated',
     'success': True,
   })
 # ---
 # name: TestTransactionsAccept.test_worst_previous_traceability[traceability_list1]
   dict({
+    'data': dict({
+      'automatic_transaction': None,
+      'transaction': dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '9916',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'name': 'these',
+          }),
+          'has_recipe': False,
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'benefit',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': 5.98,
+        'farm_longitude': 6.13,
+        'group_id': None,
+        'harvest_season': dict({
+          'end_date': '2026-09-01',
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'these 2025/26',
+          'start_date': '2025-09-01',
+          'status': 'active',
+        }),
+        'id': '00000000-0000-0000-0000-000000000000',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'file',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': 'af3993a69e2ca795',
+        }),
+        'signed_volume': 100.0,
+        'status': 'accepted',
+        'traceability': 'partial',
+        'transaction_latitude': 47.25,
+        'transaction_longitude': -15.12,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 100.0,
+      }),
+    }),
     'message': 'Transaction status updated',
     'success': True,
   })
 # ---
 # name: TestTransactionsAccept.test_worst_previous_traceability[traceability_list2]
   dict({
+    'data': dict({
+      'automatic_transaction': None,
+      'transaction': dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '9916',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'name': 'these',
+          }),
+          'has_recipe': False,
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'benefit',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': 5.98,
+        'farm_longitude': 6.13,
+        'group_id': None,
+        'harvest_season': dict({
+          'end_date': '2026-09-01',
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'these 2025/26',
+          'start_date': '2025-09-01',
+          'status': 'active',
+        }),
+        'id': '00000000-0000-0000-0000-000000000000',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'file',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': 'af3993a69e2ca795',
+        }),
+        'signed_volume': 100.0,
+        'status': 'accepted',
+        'traceability': 'conditional',
+        'transaction_latitude': 47.25,
+        'transaction_longitude': -15.12,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 100.0,
+      }),
+    }),
     'message': 'Transaction status updated',
     'success': True,
   })
 # ---
 # name: TestTransactionsAccept.test_worst_previous_traceability[traceability_list3]
   dict({
+    'data': dict({
+      'automatic_transaction': None,
+      'transaction': dict({
+        'action': 'buying',
+        'buyer': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'commodity': dict({
+          'code': '9916',
+          'group': dict({
+            'id': '00000000-0000-0000-0000-000000000000',
+            'name': 'these',
+          }),
+          'has_recipe': False,
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'benefit',
+          'unit': 'tons',
+        }),
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by_id': '00000000-0000-0000-0000-000000000001',
+        'expires_at': None,
+        'farm_latitude': 5.98,
+        'farm_longitude': 6.13,
+        'group_id': None,
+        'harvest_season': dict({
+          'end_date': '2026-09-01',
+          'id': '00000000-0000-0000-0000-000000000000',
+          'name': 'these 2025/26',
+          'start_date': '2025-09-01',
+          'status': 'active',
+        }),
+        'id': '00000000-0000-0000-0000-000000000000',
+        'is_automatic': False,
+        'is_buying_from_farmer': False,
+        'location': 'file',
+        'seller': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000002',
+              'identifier': 'criley@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000003',
+              'identifier': '51591795330',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000001',
+          'username': 'af3993a69e2ca795',
+        }),
+        'signed_volume': 100.0,
+        'status': 'accepted',
+        'traceability': 'full',
+        'transaction_latitude': 47.25,
+        'transaction_longitude': -15.12,
+        'type': 'downstream',
+        'updated_at': '2020-01-01T00:00:00Z',
+        'volume': 100.0,
+      }),
+    }),
     'message': 'Transaction status updated',
     'success': True,
   })

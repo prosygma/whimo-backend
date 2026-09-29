@@ -54,6 +54,13 @@ TransactionDTO:
     type:
       $ref: '#/TransactionType'
       description: Type of transaction
+    group_id:
+      type: string
+      format: uuid
+      description: |
+        Conversion the row belongs to. All inputs and outputs of one conversion share it. Null for producer and
+        downstream transactions, and for conversions created before grouping existed.
+      nullable: true
     status:
       $ref: '#/TransactionStatus'
       description: Status of the transaction
@@ -94,7 +101,17 @@ TransactionDTO:
     volume:
       type: number
       format: double
-      description: Volume of commodities
+      description: |
+        Volume as stored. Its sign differs by type: conversion inputs are negative, a downstream sale is positive.
+        Use signed_volume to print +/-.
+    signed_volume:
+      type: number
+      format: double
+      description: |
+        Volume from the current user's side: positive when it enters the user's balance (purchase, producer
+        transaction, automatic adjustment, conversion output), negative when it leaves (sale, conversion input).
+        Positive when the user is neither buyer nor seller, which happens only with the buyer_id filter.
+      examples: [ -500 ]
     is_buying_from_farmer:
       type: boolean
       description: Whether the transaction is buying from a farmer directly
@@ -122,11 +139,83 @@ TransactionDTO:
       $ref: '../users/schemas.yaml#/UserDTO'
       description: Buyer information
       nullable: true
+    harvest_season:
+      $ref: '../harvest_seasons/schemas.yaml#/HarvestSeasonDTO'
+      description: |
+        Harvest season the transaction belongs to. A transaction carries exactly one season, set by whoever
+        created it and never changed, so the field is present on pending transactions too. Volume stays
+        inside this season along the whole chain.
     created_by_id:
       type: string
       format: uuid
       description: ID of the user who created the transaction
       nullable: true
+
+ConversionItemDTO:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: ID of the transaction row behind this input or output
+    commodity:
+      $ref: '../commodities/schemas.yaml#/CommodityWithGroupDTO'
+    volume:
+      type: number
+      format: double
+      description: Signed volume, negative for an input and positive for an output
+      examples: [ -1000 ]
+
+ConversionTransactionDTO:
+  type: object
+  description: |
+    One conversion with all of its inputs and outputs. Inputs and outputs are ordered by volume, largest first.
+  properties:
+    group_id:
+      type: string
+      format: uuid
+      description: Identifier of the conversion, used by GET /transactions/conversion/{group_id}/
+    created_at:
+      type: string
+      format: date-time
+    type:
+      $ref: '#/TransactionType'
+      description: Always conversion
+    status:
+      $ref: '#/TransactionStatus'
+    traceability:
+      $ref: '#/TransactionTraceability'
+      nullable: true
+    harvest_season:
+      $ref: '../harvest_seasons/schemas.yaml#/HarvestSeasonDTO'
+    inputs:
+      type: array
+      items:
+        $ref: '#/ConversionItemDTO'
+    outputs:
+      type: array
+      items:
+        $ref: '#/ConversionItemDTO'
+
+LocationSummaryDTO:
+  type: object
+  description: |
+    The numbers the download modal shows before anything is downloaded. They count the farms behind the
+    filtered transactions, each farm once, and match the headers of the bundle download made with the same
+    filters. Read from the database alone, without opening a single stored file.
+  properties:
+    full_traceability_farms:
+      type: integer
+      description: Farms located by qr or gps
+    manually_added_farms:
+      type: integer
+      description: Farms located by an uploaded file or a point on the map
+    farms_without_geolocation:
+      type: integer
+      description: Farms with no geodata at all
+    traders:
+      type: integer
+      description: Distinct counterparties across the filtered transactions, the user aside
 
 TraceabilityCountsDTO:
   type: object
@@ -188,24 +277,35 @@ TransactionCreateBaseDTO:
 
 FeatureProperties:
   type: object
-  description: Properties of a GeoJSON feature
+  description: |
+    Properties of a GeoJSON feature. Keys are PascalCase, and properties of an uploaded location file
+    that the API does not name are passed through unchanged.
+  additionalProperties: true
   properties:
-    producer_name:
+    ProducerName:
       type: string
+      nullable: true
       description: Name of the producer
       example: "Farm Producer Inc"
-    producer_country:
+    ProducerCountry:
       type: string
+      nullable: true
       description: Country of the producer
       example: "Brazil"
-    production_place:
+    ProductionPlace:
       type: string
+      nullable: true
       description: Place of production
       example: "São Paulo Region"
+    TransactionId:
+      type: string
+      nullable: true
+      description: Transaction the feature was collected for
+      example: "12345678-1234-5678-9abc-123456789def"
 
-FeatureGeometry:
+PolygonGeometry:
   type: object
-  description: Geometry of a GeoJSON feature
+  description: Polygon geometry of a GeoJSON feature
   properties:
     type:
       type: string
@@ -213,7 +313,7 @@ FeatureGeometry:
       enum: [ Polygon ]
     coordinates:
       type: array
-      description: Polygon coordinates
+      description: Polygon coordinates, positions optionally carrying elevation
       items:
         type: array
         items:
@@ -222,6 +322,28 @@ FeatureGeometry:
             type: number
             format: double
       example: [ [ [ -122.4194, 37.7749 ] ] ]
+
+PointGeometry:
+  type: object
+  description: Point geometry of a GeoJSON feature
+  properties:
+    type:
+      type: string
+      description: Geometry type
+      enum: [ Point ]
+    coordinates:
+      type: array
+      description: Point coordinates, optionally carrying elevation
+      items:
+        type: number
+        format: double
+      example: [ -122.4194, 37.7749 ]
+
+FeatureGeometry:
+  description: Geometry of a GeoJSON feature, discriminated by its type
+  oneOf:
+    - $ref: '#/PolygonGeometry'
+    - $ref: '#/PointGeometry'
 
 Feature:
   type: object

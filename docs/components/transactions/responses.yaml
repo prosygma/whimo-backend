@@ -10,7 +10,9 @@ TransactionListResponse:
               data:
                 type: array
                 items:
-                  $ref: './schemas.yaml#/TransactionDTO'
+                  oneOf:
+                    - $ref: './schemas.yaml#/TransactionDTO'
+                    - $ref: './schemas.yaml#/ConversionTransactionDTO'
 
 TransactionDetailResponse:
   description: Transaction details
@@ -63,6 +65,19 @@ TransactionStatusUpdatedResponse:
               message:
                 type: string
                 default: Transaction status updated
+              data:
+                description: |
+                  Carries the updated transaction and the automatic balance adjustment created during
+                  acceptance, or null when none was created. An adjustment appears only when the transaction
+                  season is active and the seller balance fell short.
+                type: object
+                properties:
+                  transaction:
+                    $ref: './schemas.yaml#/TransactionDTO'
+                  automatic_transaction:
+                    oneOf:
+                      - $ref: './schemas.yaml#/TransactionDTO'
+                      - type: 'null'
 
 TransactionGeodataUpdatedResponse:
   description: Transaction geodata updated successfully
@@ -112,10 +127,13 @@ TransactionListCsvDownloadResponse:
       schema:
         type: string
         format: binary
-        description: CSV file containing filtered transactions data with columns for transaction details, commodity information, and user IDs
+        description: |
+          CSV file of the filtered transactions, one row per transaction, with transaction, commodity,
+          harvest season and counterparty columns. Enum columns carry their raw values, in lower case.
+          With include_chain the upstream supplier rows follow the same shape and a Tier column is appended.
       example: |
-        Transaction ID,Transaction Created At,Transaction Type,Transaction Status,Transaction Traceability,Transaction Location,Latitude,Longitude,Volume,Is Automatic,Created By Role,Commodity ID,Commodity Code,Commodity Name,Commodity Unit,Commodity Group,Seller ID,Seller Created At,Buyer ID,Buyer Created At
-        123e4567-e89b-12d3-a456-426614174000,2024-01-15T10:30:00Z,PRODUCER,ACCEPTED,FULL,GPS,1.234,-5.678,100.5,false,seller,456e7890-e89b-12d3-a456-426614174000,CORN001,Corn,kg,Grains,789e0123-e89b-12d3-a456-426614174000,2024-01-10T08:00:00Z,012e3456-e89b-12d3-a456-426614174000,2024-01-12T09:15:00Z
+        Transaction ID,Transaction Created At,Transaction Type,Transaction Status,Transaction Traceability,Location Type,Transaction Latitude,Transaction Longitude,Farm Latitude,Farm Longitude,Volume,Is Automatic,Created By Role,Commodity ID,Commodity Code,Commodity Name,Commodity Unit,Commodity Group,Harvest Season ID,Harvest Season Name,Harvest Season Start Date,Harvest Season End Date,Harvest Season Status,Seller ID,Seller Created At,Buyer ID,Buyer Created At
+        123e4567-e89b-12d3-a456-426614174000,2026-01-15T10:30:00Z,producer,accepted,full,gps,1.234000,-5.678000,1.235000,-5.679000,100.50,False,seller,456e7890-e89b-12d3-a456-426614174000,CORN001,Corn,kg,Grains,223e4567-e89b-12d3-a456-426614174000,2025/26 Corn,2025-10-01,2026-09-30,active,789e0123-e89b-12d3-a456-426614174000,2025-12-10T08:00:00Z,012e3456-e89b-12d3-a456-426614174000,2025-12-12T09:15:00Z
   headers:
     Content-Disposition:
       schema:
@@ -126,7 +144,7 @@ TransactionListCsvDownloadResponse:
       schema:
         type: string
         example: '10'
-      description: Number of transactions included in CSV
+      description: Number of transactions included in CSV, upstream rows counted in when include_chain is set
 
 ChainCsvDownloadResponse:
   description: Transaction chain data as CSV file
@@ -135,10 +153,12 @@ ChainCsvDownloadResponse:
       schema:
         type: string
         format: binary
-        description: CSV file containing transaction chain data with columns for transaction details, commodity information, and user IDs
+        description: |
+          CSV file of the transaction chain, one row per transaction, with the same columns as the
+          transaction list export. The chain never leaves the harvest season it started in.
       example: |
-        Transaction ID,Transaction Created At,Transaction Type,Transaction Status,Transaction Traceability,Transaction Location,Latitude,Longitude,Volume,Is Automatic,Created By Role,Commodity ID,Commodity Code,Commodity Name,Commodity Unit,Commodity Group,Seller ID,Seller Created At,Buyer ID,Buyer Created At
-        123e4567-e89b-12d3-a456-426614174000,2024-01-15T10:30:00Z,PRODUCER,ACCEPTED,FULL,GPS,1.234,-5.678,100.5,false,seller,456e7890-e89b-12d3-a456-426614174000,CORN001,Corn,kg,Grains,789e0123-e89b-12d3-a456-426614174000,2024-01-10T08:00:00Z,012e3456-e89b-12d3-a456-426614174000,2024-01-12T09:15:00Z
+        Transaction ID,Transaction Created At,Transaction Type,Transaction Status,Transaction Traceability,Location Type,Transaction Latitude,Transaction Longitude,Farm Latitude,Farm Longitude,Volume,Is Automatic,Created By Role,Commodity ID,Commodity Code,Commodity Name,Commodity Unit,Commodity Group,Harvest Season ID,Harvest Season Name,Harvest Season Start Date,Harvest Season End Date,Harvest Season Status,Seller ID,Seller Created At,Buyer ID,Buyer Created At
+        123e4567-e89b-12d3-a456-426614174000,2026-01-15T10:30:00Z,producer,accepted,full,gps,1.234000,-5.678000,1.235000,-5.679000,100.50,False,seller,456e7890-e89b-12d3-a456-426614174000,CORN001,Corn,kg,Grains,223e4567-e89b-12d3-a456-426614174000,2025/26 Corn,2025-10-01,2026-09-30,active,789e0123-e89b-12d3-a456-426614174000,2025-12-10T08:00:00Z,012e3456-e89b-12d3-a456-426614174000,2025-12-12T09:15:00Z
   headers:
     Content-Disposition:
       schema:
@@ -151,6 +171,50 @@ ChainCsvDownloadResponse:
         example: '2'
       description: Number of transactions included in CSV
 
+TransactionListLocationBundleDownloadResponse:
+  description: Farm geodata behind the filtered transactions, as a ZIP bundle
+  content:
+    application/zip:
+      schema:
+        type: string
+        format: binary
+        description: |
+          Same contents as the per-transaction bundle, for every chain behind the filtered transactions. A farm
+          reached through several of them appears once.
+  headers:
+    Content-Disposition:
+      schema:
+        type: string
+        example: 'attachment; filename="transactions_location_bundle.zip"'
+      description: Suggests downloading the file with a specific filename
+    X-Geojson-Merged-Transactions:
+      schema:
+        type: string
+        example: '2'
+      description: Farms with full traceability, which are the ones located by qr or gps
+    X-Custom-Location-File-Transactions:
+      schema:
+        type: string
+        example: '1'
+      description: Farms added by hand, which are the ones located by an uploaded file or a point on the map
+    X-No-Location-File-Transactions:
+      schema:
+        type: string
+        example: '3'
+      description: Farms with no geodata at all
+
+TransactionListLocationSummaryResponse:
+  description: Farm and trader counts for the filtered transactions
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              data:
+                $ref: './schemas.yaml#/LocationSummaryDTO'
+
 ChainBundleDownloadResponse:
   description: Transaction chain data as ZIP bundle
   content:
@@ -158,7 +222,10 @@ ChainBundleDownloadResponse:
       schema:
         type: string
         format: binary
-        description: ZIP bundle containing GeoJSON files for transaction chain with merged.geojson and individual transaction files
+        description: |
+          ZIP bundle with merged.geojson, the stored geojson of every qr farm and the uploaded file of every
+          file farm. An uploaded file is stored without an extension, so its entry is named by the
+          transaction id alone.
   headers:
     Content-Disposition:
       schema:
@@ -169,17 +236,17 @@ ChainBundleDownloadResponse:
       schema:
         type: string
         example: '2'
-      description: Number of transactions included in merged GeoJSON
+      description: Farms with full traceability, which are the ones located by qr or gps
     X-Custom-Location-File-Transactions:
       schema:
         type: string
         example: '1'
-      description: Number of transactions with custom location files
+      description: Farms added by hand, which are the ones located by an uploaded file or a point on the map
     X-No-Location-File-Transactions:
       schema:
         type: string
         example: '3'
-      description: Number of transactions without location files
+      description: Farms with no geodata at all
 
 TransactionNotificationResentResponse:
   description: Transaction notification resent successfully
@@ -200,9 +267,23 @@ ConversionCompletedResponse:
     application/json:
       schema:
         allOf:
-          - $ref: '../common/schemas.yaml#/BaseResponse'
+          - $ref: '../common/schemas.yaml#/DataResponse'
           - type: object
             properties:
+              data:
+                $ref: './schemas.yaml#/ConversionTransactionDTO'
               message:
                 type: string
                 default: Conversion completed successfully
+
+ConversionDetailResponse:
+  description: Conversion details
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              data:
+                $ref: './schemas.yaml#/ConversionTransactionDTO'

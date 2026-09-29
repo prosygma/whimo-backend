@@ -8,7 +8,6 @@ from django.core.files.storage import default_storage
 from django.db.models import Count, Q, QuerySet, Sum
 from django.db.models.functions import TruncDate
 from django.utils import timezone
-from django.utils.translation import gettext as _
 
 from whimo.analytics.constants import USER_ANALYTICS_CACHE_KEY, USER_ANALYTICS_CACHE_TIMEOUT
 from whimo.analytics.schemas.dto import (
@@ -22,9 +21,10 @@ from whimo.analytics.schemas.dto import (
     UserGrowthItemDTO,
     UserMetricsDTO,
 )
+from whimo.common.test_mode import is_test_mode
 from whimo.common.utils import get_user_model, localized_name
 from whimo.db.enums.transactions import TransactionTraceability
-from whimo.db.models import Balance, Season, Transaction
+from whimo.db.models import Balance, HarvestSeason, Transaction
 from whimo.transactions.constants import LOCATION_S3_PREFIX
 
 User = get_user_model()
@@ -39,7 +39,7 @@ class AnalyticsService:
         traceability_stats = AnalyticsService._get_transactions_by_traceability()
         user_growth = AnalyticsService._get_user_growth_data()
 
-        current_seasons_queryset = Season.objects.current_seasons()
+        current_seasons_queryset = HarvestSeason.objects.active_seasons()
         current_seasons = AnalyticsService._get_current_seasons(current_seasons_queryset)
         season_transactions_daily = AnalyticsService._get_season_transactions_daily(current_seasons_queryset)
         transactions_by_seasons = AnalyticsService._get_transactions_by_seasons(current_seasons_queryset)
@@ -134,11 +134,11 @@ class AnalyticsService:
         return result
 
     @staticmethod
-    def _get_current_seasons(current_seasons_queryset: QuerySet[Season]) -> list[CurrentSeasonDTO]:
+    def _get_current_seasons(current_seasons_queryset: QuerySet[HarvestSeason]) -> list[CurrentSeasonDTO]:
         return [
             CurrentSeasonDTO(
                 id=season.id,
-                name=_(season.name),
+                name=season.name,
                 start_date=season.start_date,
                 end_date=season.end_date,
                 transactions_count=season.transactions_count,
@@ -147,32 +147,35 @@ class AnalyticsService:
         ]
 
     @staticmethod
-    def _get_season_transactions_daily(current_seasons_queryset: QuerySet[Season]) -> list[SeasonTransactionsDailyDTO]:
+    def _get_season_transactions_daily(
+        current_seasons_queryset: QuerySet[HarvestSeason],
+    ) -> list[SeasonTransactionsDailyDTO]:
         daily_transactions = (
-            Transaction.objects.filter(season__in=current_seasons_queryset)
-            .select_related("season")
+            Transaction.objects.filter(harvest_season__in=current_seasons_queryset)
             .annotate(transaction_date=TruncDate("created_at"))
-            .values("transaction_date", "season_id", "season__name")
+            .values("transaction_date", "harvest_season_id", "harvest_season__name")
             .annotate(transactions_count=Count("id"))
-            .order_by("season__start_date", "transaction_date")
+            .order_by("harvest_season__start_date", "transaction_date")
         )
 
         return [
             SeasonTransactionsDailyDTO(
                 date=item["transaction_date"],
-                season_id=item["season_id"],
-                season_name=_(item["season__name"]),
+                season_id=item["harvest_season_id"],
+                season_name=item["harvest_season__name"],
                 transactions_count=item["transactions_count"],
             )
             for item in daily_transactions
         ]
 
     @staticmethod
-    def _get_transactions_by_seasons(current_seasons_queryset: QuerySet[Season]) -> list[SeasonTransactionsDTO]:
+    def _get_transactions_by_seasons(
+        current_seasons_queryset: QuerySet[HarvestSeason],
+    ) -> list[SeasonTransactionsDTO]:
         return [
             SeasonTransactionsDTO(
                 season_id=season.id,
-                season_name=_(season.name),
+                season_name=season.name,
                 transactions_count=season.transactions_count,
             )
             for season in current_seasons_queryset
@@ -181,6 +184,8 @@ class AnalyticsService:
     @staticmethod
     def get_user_analytics_data(user_id: UUID) -> UserMetricsDTO:
         cache_key = USER_ANALYTICS_CACHE_KEY.format(user_id=user_id)
+        if is_test_mode():
+            cache_key = f"test_mode:{cache_key}"
         cached_data = cache.get(cache_key)
 
         if cached_data is not None:

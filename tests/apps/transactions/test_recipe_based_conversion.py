@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 from http import HTTPStatus
 
@@ -5,14 +6,16 @@ import pytest
 from django.urls import reverse
 from freezegun.api import FrozenDateTimeFactory
 from syrupy import SnapshotAssertion
+from syrupy.filters import props
 
 from tests.factories.balances import BalanceFactory
 from tests.factories.commodities import CommodityFactory
 from tests.factories.conversions import ConversionInputFactory, ConversionOutputFactory, ConversionRecipeFactory
+from tests.factories.harvest_seasons import HarvestSeasonCommodityFactory, HarvestSeasonFactory
 from tests.factories.users import UserFactory
 from tests.helpers.clients import APIClient
 from tests.helpers.constants import DEFAULT_DATETIME
-from whimo.db.enums import TransactionStatus, TransactionType
+from whimo.db.enums import HarvestSeasonStatus, TransactionStatus, TransactionType
 from whimo.db.enums.transactions import TransactionTraceability
 from whimo.db.models import Balance, Transaction
 
@@ -32,8 +35,9 @@ class TestRecipeBasedConversion:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        input_commodity = CommodityFactory.create()
-        output_commodity = CommodityFactory.create()
+        harvest_season = HarvestSeasonFactory.create()
+        input_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
+        output_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
 
         recipe = ConversionRecipeFactory.create(name="Test Recipe")
         ConversionInputFactory.create(recipe=recipe, commodity=input_commodity, quantity=Decimal("10.0"))
@@ -41,7 +45,10 @@ class TestRecipeBasedConversion:
 
         BalanceFactory.create(user=user, commodity=input_commodity, volume=Decimal("20.0"))
 
-        request_data = {"recipe_id": str(recipe.id)}
+        request_data = {
+            "recipe_id": str(recipe.id),
+            "harvest_season_id": str(harvest_season.id),
+        }
 
         client.login(user)
 
@@ -51,11 +58,14 @@ class TestRecipeBasedConversion:
 
         # Assert
         assert response.status_code == HTTPStatus.OK, response_json
-        assert response_json == snapshot
+        assert response_json == snapshot(exclude=props("id", "group_id"))
 
         transactions = list(
             Transaction.objects.filter(created_by_id=user.id, type=TransactionType.CONVERSION).order_by("volume")
         )
+        assert response_json["data"]["group_id"] == str(transactions[0].group_id)
+        assert [item["id"] for item in response_json["data"]["inputs"]] == [str(transactions[0].id)]
+        assert [item["id"] for item in response_json["data"]["outputs"]] == [str(transactions[1].id)]
 
         expected_transaction_count = 2
         assert len(transactions) == expected_transaction_count
@@ -87,8 +97,9 @@ class TestRecipeBasedConversion:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        input_commodity = CommodityFactory.create()
-        output_commodity = CommodityFactory.create()
+        harvest_season = HarvestSeasonFactory.create()
+        input_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
+        output_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
 
         recipe = ConversionRecipeFactory.create(name="Test Recipe")
         ConversionInputFactory.create(recipe=recipe, commodity=input_commodity, quantity=Decimal("10.0"))
@@ -98,6 +109,7 @@ class TestRecipeBasedConversion:
 
         request_data = {
             "recipe_id": str(recipe.id),
+            "harvest_season_id": str(harvest_season.id),
             "input_overrides": [{"commodity_id": str(input_commodity.id), "quantity": "25.0"}],
         }
 
@@ -128,8 +140,9 @@ class TestRecipeBasedConversion:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        input_commodity = CommodityFactory.create()
-        output_commodity = CommodityFactory.create()
+        harvest_season = HarvestSeasonFactory.create()
+        input_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
+        output_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
 
         recipe = ConversionRecipeFactory.create(name="Test Recipe")
         ConversionInputFactory.create(recipe=recipe, commodity=input_commodity, quantity=Decimal("10.0"))
@@ -139,6 +152,7 @@ class TestRecipeBasedConversion:
 
         request_data = {
             "recipe_id": str(recipe.id),
+            "harvest_season_id": str(harvest_season.id),
             "output_overrides": [{"commodity_id": str(output_commodity.id), "quantity": "8.0"}],
         }
 
@@ -169,9 +183,10 @@ class TestRecipeBasedConversion:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        input_commodity_1 = CommodityFactory.create()
-        input_commodity_2 = CommodityFactory.create()
-        output_commodity = CommodityFactory.create()
+        harvest_season = HarvestSeasonFactory.create()
+        input_commodity_1 = CommodityFactory.create(with_harvest_season=harvest_season)
+        input_commodity_2 = CommodityFactory.create(with_harvest_season=harvest_season)
+        output_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
 
         recipe = ConversionRecipeFactory.create(name="Test Recipe")
         ConversionInputFactory.create(recipe=recipe, commodity=input_commodity_1, quantity=Decimal("10.0"))
@@ -183,6 +198,7 @@ class TestRecipeBasedConversion:
 
         request_data = {
             "recipe_id": str(recipe.id),
+            "harvest_season_id": str(harvest_season.id),
             "input_overrides": [{"commodity_id": str(input_commodity_2.id), "quantity": "0"}],
         }
 
@@ -216,7 +232,11 @@ class TestRecipeBasedConversion:
         user = UserFactory.create()
         client.login(user)
 
-        request_data = {"recipe_id": "00000000-0000-0000-0000-000000000000"}
+        harvest_season = HarvestSeasonFactory.create()
+        request_data = {
+            "recipe_id": "00000000-0000-0000-0000-000000000000",
+            "harvest_season_id": str(harvest_season.id),
+        }
 
         # Act
         response = client.post(path=self.URL, data=request_data, format="json")
@@ -230,9 +250,10 @@ class TestRecipeBasedConversion:
     ) -> None:
         # Arrange
         user = UserFactory.create()
-        input_commodity = CommodityFactory.create()
-        output_commodity = CommodityFactory.create()
-        invalid_commodity = CommodityFactory.create()
+        harvest_season = HarvestSeasonFactory.create()
+        input_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
+        output_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
+        invalid_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
 
         recipe = ConversionRecipeFactory.create(name="Test Recipe")
         ConversionInputFactory.create(recipe=recipe, commodity=input_commodity, quantity=Decimal("10.0"))
@@ -242,6 +263,7 @@ class TestRecipeBasedConversion:
 
         request_data = {
             "recipe_id": str(recipe.id),
+            "harvest_season_id": str(harvest_season.id),
             "input_overrides": [{"commodity_id": str(invalid_commodity.id), "quantity": "5.0"}],
         }
 
@@ -259,8 +281,9 @@ class TestRecipeBasedConversion:
     ) -> None:
         # Arrange
         user = UserFactory.create()
-        input_commodity = CommodityFactory.create()
-        output_commodity = CommodityFactory.create()
+        harvest_season = HarvestSeasonFactory.create()
+        input_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
+        output_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
 
         recipe = ConversionRecipeFactory.create(name="Test Recipe")
         ConversionInputFactory.create(recipe=recipe, commodity=input_commodity, quantity=Decimal("100.0"))
@@ -268,23 +291,32 @@ class TestRecipeBasedConversion:
 
         BalanceFactory.create(user=user, commodity=input_commodity, volume=Decimal("50.0"))
 
-        request_data = {"recipe_id": str(recipe.id)}
+        request_data = {
+            "recipe_id": str(recipe.id),
+            "harvest_season_id": str(harvest_season.id),
+        }
 
         client.login(user)
 
         # Act
         response = client.post(path=self.URL, data=request_data, format="json")
+        response_json = response.json()
 
         # Assert
-        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.status_code == HTTPStatus.CONFLICT, response_json
+        assert response_json["code"] == "transactions.insufficient_harvest_season_balance"
+        assert response_json["errors"]["harvest_season_id"] == str(harvest_season.id)
+        assert Decimal(str(response_json["errors"]["available_volume"])) == Decimal("50.0")
+        assert Decimal(str(response_json["errors"]["requested_volume"])) == Decimal("100.0")
 
-    def test_all_inputs_zero_error(
+    def test_harvest_season_missing_a_recipe_commodity(
         self,
         client: APIClient,
     ) -> None:
         # Arrange
         user = UserFactory.create()
-        input_commodity = CommodityFactory.create()
+        harvest_season = HarvestSeasonFactory.create()
+        input_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
         output_commodity = CommodityFactory.create()
 
         recipe = ConversionRecipeFactory.create(name="Test Recipe")
@@ -295,6 +327,107 @@ class TestRecipeBasedConversion:
 
         request_data = {
             "recipe_id": str(recipe.id),
+            "harvest_season_id": str(harvest_season.id),
+        }
+
+        client.login(user)
+
+        # Act
+        response = client.post(path=self.URL, data=request_data, format="json")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.BAD_REQUEST, response_json
+        assert response_json["code"] == "harvest_seasons.commodity_not_in_season"
+        assert response_json["errors"]["commodity_id"] == str(output_commodity.id)
+        assert not Transaction.objects.filter(created_by_id=user.id, type=TransactionType.CONVERSION).exists()
+
+    def test_volume_stays_inside_the_requested_season(
+        self,
+        client: APIClient,
+    ) -> None:
+        # Arrange
+        user = UserFactory.create()
+        harvest_season = HarvestSeasonFactory.create()
+        past_season = HarvestSeasonFactory.create(
+            start_date=date(2024, 9, 1),
+            end_date=date(2025, 9, 1),
+            status=HarvestSeasonStatus.PAST,
+        )
+        input_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
+        output_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
+        for commodity in (input_commodity, output_commodity):
+            HarvestSeasonCommodityFactory.create(harvest_season=past_season, commodity=commodity)
+
+        recipe = ConversionRecipeFactory.create(name="Test Recipe")
+        ConversionInputFactory.create(recipe=recipe, commodity=input_commodity, quantity=Decimal("10.0"))
+        ConversionOutputFactory.create(recipe=recipe, commodity=output_commodity, quantity=Decimal("5.0"))
+
+        input_balance = BalanceFactory.create(
+            user=user,
+            commodity=input_commodity,
+            harvest_season=harvest_season,
+            volume=Decimal("20.0"),
+        )
+        past_balance = BalanceFactory.create(
+            user=user,
+            commodity=input_commodity,
+            harvest_season=past_season,
+            volume=Decimal("100.0"),
+        )
+        past_output_balance = BalanceFactory.create(
+            user=user,
+            commodity=output_commodity,
+            harvest_season=past_season,
+            volume=Decimal("7.0"),
+        )
+
+        request_data = {
+            "recipe_id": str(recipe.id),
+            "harvest_season_id": str(harvest_season.id),
+        }
+
+        client.login(user)
+
+        # Act
+        response = client.post(path=self.URL, data=request_data, format="json")
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response.json()
+
+        transactions = Transaction.objects.filter(created_by_id=user.id, type=TransactionType.CONVERSION)
+        assert {transaction.harvest_season_id for transaction in transactions} == {harvest_season.id}
+        assert not transactions.filter(is_automatic=True).exists()
+
+        output_balance = Balance.objects.get(user=user, commodity=output_commodity, harvest_season=harvest_season)
+        assert output_balance.volume == Decimal("5.0")
+
+        input_balance.refresh_from_db()
+        past_balance.refresh_from_db()
+        past_output_balance.refresh_from_db()
+        assert input_balance.volume == Decimal("10.0")
+        assert past_balance.volume == Decimal("100.0")
+        assert past_output_balance.volume == Decimal("7.0")
+
+    def test_all_inputs_zero_error(
+        self,
+        client: APIClient,
+    ) -> None:
+        # Arrange
+        user = UserFactory.create()
+        harvest_season = HarvestSeasonFactory.create()
+        input_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
+        output_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
+
+        recipe = ConversionRecipeFactory.create(name="Test Recipe")
+        ConversionInputFactory.create(recipe=recipe, commodity=input_commodity, quantity=Decimal("10.0"))
+        ConversionOutputFactory.create(recipe=recipe, commodity=output_commodity, quantity=Decimal("5.0"))
+
+        BalanceFactory.create(user=user, commodity=input_commodity, volume=Decimal("20.0"))
+
+        request_data = {
+            "recipe_id": str(recipe.id),
+            "harvest_season_id": str(harvest_season.id),
             "input_overrides": [{"commodity_id": str(input_commodity.id), "quantity": "0"}],
         }
 
@@ -312,8 +445,9 @@ class TestRecipeBasedConversion:
     ) -> None:
         # Arrange
         user = UserFactory.create()
-        input_commodity = CommodityFactory.create()
-        output_commodity = CommodityFactory.create()
+        harvest_season = HarvestSeasonFactory.create()
+        input_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
+        output_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
 
         recipe = ConversionRecipeFactory.create(name="Test Recipe")
         ConversionInputFactory.create(recipe=recipe, commodity=input_commodity, quantity=Decimal("10.0"))
@@ -321,6 +455,7 @@ class TestRecipeBasedConversion:
 
         request_data = {
             "recipe_id": str(recipe.id),
+            "harvest_season_id": str(harvest_season.id),
             "input_overrides": [
                 {"commodity_id": str(input_commodity.id), "quantity": "5.0"},
                 {"commodity_id": str(input_commodity.id), "quantity": "10.0"},
@@ -346,8 +481,9 @@ class TestRecipeBasedConversion:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        input_commodity = CommodityFactory.create()
-        output_commodity = CommodityFactory.create()
+        harvest_season = HarvestSeasonFactory.create()
+        input_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
+        output_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
 
         BalanceFactory.create(user=user, commodity=input_commodity, volume=Decimal("20.0"))
 
@@ -363,7 +499,10 @@ class TestRecipeBasedConversion:
         ConversionInputFactory.create(recipe=recipe, commodity=input_commodity, quantity=Decimal("10.0"))
         ConversionOutputFactory.create(recipe=recipe, commodity=output_commodity, quantity=Decimal("5.0"))
 
-        request_data = {"recipe_id": str(recipe.id)}
+        request_data = {
+            "recipe_id": str(recipe.id),
+            "harvest_season_id": str(harvest_season.id),
+        }
 
         client.login(user)
 
@@ -388,8 +527,9 @@ class TestRecipeBasedConversion:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        input_commodity = CommodityFactory.create()
-        output_commodity = CommodityFactory.create()
+        harvest_season = HarvestSeasonFactory.create()
+        input_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
+        output_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
 
         recipe = ConversionRecipeFactory.create(name="Test Recipe")
         ConversionInputFactory.create(recipe=recipe, commodity=input_commodity, quantity=Decimal("10.0"))
@@ -397,7 +537,10 @@ class TestRecipeBasedConversion:
 
         BalanceFactory.create(user=user, commodity=input_commodity, volume=Decimal("20.0"))
 
-        request_data = {"recipe_id": str(recipe.id)}
+        request_data = {
+            "recipe_id": str(recipe.id),
+            "harvest_season_id": str(harvest_season.id),
+        }
         client.login(user)
 
         response = client.post(path=self.URL, data=request_data, format="json")
@@ -425,8 +568,9 @@ class TestRecipeBasedConversion:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        input_commodity = CommodityFactory.create()
-        output_commodity = CommodityFactory.create()
+        harvest_season = HarvestSeasonFactory.create()
+        input_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
+        output_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
 
         recipe = ConversionRecipeFactory.create(name="Test Recipe")
         ConversionInputFactory.create(recipe=recipe, commodity=input_commodity, quantity=Decimal("5.0"))
@@ -434,7 +578,10 @@ class TestRecipeBasedConversion:
 
         BalanceFactory.create(user=user, commodity=input_commodity, volume=Decimal("20.0"))
 
-        request_data = {"recipe_id": str(recipe.id)}
+        request_data = {
+            "recipe_id": str(recipe.id),
+            "harvest_season_id": str(harvest_season.id),
+        }
         client.login(user)
 
         response1 = client.post(path=self.URL, data=request_data, format="json")
@@ -472,10 +619,11 @@ class TestRecipeBasedConversion:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        input_commodity_1 = CommodityFactory.create()
-        input_commodity_2 = CommodityFactory.create()
-        output_commodity_1 = CommodityFactory.create()
-        output_commodity_2 = CommodityFactory.create()
+        harvest_season = HarvestSeasonFactory.create()
+        input_commodity_1 = CommodityFactory.create(with_harvest_season=harvest_season)
+        input_commodity_2 = CommodityFactory.create(with_harvest_season=harvest_season)
+        output_commodity_1 = CommodityFactory.create(with_harvest_season=harvest_season)
+        output_commodity_2 = CommodityFactory.create(with_harvest_season=harvest_season)
 
         recipe = ConversionRecipeFactory.create(name="Multi Recipe")
         ConversionInputFactory.create(recipe=recipe, commodity=input_commodity_1, quantity=Decimal("10.0"))
@@ -486,7 +634,10 @@ class TestRecipeBasedConversion:
         BalanceFactory.create(user=user, commodity=input_commodity_1, volume=Decimal("20.0"))
         BalanceFactory.create(user=user, commodity=input_commodity_2, volume=Decimal("10.0"))
 
-        request_data = {"recipe_id": str(recipe.id)}
+        request_data = {
+            "recipe_id": str(recipe.id),
+            "harvest_season_id": str(harvest_season.id),
+        }
         client.login(user)
 
         response = client.post(path=self.URL, data=request_data, format="json")

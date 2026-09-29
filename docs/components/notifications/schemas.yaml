@@ -37,12 +37,14 @@ NotificationDTO:
       description: Creation timestamp of the notification
     data:
       $ref: '#/NotificationData'
+      nullable: true
     type:
       $ref: '#/NotificationType'
     status:
       $ref: '#/NotificationStatus'
     received_by:
       $ref: '../users/schemas.yaml#/UserDTO'
+      nullable: true
       description: User who received this notification
     created_by:
       $ref: '../users/schemas.yaml#/UserDTO'

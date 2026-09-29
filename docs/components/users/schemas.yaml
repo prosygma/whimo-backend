@@ -39,6 +39,15 @@ UserDTO:
       items:
         $ref: '#/GadgetDTO'
 
+UserExistsDTO:
+  type: object
+  properties:
+    exists:
+      type: boolean
+      description: |
+        Whether an account with this User ID can receive a transaction. A deleted account reads false: it keeps
+        its User ID while its email and phone are gone.
+
 GadgetExistsDTO:
   type: object
   properties:

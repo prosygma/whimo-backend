@@ -1,6 +1,8 @@
 from decimal import Decimal
 
 from whimo.common.schemas.dto import BaseModelDTO
+from whimo.db.enums.transactions import TransactionTraceability
+from whimo.harvest_seasons.schemas.dto import HarvestSeasonDTO
 
 
 class CommodityGroupDTO(BaseModelDTO):
@@ -30,4 +32,6 @@ class CommodityGroupWithCommoditiesBalancesDTO(BaseModelDTO):
 class BalanceDTO(BaseModelDTO):
     volume: Decimal
     commodity: CommodityWithGroupDTO
+    harvest_season: HarvestSeasonDTO
+    traceability: TransactionTraceability
     has_recipe: bool

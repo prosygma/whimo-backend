@@ -753,49 +753,6 @@
         'created_by': dict({
           'gadgets': list([
             dict({
-              'id': '00000000-0000-0000-0000-000000000004',
-              'identifier': 'gwhite@example.com',
-              'is_verified': True,
-              'type': 'email',
-            }),
-            dict({
-              'id': '00000000-0000-0000-0000-000000000005',
-              'identifier': '09163457923',
-              'is_verified': True,
-              'type': 'phone',
-            }),
-          ]),
-          'id': '00000000-0000-0000-0000-000000000002',
-          'username': '7b5ad1347120363c',
-        }),
-        'data': None,
-        'id': '00000000-0000-0000-0000-000000000001',
-        'received_by': dict({
-          'gadgets': list([
-            dict({
-              'id': '00000000-0000-0000-0000-000000000000',
-              'identifier': 'vclayton@example.org',
-              'is_verified': True,
-              'type': 'email',
-            }),
-            dict({
-              'id': '00000000-0000-0000-0000-000000000001',
-              'identifier': '51393328711',
-              'is_verified': True,
-              'type': 'phone',
-            }),
-          ]),
-          'id': '00000000-0000-0000-0000-000000000000',
-          'username': 'cd18fc9fb6494384',
-        }),
-        'status': 'read',
-        'type': 'transaction_pending',
-      }),
-      dict({
-        'created_at': '2020-01-01T00:00:00Z',
-        'created_by': dict({
-          'gadgets': list([
-            dict({
               'id': '00000000-0000-0000-0000-000000000002',
               'identifier': 'criley@example.com',
               'is_verified': True,
@@ -833,6 +790,49 @@
         }),
         'status': 'read',
         'type': 'geodata_missing',
+      }),
+      dict({
+        'created_at': '2020-01-01T00:00:00Z',
+        'created_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000004',
+              'identifier': 'gwhite@example.com',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000005',
+              'identifier': '09163457923',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000002',
+          'username': '7b5ad1347120363c',
+        }),
+        'data': None,
+        'id': '00000000-0000-0000-0000-000000000001',
+        'received_by': dict({
+          'gadgets': list([
+            dict({
+              'id': '00000000-0000-0000-0000-000000000000',
+              'identifier': 'vclayton@example.org',
+              'is_verified': True,
+              'type': 'email',
+            }),
+            dict({
+              'id': '00000000-0000-0000-0000-000000000001',
+              'identifier': '51393328711',
+              'is_verified': True,
+              'type': 'phone',
+            }),
+          ]),
+          'id': '00000000-0000-0000-0000-000000000000',
+          'username': 'cd18fc9fb6494384',
+        }),
+        'status': 'read',
+        'type': 'transaction_pending',
       }),
     ]),
     'pagination': dict({

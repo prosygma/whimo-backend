@@ -5,6 +5,7 @@ from django.db import transaction
 
 from whimo.common.schemas.errors import NotFound
 from whimo.common.utils import get_user_model
+from whimo.users.schemas.dto import UserExistsDTO
 from whimo.users.schemas.errors import InvalidCurrentPasswordError
 from whimo.users.schemas.requests import PasswordChangeRequest
 
@@ -19,6 +20,10 @@ class UsersService:
             return User.objects.prefetch_gadgets(include_unverified=True).get(pk=user_id)
         except User.DoesNotExist as err:
             raise NotFound(errors={"user": [user_id]}) from err
+
+    @staticmethod
+    def check_username_exists(username: str) -> UserExistsDTO:
+        return UserExistsDTO(exists=User.objects.filter(username=username, is_deleted=False).exists())
 
     @staticmethod
     def change_password(user_id: UUID, payload: PasswordChangeRequest) -> None:

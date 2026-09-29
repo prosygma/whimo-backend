@@ -1,6 +1,7 @@
 from import_export import fields, resources
 
 from whimo.db.models import Transaction
+from whimo.transactions.constants import CHAIN_TIER_FIELD
 
 
 class TransactionUserResource(resources.ModelResource):
@@ -22,6 +23,17 @@ class TransactionUserResource(resources.ModelResource):
     commodity_name = fields.Field(attribute="commodity__name", column_name="Commodity Name")
     commodity_unit = fields.Field(attribute="commodity__unit", column_name="Commodity Unit")
     commodity_group = fields.Field(attribute="commodity__group__name", column_name="Commodity Group")
+    harvest_season_id = fields.Field(attribute="harvest_season__id", column_name="Harvest Season ID")
+    harvest_season_name = fields.Field(attribute="harvest_season__name", column_name="Harvest Season Name")
+    harvest_season_start_date = fields.Field(
+        attribute="harvest_season__start_date",
+        column_name="Harvest Season Start Date",
+    )
+    harvest_season_end_date = fields.Field(
+        attribute="harvest_season__end_date",
+        column_name="Harvest Season End Date",
+    )
+    harvest_season_status = fields.Field(attribute="harvest_season__status", column_name="Harvest Season Status")
     seller_id = fields.Field(attribute="seller__id", column_name="Seller ID")
     seller_created_at = fields.Field(attribute="seller__created_at", column_name="Seller Created At")
     buyer_id = fields.Field(attribute="buyer__id", column_name="Buyer ID")
@@ -29,7 +41,7 @@ class TransactionUserResource(resources.ModelResource):
 
     class Meta:
         model = Transaction
-        fields = (
+        fields: tuple[str, ...] = (
             "transaction_id",
             "transaction_created_at",
             "transaction_type",
@@ -48,12 +60,17 @@ class TransactionUserResource(resources.ModelResource):
             "commodity_name",
             "commodity_unit",
             "commodity_group",
+            "harvest_season_id",
+            "harvest_season_name",
+            "harvest_season_start_date",
+            "harvest_season_end_date",
+            "harvest_season_status",
             "seller_id",
             "seller_created_at",
             "buyer_id",
             "buyer_created_at",
         )
-        export_order = fields
+        export_order: tuple[str, ...] = fields
 
     def dehydrate_created_by_role(self, transaction: Transaction) -> str:
         if transaction.created_by_id == transaction.seller_id:
@@ -61,6 +78,17 @@ class TransactionUserResource(resources.ModelResource):
         if transaction.created_by_id == transaction.buyer_id:
             return "buyer"
         return "other"
+
+
+class TransactionChainUserResource(TransactionUserResource):
+    tier = fields.Field(column_name="Tier")
+
+    class Meta(TransactionUserResource.Meta):
+        fields: tuple[str, ...] = (*TransactionUserResource.Meta.fields, "tier")
+        export_order: tuple[str, ...] = fields
+
+    def dehydrate_tier(self, transaction: Transaction) -> int:
+        return getattr(transaction, CHAIN_TIER_FIELD, 0)
 
 
 class TransactionAdminResource(resources.ModelResource):

@@ -192,6 +192,11 @@
 # name: TestTransactionsChainDownload.test_transaction_does_not_exist
   dict({
     'code': 'api.not_found',
+    'errors': dict({
+      'transaction': list([
+        '00000000-0000-0000-0000-000000000000',
+      ]),
+    }),
     'message': 'Object Not Found',
     'success': False,
   })
@@ -199,6 +204,11 @@
 # name: TestTransactionsChainDownload.test_transaction_not_user
   dict({
     'code': 'api.not_found',
+    'errors': dict({
+      'transaction': list([
+        '00000000-0000-0000-0000-000000000000',
+      ]),
+    }),
     'message': 'Object Not Found',
     'success': False,
   })

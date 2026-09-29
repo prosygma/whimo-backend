@@ -113,13 +113,11 @@ class Transaction(BaseModel):
         help_text=_("User who created this transaction"),
     )
 
-    season = models.ForeignKey(
-        "db.Season",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
+    harvest_season = models.ForeignKey(
+        "db.HarvestSeason",
+        on_delete=models.PROTECT,
         related_name="transactions",
-        help_text=_("Season this transaction belongs to"),
+        help_text=_("Harvest season this transaction belongs to"),
     )
 
     is_buying_from_farmer = models.BooleanField(

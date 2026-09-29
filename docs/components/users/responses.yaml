@@ -36,6 +36,18 @@ ProfileDeletedResponse:
                 type: string
                 default: Profile deleted
 
+UserExistsResponse:
+  description: User ID existence check result
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              data:
+                $ref: './schemas.yaml#/UserExistsDTO'
+
 GadgetExistsResponse:
   description: Gadget existence check result
   content:

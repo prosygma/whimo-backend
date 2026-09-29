@@ -78,44 +78,6 @@
   dict({
     'data': list([
       dict({
-        'id': '00000000-0000-0000-0000-000000000001',
-        'inputs': list([
-          dict({
-            'commodity': dict({
-              'code': '9694',
-              'group': dict({
-                'id': '00000000-0000-0000-0000-000000000002',
-                'name': 'recent',
-              }),
-              'has_recipe': False,
-              'id': '00000000-0000-0000-0000-000000000002',
-              'name': 'little',
-              'unit': 'liters',
-            }),
-            'id': '00000000-0000-0000-0000-000000000001',
-            'quantity': 756.51,
-          }),
-        ]),
-        'name': 'Necessary religious.',
-        'outputs': list([
-          dict({
-            'commodity': dict({
-              'code': '5917',
-              'group': dict({
-                'id': '00000000-0000-0000-0000-000000000003',
-                'name': 'through',
-              }),
-              'has_recipe': False,
-              'id': '00000000-0000-0000-0000-000000000003',
-              'name': 'people',
-              'unit': 'tons',
-            }),
-            'id': '00000000-0000-0000-0000-000000000001',
-            'quantity': 294.3,
-          }),
-        ]),
-      }),
-      dict({
         'id': '00000000-0000-0000-0000-000000000000',
         'inputs': list([
           dict({
@@ -150,6 +112,44 @@
             }),
             'id': '00000000-0000-0000-0000-000000000000',
             'quantity': 931.33,
+          }),
+        ]),
+      }),
+      dict({
+        'id': '00000000-0000-0000-0000-000000000001',
+        'inputs': list([
+          dict({
+            'commodity': dict({
+              'code': '9694',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000002',
+                'name': 'recent',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000002',
+              'name': 'little',
+              'unit': 'liters',
+            }),
+            'id': '00000000-0000-0000-0000-000000000001',
+            'quantity': 756.51,
+          }),
+        ]),
+        'name': 'Necessary religious.',
+        'outputs': list([
+          dict({
+            'commodity': dict({
+              'code': '5917',
+              'group': dict({
+                'id': '00000000-0000-0000-0000-000000000003',
+                'name': 'through',
+              }),
+              'has_recipe': False,
+              'id': '00000000-0000-0000-0000-000000000003',
+              'name': 'people',
+              'unit': 'tons',
+            }),
+            'id': '00000000-0000-0000-0000-000000000001',
+            'quantity': 294.3,
           }),
         ]),
       }),

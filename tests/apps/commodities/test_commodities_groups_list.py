@@ -1,4 +1,5 @@
 import math
+from decimal import Decimal
 from http import HTTPStatus
 
 import factory
@@ -11,6 +12,7 @@ from syrupy import SnapshotAssertion
 
 from tests.factories.balances import BalanceFactory
 from tests.factories.commodities import CommodityFactory, CommodityGroupFactory
+from tests.factories.harvest_seasons import HarvestSeasonFactory
 from tests.factories.users import UserFactory
 from tests.helpers.clients import APIClient
 from tests.helpers.constants import DEFAULT_DATETIME, MEDIUM_BATCH_SIZE, SMALL_BATCH_SIZE
@@ -19,6 +21,7 @@ from whimo.commodities.schemas.dto import (
     CommodityGroupWithCommoditiesBalancesDTO,
 )
 from whimo.common.schemas.base import PaginatedDataResponse
+from whimo.db.enums import HarvestSeasonStatus
 
 pytestmark = [pytest.mark.django_db]
 
@@ -71,6 +74,70 @@ class TestCommoditiesGroupsList:
         # 4. select entities
         # 5. prefetch related entities (with has_recipe annotation)
         assert len(queries) == 5, queries_to_str(queries)  # noqa: PLR2004 Magic value used in comparison  # noqa: PLR2004 Magic value used in comparison  # noqa: PLR2004 Magic value used in comparison
+
+    def test_balance_sums_every_harvest_season(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        group = CommodityGroupFactory.create()
+        commodity = CommodityFactory.create(group=group)
+        past_season = HarvestSeasonFactory.create(status=HarvestSeasonStatus.PAST)
+        BalanceFactory.create(user=user, commodity=commodity, volume=Decimal("60.00"))
+        BalanceFactory.create(user=user, commodity=commodity, harvest_season=past_season, volume=Decimal("40.00"))
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=self.URL)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = PaginatedDataResponse[list[CommodityGroupWithCommoditiesBalancesDTO]](**response_json)
+        assert data_response.data[0].commodities[0].balance == Decimal("100.00")
+
+    @pytest.mark.parametrize(
+        ("query", "expected"),
+        [
+            ("harvest_season_id={active_id}", Decimal("60.00")),
+            ("harvest_season_status=past", Decimal("40.00")),
+        ],
+    )
+    def test_filter_balances_by_harvest_season(
+        self,
+        query: str,
+        expected: Decimal,
+        client: APIClient,
+    ) -> None:
+        user = UserFactory.create()
+        commodity = CommodityFactory.create()
+        active_season = commodity.harvest_seasons.get()
+        past_season = HarvestSeasonFactory.create(
+            commodity_group=active_season.commodity_group,
+            start_date=active_season.start_date.replace(year=active_season.start_date.year - 1),
+            end_date=active_season.end_date.replace(year=active_season.end_date.year - 1),
+            status=HarvestSeasonStatus.PAST,
+            with_commodities=[commodity],
+        )
+        BalanceFactory.create(user=user, commodity=commodity, harvest_season=active_season, volume=Decimal("60.00"))
+        BalanceFactory.create(user=user, commodity=commodity, harvest_season=past_season, volume=Decimal("40.00"))
+
+        client.login(user)
+
+        response = client.get(path=f"{self.URL}?{query.format(active_id=active_season.id)}")
+        response_json = response.json()
+
+        assert response.status_code == HTTPStatus.OK, response_json
+        data_response = PaginatedDataResponse[list[CommodityGroupWithCommoditiesBalancesDTO]](**response_json)
+        assert data_response.data[0].commodities[0].balance == expected
 
     def test_search_by_name(
         self,

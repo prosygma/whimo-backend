@@ -64,6 +64,7 @@ INSTALLED_APPS = (
     "whimo.commodities",
     "whimo.common",
     "whimo.contrib",
+    "whimo.harvest_seasons",
     "whimo.notifications",
     "whimo.system",
     "whimo.transactions",
@@ -71,6 +72,7 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE = (
+    "whimo.common.middleware.TestModeMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -184,7 +186,21 @@ DATABASES = {
         "PASSWORD": env.str("POSTGRES_PASSWORD"),
         "NAME": env.str("POSTGRES_DB", default="app"),
     },
+    "test_mode": {
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": env.str("POSTGRES_HOST", default="127.0.0.1"),
+        "PORT": env.int("POSTGRES_PORT", default=5432),
+        "USER": env.str("POSTGRES_USER", default="app"),
+        "PASSWORD": env.str("POSTGRES_PASSWORD"),
+        "NAME": env.str("POSTGRES_DB", default="app"),
+        "OPTIONS": {"options": "-c search_path=test_mode,public"},
+        # Same physical database as "default" - don't let the test runner create a
+        # second physical test database for this alias.
+        "TEST": {"MIRROR": "default"},
+    },
 }
+
+DATABASE_ROUTERS = ["whimo.common.db_router.TestModeRouter"]
 
 # Caching
 # ______________________________________________________________________________________________________________________
@@ -247,7 +263,7 @@ STORAGES = {
 
 OTP_LENGTH = env.int("OTP_LENGTH", default=6)
 
-OTP_EXPIRY_MINUTES = env.int("OTP_EXPIRY_MINUTES", default=5)
+OTP_EXPIRY_MINUTES = env.int("OTP_EXPIRY_MINUTES", default=15)
 
 OTP_MOCK_CODE = env.str("OTP_MOCK_CODE", default=None)
 
@@ -444,9 +460,9 @@ UNFOLD = {
                         "link": reverse_lazy("admin:db_conversionrecipe_changelist"),
                     },
                     {
-                        "title": _("Seasons"),
+                        "title": _("Harvest Seasons"),
                         "icon": "calendar_month",
-                        "link": reverse_lazy("admin:db_season_changelist"),
+                        "link": reverse_lazy("admin:db_harvestseason_changelist"),
                     },
                 ],
             },

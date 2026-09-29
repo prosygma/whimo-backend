@@ -14,6 +14,7 @@ from syrupy import SnapshotAssertion
 from syrupy.filters import props
 
 from tests.factories.commodities import CommodityFactory
+from tests.factories.harvest_seasons import HarvestSeasonFactory
 from tests.factories.users import GadgetFactory, UserFactory
 from tests.helpers.clients import APIClient
 from tests.helpers.constants import DEFAULT_DATETIME, USER_EMAIL, USER_PHONE
@@ -50,6 +51,7 @@ class TestTransactionsDownstreamCreate:
 
         request_data = {
             "commodity_id": str(commodity.id),
+            "harvest_season_id": str(commodity.harvest_seasons.get().id),
             "volume": 1,
             "location": location,
             "transaction_latitude": 0,
@@ -123,6 +125,7 @@ class TestTransactionsDownstreamCreate:
 
         request_data = {
             "commodity_id": str(commodity.id),
+            "harvest_season_id": str(commodity.harvest_seasons.get().id),
             "volume": 1,
             "action": action,
             "recipient": json.dumps({"name": recipient.username}),
@@ -160,6 +163,7 @@ class TestTransactionsDownstreamCreate:
 
         request_data = {
             "commodity_id": str(commodity.id),
+            "harvest_season_id": str(commodity.harvest_seasons.get().id),
             "volume": 1,
             "action": action,
         }
@@ -201,6 +205,7 @@ class TestTransactionsDownstreamCreate:
 
         request_data = {
             "commodity_id": str(commodity.id),
+            "harvest_season_id": str(commodity.harvest_seasons.get().id),
             "volume": 1,
             "action": action,
             "recipient": json.dumps({"email": USER_EMAIL}),
@@ -254,6 +259,7 @@ class TestTransactionsDownstreamCreate:
 
         request_data = {
             "commodity_id": str(commodity.id),
+            "harvest_season_id": str(commodity.harvest_seasons.get().id),
             "volume": 1,
             "action": action,
             "recipient": json.dumps({"email": USER_EMAIL}),
@@ -301,6 +307,7 @@ class TestTransactionsDownstreamCreate:
 
         request_data = {
             "commodity_id": str(commodity.id),
+            "harvest_season_id": str(commodity.harvest_seasons.get().id),
             "volume": 1,
             "action": action,
             "recipient": json.dumps({"phone": USER_PHONE}),
@@ -352,6 +359,7 @@ class TestTransactionsDownstreamCreate:
 
         request_data = {
             "commodity_id": str(commodity.id),
+            "harvest_season_id": str(commodity.harvest_seasons.get().id),
             "volume": 1,
             "action": action,
             "recipient": json.dumps({"phone": USER_PHONE}),
@@ -396,6 +404,7 @@ class TestTransactionsDownstreamCreate:
 
         request_data = {
             "commodity_id": str(commodity.id),
+            "harvest_season_id": str(commodity.harvest_seasons.get().id),
             "volume": 1,
             "action": TransactionAction.BUYING,
             "recipient": json.dumps({"name": recipient.username}),
@@ -413,6 +422,39 @@ class TestTransactionsDownstreamCreate:
         assert response.status_code == HTTPStatus.BAD_REQUEST, response_json
         assert response_json == snapshot
 
+    def test_deleted_recipient_by_user_id(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        recipient = UserFactory.create(is_deleted=True)
+        commodity = CommodityFactory.create()
+
+        request_data = {
+            "commodity_id": str(commodity.id),
+            "harvest_season_id": str(commodity.harvest_seasons.get().id),
+            "volume": 1,
+            "action": TransactionAction.BUYING,
+            "recipient": json.dumps({"name": recipient.username}),
+        }
+
+        client.login(user)
+
+        # Act
+        response = client.post(path=self.URL, data=request_data)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.NOT_FOUND, response_json
+        assert response_json == snapshot
+        assert response_json["code"] == "transactions.recipient_not_found"
+        assert not Transaction.objects.exists()
+
     def test_longitude_without_latitude(
         self,
         client: APIClient,
@@ -428,6 +470,7 @@ class TestTransactionsDownstreamCreate:
 
         request_data = {
             "commodity_id": str(commodity.id),
+            "harvest_season_id": str(commodity.harvest_seasons.get().id),
             "volume": 1,
             "action": TransactionAction.BUYING,
             "recipient": json.dumps({"name": recipient.username}),
@@ -459,6 +502,7 @@ class TestTransactionsDownstreamCreate:
 
         request_data = {
             "commodity_id": "12345678-1234-1234-1234-123456789012",
+            "harvest_season_id": str(HarvestSeasonFactory.create().id),
             "volume": 1,
             "action": TransactionAction.BUYING,
             "recipient": json.dumps({"name": recipient.username}),
@@ -488,6 +532,7 @@ class TestTransactionsDownstreamCreate:
 
         request_data = {
             "commodity_id": str(commodity.id),
+            "harvest_season_id": str(commodity.harvest_seasons.get().id),
             "volume": 1,
             "action": TransactionAction.BUYING,
             "recipient": json.dumps({"name": "Not Existing Recipient"}),
@@ -517,6 +562,7 @@ class TestTransactionsDownstreamCreate:
 
         request_data = {
             "commodity_id": str(commodity.id),
+            "harvest_season_id": str(commodity.harvest_seasons.get().id),
             "volume": 1,
             "action": TransactionAction.BUYING,
             "recipient": json.dumps(
@@ -551,6 +597,7 @@ class TestTransactionsDownstreamCreate:
 
         request_data = {
             "commodity_id": str(commodity.id),
+            "harvest_season_id": str(commodity.harvest_seasons.get().id),
             "volume": 1,
             "action": TransactionAction.BUYING,
             "recipient": json.dumps({"name": user.username}),
@@ -651,6 +698,7 @@ class TestTransactionsDownstreamCreate:
 
         request_data = {
             "commodity_id": str(commodity.id),
+            "harvest_season_id": str(commodity.harvest_seasons.get().id),
             "volume": 100.0,
             "location": TransactionLocation.MANUAL,
             "transaction_latitude": 0,

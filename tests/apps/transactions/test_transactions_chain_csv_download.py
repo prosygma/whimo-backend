@@ -13,6 +13,7 @@ from syrupy import SnapshotAssertion
 from tests.factories.balances import BalanceFactory
 from tests.factories.commodities import CommodityFactory
 from tests.factories.conversions import ConversionInputFactory, ConversionOutputFactory, ConversionRecipeFactory
+from tests.factories.harvest_seasons import HarvestSeasonFactory
 from tests.factories.transactions import TransactionFactory
 from tests.factories.users import GadgetFactory, UserFactory
 from tests.helpers.clients import APIClient
@@ -50,7 +51,7 @@ class TestTransactionsChainCsvDownload:
         assert response["X-Total-Transactions"] == "1"
 
         csv_content = response.content.decode("utf-8")
-        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        csv_reader = csv.DictReader(io.StringIO(csv_content), delimiter=";")
 
         expected_headers = [
             "Transaction ID",
@@ -71,6 +72,11 @@ class TestTransactionsChainCsvDownload:
             "Commodity Name",
             "Commodity Unit",
             "Commodity Group",
+            "Harvest Season ID",
+            "Harvest Season Name",
+            "Harvest Season Start Date",
+            "Harvest Season End Date",
+            "Harvest Season Status",
             "Seller ID",
             "Seller Created At",
             "Buyer ID",
@@ -110,7 +116,7 @@ class TestTransactionsChainCsvDownload:
         assert response["Content-Type"] == "text/csv"
 
         csv_content = response.content.decode("utf-8")
-        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        csv_reader = csv.DictReader(io.StringIO(csv_content), delimiter=";")
         rows = list(csv_reader)
 
         assert len(rows) >= 1
@@ -168,7 +174,7 @@ class TestTransactionsChainCsvDownload:
         response = client.get(path=url)
 
         # Assert
-        assert response.status_code == HTTPStatus.OK
+        assert response.status_code == HTTPStatus.NOT_FOUND, response.json()
 
     def test_unauthorized(self, client: APIClient, snapshot: SnapshotAssertion) -> None:
         # Arrange
@@ -229,7 +235,7 @@ class TestTransactionsChainCsvDownload:
         assert response.status_code == HTTPStatus.OK
 
         csv_content = response.content.decode("utf-8")
-        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        csv_reader = csv.DictReader(io.StringIO(csv_content), delimiter=";")
         rows = list(csv_reader)
         assert len(rows) >= 0
 
@@ -280,7 +286,7 @@ class TestTransactionsChainCsvDownload:
         assert response.status_code == HTTPStatus.OK
 
         csv_content = response.content.decode("utf-8")
-        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        csv_reader = csv.DictReader(io.StringIO(csv_content), delimiter=";")
         rows = list(csv_reader)
 
         response_ids = {UUID(row["Transaction ID"]) for row in rows}
@@ -292,8 +298,9 @@ class TestTransactionsChainCsvDownload:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        beans = CommodityFactory.create(name="Cacao Beans")
-        oil = CommodityFactory.create(name="Cacao Oil")
+        harvest_season = HarvestSeasonFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans", with_harvest_season=harvest_season)
+        oil = CommodityFactory.create(name="Cacao Oil", with_harvest_season=harvest_season)
 
         # beans -> oil
         producer_transaction = TransactionFactory.create(
@@ -314,7 +321,7 @@ class TestTransactionsChainCsvDownload:
         client.login(user)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe.id)},
+            data={"recipe_id": str(recipe.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -335,7 +342,7 @@ class TestTransactionsChainCsvDownload:
         assert response.status_code == HTTPStatus.OK
 
         csv_content = response.content.decode("utf-8")
-        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        csv_reader = csv.DictReader(io.StringIO(csv_content), delimiter=";")
         rows = list(csv_reader)
 
         response_ids = {UUID(row["Transaction ID"]) for row in rows}
@@ -346,9 +353,10 @@ class TestTransactionsChainCsvDownload:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        beans = CommodityFactory.create(name="Cacao Beans")
-        oil = CommodityFactory.create(name="Cacao Oil")
-        chocolate = CommodityFactory.create(name="Chocolate")
+        harvest_season = HarvestSeasonFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans", with_harvest_season=harvest_season)
+        oil = CommodityFactory.create(name="Cacao Oil", with_harvest_season=harvest_season)
+        chocolate = CommodityFactory.create(name="Chocolate", with_harvest_season=harvest_season)
 
         # beans -> oil -> chocolate
         producer_transaction = TransactionFactory.create(
@@ -369,7 +377,7 @@ class TestTransactionsChainCsvDownload:
         client.login(user)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe1.id)},
+            data={"recipe_id": str(recipe1.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -380,7 +388,7 @@ class TestTransactionsChainCsvDownload:
 
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe2.id)},
+            data={"recipe_id": str(recipe2.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -401,7 +409,7 @@ class TestTransactionsChainCsvDownload:
         assert response.status_code == HTTPStatus.OK
 
         csv_content = response.content.decode("utf-8")
-        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        csv_reader = csv.DictReader(io.StringIO(csv_content), delimiter=";")
         rows = list(csv_reader)
 
         response_ids = {UUID(row["Transaction ID"]) for row in rows}
@@ -412,9 +420,10 @@ class TestTransactionsChainCsvDownload:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        beans = CommodityFactory.create(name="Cacao Beans")
-        sugar = CommodityFactory.create(name="Sugar")
-        chocolate = CommodityFactory.create(name="Chocolate")
+        harvest_season = HarvestSeasonFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans", with_harvest_season=harvest_season)
+        sugar = CommodityFactory.create(name="Sugar", with_harvest_season=harvest_season)
+        chocolate = CommodityFactory.create(name="Chocolate", with_harvest_season=harvest_season)
 
         # beans + sugar -> chocolate
         beans_transaction = TransactionFactory.create(
@@ -445,7 +454,7 @@ class TestTransactionsChainCsvDownload:
         client.login(user)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe.id)},
+            data={"recipe_id": str(recipe.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -466,7 +475,7 @@ class TestTransactionsChainCsvDownload:
         assert response.status_code == HTTPStatus.OK
 
         csv_content = response.content.decode("utf-8")
-        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        csv_reader = csv.DictReader(io.StringIO(csv_content), delimiter=";")
         rows = list(csv_reader)
 
         response_ids = {UUID(row["Transaction ID"]) for row in rows}
@@ -481,8 +490,9 @@ class TestTransactionsChainCsvDownload:
         farmer = UserFactory.create()
         seller = UserFactory.create()
         user = UserFactory.create()
-        beans = CommodityFactory.create(name="Cacao Beans")
-        oil = CommodityFactory.create(name="Cacao Oil")
+        harvest_season = HarvestSeasonFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans", with_harvest_season=harvest_season)
+        oil = CommodityFactory.create(name="Cacao Oil", with_harvest_season=harvest_season)
 
         farmer_transaction = TransactionFactory.create(
             type=TransactionType.PRODUCER,
@@ -520,7 +530,7 @@ class TestTransactionsChainCsvDownload:
         client.login(user)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe.id)},
+            data={"recipe_id": str(recipe.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -541,7 +551,7 @@ class TestTransactionsChainCsvDownload:
         assert response.status_code == HTTPStatus.OK
 
         csv_content = response.content.decode("utf-8")
-        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        csv_reader = csv.DictReader(io.StringIO(csv_content), delimiter=";")
         rows = list(csv_reader)
 
         response_ids = {UUID(row["Transaction ID"]) for row in rows}

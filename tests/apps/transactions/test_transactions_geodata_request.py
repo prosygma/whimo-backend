@@ -10,6 +10,7 @@ from syrupy import SnapshotAssertion
 from tests.factories.balances import BalanceFactory
 from tests.factories.commodities import CommodityFactory
 from tests.factories.conversions import ConversionInputFactory, ConversionOutputFactory, ConversionRecipeFactory
+from tests.factories.harvest_seasons import HarvestSeasonFactory
 from tests.factories.notifications import NotificationFactory
 from tests.factories.transactions import TransactionFactory
 from tests.factories.users import UserFactory
@@ -481,8 +482,9 @@ class TestTransactionsGeodataRequest:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        beans = CommodityFactory.create(name="Cacao Beans")
-        oil = CommodityFactory.create(name="Cacao Oil")
+        harvest_season = HarvestSeasonFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans", with_harvest_season=harvest_season)
+        oil = CommodityFactory.create(name="Cacao Oil", with_harvest_season=harvest_season)
 
         # beans -> oil
         TransactionFactory.create(
@@ -501,7 +503,7 @@ class TestTransactionsGeodataRequest:
         client.login(user)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe.id)},
+            data={"recipe_id": str(recipe.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -537,9 +539,10 @@ class TestTransactionsGeodataRequest:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        beans = CommodityFactory.create(name="Cacao Beans")
-        oil = CommodityFactory.create(name="Cacao Oil")
-        chocolate = CommodityFactory.create(name="Chocolate")
+        harvest_season = HarvestSeasonFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans", with_harvest_season=harvest_season)
+        oil = CommodityFactory.create(name="Cacao Oil", with_harvest_season=harvest_season)
+        chocolate = CommodityFactory.create(name="Chocolate", with_harvest_season=harvest_season)
 
         # beans -> oil -> chocolate
         TransactionFactory.create(
@@ -558,7 +561,7 @@ class TestTransactionsGeodataRequest:
         client.login(user)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe1.id)},
+            data={"recipe_id": str(recipe1.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -569,7 +572,7 @@ class TestTransactionsGeodataRequest:
 
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe2.id)},
+            data={"recipe_id": str(recipe2.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -605,9 +608,10 @@ class TestTransactionsGeodataRequest:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        beans = CommodityFactory.create(name="Cacao Beans")
-        sugar = CommodityFactory.create(name="Sugar")
-        chocolate = CommodityFactory.create(name="Chocolate")
+        harvest_season = HarvestSeasonFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans", with_harvest_season=harvest_season)
+        sugar = CommodityFactory.create(name="Sugar", with_harvest_season=harvest_season)
+        chocolate = CommodityFactory.create(name="Chocolate", with_harvest_season=harvest_season)
 
         # beans + sugar -> chocolate
         TransactionFactory.create(
@@ -634,7 +638,7 @@ class TestTransactionsGeodataRequest:
         client.login(user)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe.id)},
+            data={"recipe_id": str(recipe.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -673,8 +677,9 @@ class TestTransactionsGeodataRequest:
         farmer = UserFactory.create()
         seller = UserFactory.create()
         user = UserFactory.create()
-        beans = CommodityFactory.create(name="Cacao Beans")
-        oil = CommodityFactory.create(name="Cacao Oil")
+        harvest_season = HarvestSeasonFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans", with_harvest_season=harvest_season)
+        oil = CommodityFactory.create(name="Cacao Oil", with_harvest_season=harvest_season)
 
         TransactionFactory.create(
             producer=True,
@@ -710,7 +715,7 @@ class TestTransactionsGeodataRequest:
         client.login(user)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe.id)},
+            data={"recipe_id": str(recipe.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
