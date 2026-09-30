@@ -8,6 +8,7 @@ from pytest_mock import MockerFixture
 
 from whimo.db.models import Commodity, CommodityGroup
 from whimo.languages import services
+from whimo.languages.models import Language
 
 pytest_plugins = [
     # helpers
@@ -39,7 +40,18 @@ def reset_cache(request: pytest.FixtureRequest) -> None:
     # query counts only include the test's own queries.
     if request.node.get_closest_marker("django_db"):
         request.getfixturevalue("db")
+        reset_languages()
         services.enabled_languages()
+
+
+def reset_languages() -> None:
+    """The languages as migration languages/0002 creates them, whatever a deployment's own
+    migrations changed (default language, disabled ones)."""
+    Language.objects.exclude(code__in=("en", "fr", "es")).delete()
+    for position, code in enumerate(("en", "fr", "es"), start=1):
+        Language.objects.filter(code=code).update(
+            is_enabled=True, is_default=code == "en", position=position, translations={}, version=1
+        )
 
 
 @pytest.fixture(autouse=True)
