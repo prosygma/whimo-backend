@@ -48,6 +48,7 @@ def reset_languages() -> None:
     """The languages as migration languages/0002 creates them, whatever a deployment's own
     migrations changed (default language, disabled ones)."""
     Language.objects.exclude(code__in=("en", "fr", "es")).delete()
+    Language.objects.update(is_default=False)  # one default at a time
     for position, code in enumerate(("en", "fr", "es"), start=1):
         Language.objects.filter(code=code).update(
             is_enabled=True, is_default=code == "en", position=position, translations={}, version=1
