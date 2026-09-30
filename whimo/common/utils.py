@@ -20,8 +20,12 @@ def localized_name(name: str, name_variants: dict[str, str] | None) -> str:
         return name
 
     language = (get_language() or "").lower()
-    normalized = {key.lower(): value for key, value in name_variants.items()}
-    return normalized.get(language) or name
+    normalized = {key.lower(): value for key, value in name_variants.items() if value}
+    if language in normalized:
+        return normalized[language]
+    # fr matches fr-fr, fr-fr matches fr: names may be keyed with or without a region.
+    base = language.split("-")[0]
+    return next((value for key, value in normalized.items() if key.split("-")[0] == base), name)
 
 
 def paginate_queryset(

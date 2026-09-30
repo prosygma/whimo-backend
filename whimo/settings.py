@@ -65,6 +65,7 @@ INSTALLED_APPS = (
     "whimo.auth.registration",
     "whimo.auth.social",
     "whimo.commodities",
+    "whimo.languages",
     "whimo.common",
     "whimo.contrib",
     "whimo.notifications",
@@ -77,7 +78,7 @@ MIDDLEWARE = (
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
+    "whimo.languages.middleware.LanguageMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -400,6 +401,11 @@ UNFOLD = {
                         "title": _("Dashboard"),
                         "icon": "dashboard",
                         "link": reverse_lazy("admin:index"),
+                    },
+                    {
+                        "title": _("Languages"),
+                        "icon": "translate",
+                        "link": reverse_lazy("admin:languages_language_changelist"),
                     },
                     {
                         "title": _("Periodic Tasks"),
