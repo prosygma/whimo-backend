@@ -1,0 +1,64 @@
+LanguagesResponse:
+  description: Languages offered in the apps, in picker order
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  default:
+                    type: string
+                    nullable: true
+                    description: Code of the language to use when the user's language is not offered
+                    example: fr
+                  languages:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          example: hi
+                        name:
+                          type: string
+                          description: Name in the language itself
+                          example: हिन्दी
+                        english_name:
+                          type: string
+                          example: Hindi
+                        flag:
+                          type: string
+                          description: Optional flag emoji, empty when not set
+                          example: 🇮🇳
+                        version:
+                          type: integer
+                          description: Increases with each upload of strings; refetch them when it changes
+                          example: 2
+
+LanguageStringsResponse:
+  description: Strings uploaded for one platform of a language, to put on top of the app's own strings
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/DataResponse'
+          - type: object
+            properties:
+              data:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: hi
+                  version:
+                    type: integer
+                    example: 2
+                  strings:
+                    type: object
+                    description: Key to text. Web strings are grouped by namespace.
+                    additionalProperties: true
+                    example: { "common": { "email": "ईमेल" } }

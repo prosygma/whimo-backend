@@ -8,6 +8,7 @@ api_v1_urlpatterns = [
     path("auth/registration/", include("whimo.auth.registration.urls")),
     path("auth/social/", include("whimo.auth.social.urls")),
     path("commodities/", include("whimo.commodities.urls")),
+    path("languages/", include("whimo.languages.urls")),
     path("system/", include("whimo.system.urls")),
     path("notifications/", include("whimo.notifications.urls")),
     path("transactions/", include("whimo.transactions.urls")),

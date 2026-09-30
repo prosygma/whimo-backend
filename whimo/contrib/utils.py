@@ -27,6 +27,22 @@ class ReadOnlyAdminMixin:
         return False
 
 
+def name_variant_languages(variants: dict[str, Any]) -> list[tuple[str, str]]:
+    """Languages offered for commodity names: those of the admin's Languages page, keyed like
+    Django's active language (fr-FR), plus any key already used so that it is never changed."""
+    from whimo.languages.models import Language
+    from whimo.languages.services import django_code
+
+    choices = [
+        (django_code(language.code), language.english_name or language.name) for language in Language.objects.all()
+    ]
+    if not choices:
+        choices = [(code, str(label)) for code, label in settings.LANGUAGES]
+    known = {code for code, _label in choices}
+    choices += [(code, code) for code in variants if code not in known]
+    return choices
+
+
 class NameVariantsWidget(forms.Widget):
     template_name = "admin/widgets/name_variants.html"
 
@@ -43,7 +59,7 @@ class NameVariantsWidget(forms.Widget):
             variants = {}
 
         context["widget"]["rows"] = list(variants.items())
-        context["widget"]["languages"] = settings.LANGUAGES
+        context["widget"]["languages"] = name_variant_languages(variants)
         context["widget"]["input_class"] = " ".join(INPUT_CLASSES)
         context["widget"]["select_class"] = " ".join(SELECT_CLASSES)
         return context

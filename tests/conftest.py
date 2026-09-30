@@ -7,6 +7,7 @@ from pytest_django.fixtures import SettingsWrapper
 from pytest_mock import MockerFixture
 
 from whimo.db.models import Commodity, CommodityGroup
+from whimo.languages import services
 
 pytest_plugins = [
     # helpers
@@ -32,8 +33,13 @@ def reset_faker() -> None:
 
 
 @pytest.fixture(autouse=True)
-def reset_cache() -> None:
+def reset_cache(request: pytest.FixtureRequest) -> None:
     cache.clear()
+    # The enabled languages are cached, as in production; load them before the test so that
+    # query counts only include the test's own queries.
+    if request.node.get_closest_marker("django_db"):
+        request.getfixturevalue("db")
+        services.enabled_languages()
 
 
 @pytest.fixture(autouse=True)

@@ -27,6 +27,43 @@ paths:
         '200':
           $ref: './components/system/responses.yaml#/HealthcheckResponse'
 
+  /languages/:
+    get:
+      tags: [ System ]
+      security: [ ]
+      summary: List languages
+      description: Languages enabled in the admin, in picker order, and the default one. Public and cached for 5 minutes.
+      operationId: listLanguages
+      responses:
+        '200':
+          $ref: './components/languages/responses.yaml#/LanguagesResponse'
+
+  /languages/{code}/{platform}/:
+    get:
+      tags: [ System ]
+      security: [ ]
+      summary: Get uploaded strings
+      description: Strings an administrator uploaded for one platform of an enabled language. Public and cached for 5 minutes.
+      operationId: getLanguageStrings
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+            example: hi
+        - name: platform
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [ web, android, ios, api ]
+      responses:
+        '200':
+          $ref: './components/languages/responses.yaml#/LanguageStringsResponse'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+
   /auth/registration/:
     post:
       tags: [ Registration ]
