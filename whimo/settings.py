@@ -72,6 +72,8 @@ INSTALLED_APPS = (
     "whimo.system",
     "whimo.transactions",
     "whimo.users",
+    # CamerTrace-only setup (see whimo/camertrace/)
+    "whimo.camertrace",
 )
 
 MIDDLEWARE = (
