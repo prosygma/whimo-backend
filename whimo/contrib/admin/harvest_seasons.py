@@ -1,4 +1,5 @@
 import calendar
+from datetime import date, timedelta
 from typing import Any
 
 from django import forms
@@ -89,7 +90,15 @@ class HarvestSeasonForm(forms.ModelForm):
 class HarvestSeasonAdmin(ModelAdmin, SimpleHistoryAdmin):
     form = HarvestSeasonForm
 
-    list_display = ("short_id", "name", "status_labeled", "country", "commodity_group", "start_date", "end_date")
+    list_display = (
+        "short_id",
+        "name",
+        "status_labeled",
+        "country",
+        "commodity_group",
+        "start_date",
+        "end_date_inclusive",
+    )
     list_filter = (
         "status",
         "commodity_group",
@@ -142,3 +151,7 @@ class HarvestSeasonAdmin(ModelAdmin, SimpleHistoryAdmin):
     )
     def status_labeled(self, obj: HarvestSeason) -> str:
         return HarvestSeasonStatus(obj.status).name
+
+    @display(description="End date", ordering="end_date")
+    def end_date_inclusive(self, obj: HarvestSeason) -> date:
+        return obj.end_date - timedelta(days=1)

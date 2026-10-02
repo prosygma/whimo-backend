@@ -6,12 +6,19 @@ from freezegun.api import FrozenDateTimeFactory
 from tests.factories.commodities import CommodityFactory, CommodityGroupFactory
 from tests.factories.harvest_seasons import HarvestSeasonCommodityFactory, HarvestSeasonFactory
 from tests.helpers.constants import DEFAULT_DATETIME, SMALL_BATCH_SIZE
+from whimo.common.celery import app
 from whimo.contrib.tasks.harvest_seasons import transition_harvest_seasons
 from whimo.db.enums import HarvestSeasonStatus
 from whimo.db.models import HarvestSeason
 from whimo.harvest_seasons.services import HarvestSeasonsService
 
 pytestmark = [pytest.mark.django_db]
+
+
+def test_transition_harvest_seasons_is_registered_with_celery() -> None:
+    # Importing the function directly always works; this is what actually fails when the beat
+    # schedule fires it by name and nothing imported the module to register it.
+    assert "whimo.contrib.tasks.harvest_seasons.transition_harvest_seasons" in app.tasks
 
 
 class TestTransitionHarvestSeasons:
