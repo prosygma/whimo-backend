@@ -70,6 +70,9 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.RunPython(stamp_harvest_seasons, migrations.RunPython.noop),
+        # Run the deferred foreign key checks queued by the data step now: PostgreSQL
+        # refuses to ALTER a table that still has pending trigger events.
+        migrations.RunSQL("SET CONSTRAINTS ALL IMMEDIATE", migrations.RunSQL.noop),
         migrations.AlterField(
             model_name="transaction",
             name="harvest_season",
