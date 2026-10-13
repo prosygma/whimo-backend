@@ -159,6 +159,9 @@ class Migration(migrations.Migration):
             field=models.CharField(help_text=HARVEST_SEASON_NAME_HELP_TEXT, max_length=255),
         ),
         migrations.RunPython(backfill_harvest_season_fields, migrations.RunPython.noop),
+        # Run the deferred foreign key checks queued by the data step now: PostgreSQL
+        # refuses to ALTER a table that still has pending trigger events.
+        migrations.RunSQL("SET CONSTRAINTS ALL IMMEDIATE", migrations.RunSQL.noop),
         migrations.AlterField(
             model_name="harvestseason",
             name="commodity_group",

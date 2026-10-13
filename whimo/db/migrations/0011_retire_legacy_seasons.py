@@ -21,6 +21,9 @@ class Migration(migrations.Migration):
             remove_distribute_transactions_over_seasons_task,
             migrations.RunPython.noop,
         ),
+        # Run the deferred foreign key checks queued by the data step now: PostgreSQL
+        # refuses to ALTER a table that still has pending trigger events.
+        migrations.RunSQL("SET CONSTRAINTS ALL IMMEDIATE", migrations.RunSQL.noop),
         migrations.AlterUniqueTogether(
             name="seasoncommodity",
             unique_together=None,
