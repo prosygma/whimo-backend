@@ -13,6 +13,7 @@ from whimo.users.schemas.requests import (
     GadgetDeleteRequest,
     GadgetExistsRequest,
     PasswordChangeRequest,
+    UserExistsRequest,
 )
 from whimo.users.schemas.responses import GadgetDeletedResponse, PasswordChangedResponse, ProfileDeletedResponse
 from whimo.users.services import GadgetsService, UsersService
@@ -39,6 +40,15 @@ class ProfilePasswordChangeView(views.APIView):
         payload = PasswordChangeRequest.parse(request)
         UsersService.change_password(user_id=request.user.id, payload=payload)
         return PasswordChangedResponse().as_response()
+
+
+class UserExistsView(views.APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request: Request, *_: Any, **__: Any) -> Response:
+        payload = UserExistsRequest.parse(request, from_query_params=True)
+        response = UsersService.check_username_exists(username=payload.username)
+        return DataResponse(data=response).as_response()
 
 
 class GadgetExistsView(views.APIView):

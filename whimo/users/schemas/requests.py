@@ -18,6 +18,10 @@ class GadgetExistsRequest(BaseRequest):
             return normalize_phone(identifier)
 
 
+class UserExistsRequest(BaseRequest):
+    username: str
+
+
 class GadgetDeleteRequest(BaseRequest):
     identifier: str
 

@@ -1,10 +1,11 @@
 from django.utils.translation import gettext_lazy as _
 from django_stubs_ext import StrPromise
 
-from whimo.common.schemas.base import MessageResponse
+from whimo.common.schemas.base import DataResponse, MessageResponse
+from whimo.transactions.schemas.dto import ConversionTransactionDTO, TransactionStatusUpdateDTO
 
 
-class TransactionStatusUpdatedResponse(MessageResponse):
+class TransactionStatusUpdatedResponse(DataResponse[TransactionStatusUpdateDTO]):
     message: StrPromise = _("Transaction status updated")
 
 
@@ -20,5 +21,5 @@ class TransactionNotificationResentResponse(MessageResponse):
     message: StrPromise = _("Transaction notification resent")
 
 
-class ConversionCompletedResponse(MessageResponse):
+class ConversionCompletedResponse(DataResponse[ConversionTransactionDTO]):
     message: StrPromise = _("Conversion completed successfully")

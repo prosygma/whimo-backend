@@ -52,6 +52,10 @@ def paginate_queryset(
     offset = (page - 1) * page_size
 
     # Get paginated items
+    orderings = list(queryset.query.order_by) or list(queryset.model._meta.ordering or ())
+    if not {"id", "-id", "pk", "-pk"} & set(orderings):
+        queryset = queryset.order_by(*orderings, "id")
+
     paginated_items = list(queryset[offset : offset + page_size])
 
     # Create pagination metadata

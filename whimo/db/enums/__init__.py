@@ -1,8 +1,10 @@
+from whimo.db.enums.harvest_seasons import HarvestSeasonStatus
 from whimo.db.enums.transactions import TransactionAction, TransactionLocation, TransactionStatus, TransactionType
 from whimo.db.enums.users import GadgetType, OTPChannel
 
 __all__ = (
     "GadgetType",
+    "HarvestSeasonStatus",
     "OTPChannel",
     "TransactionAction",
     "TransactionLocation",

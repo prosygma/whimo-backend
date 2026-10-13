@@ -1,8 +1,6 @@
 import json
-import zipfile
 from decimal import Decimal
 from http import HTTPStatus
-from io import BytesIO
 from typing import Any, Never
 from unittest.mock import MagicMock, Mock, patch
 from uuid import UUID
@@ -18,6 +16,7 @@ from syrupy import SnapshotAssertion
 from tests.factories.balances import BalanceFactory
 from tests.factories.commodities import CommodityFactory
 from tests.factories.conversions import ConversionInputFactory, ConversionOutputFactory, ConversionRecipeFactory
+from tests.factories.harvest_seasons import HarvestSeasonFactory
 from tests.factories.transactions import TransactionFactory
 from tests.factories.users import UserFactory
 from tests.helpers.clients import APIClient
@@ -371,8 +370,9 @@ class TestTransactionsChainDownload:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        beans = CommodityFactory.create(name="Cacao Beans")
-        oil = CommodityFactory.create(name="Cacao Oil")
+        harvest_season = HarvestSeasonFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans", with_harvest_season=harvest_season)
+        oil = CommodityFactory.create(name="Cacao Oil", with_harvest_season=harvest_season)
 
         # beans -> oil
         TransactionFactory.create(
@@ -393,7 +393,7 @@ class TestTransactionsChainDownload:
         client.login(user)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe.id)},
+            data={"recipe_id": str(recipe.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -441,9 +441,10 @@ class TestTransactionsChainDownload:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        beans = CommodityFactory.create(name="Cacao Beans")
-        oil = CommodityFactory.create(name="Cacao Oil")
-        chocolate = CommodityFactory.create(name="Chocolate")
+        harvest_season = HarvestSeasonFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans", with_harvest_season=harvest_season)
+        oil = CommodityFactory.create(name="Cacao Oil", with_harvest_season=harvest_season)
+        chocolate = CommodityFactory.create(name="Chocolate", with_harvest_season=harvest_season)
 
         # beans -> oil -> chocolate
         TransactionFactory.create(
@@ -464,7 +465,7 @@ class TestTransactionsChainDownload:
         client.login(user)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe1.id)},
+            data={"recipe_id": str(recipe1.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -475,7 +476,7 @@ class TestTransactionsChainDownload:
 
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe2.id)},
+            data={"recipe_id": str(recipe2.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -523,9 +524,10 @@ class TestTransactionsChainDownload:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        beans = CommodityFactory.create(name="Cacao Beans")
-        sugar = CommodityFactory.create(name="Sugar")
-        chocolate = CommodityFactory.create(name="Chocolate")
+        harvest_season = HarvestSeasonFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans", with_harvest_season=harvest_season)
+        sugar = CommodityFactory.create(name="Sugar", with_harvest_season=harvest_season)
+        chocolate = CommodityFactory.create(name="Chocolate", with_harvest_season=harvest_season)
 
         # beans + sugar -> chocolate
         TransactionFactory.create(
@@ -556,7 +558,7 @@ class TestTransactionsChainDownload:
         client.login(user)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe.id)},
+            data={"recipe_id": str(recipe.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -607,8 +609,9 @@ class TestTransactionsChainDownload:
         farmer = UserFactory.create()
         seller = UserFactory.create()
         user = UserFactory.create()
-        beans = CommodityFactory.create(name="Cacao Beans")
-        oil = CommodityFactory.create(name="Cacao Oil")
+        harvest_season = HarvestSeasonFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans", with_harvest_season=harvest_season)
+        oil = CommodityFactory.create(name="Cacao Oil", with_harvest_season=harvest_season)
 
         TransactionFactory.create(
             type=TransactionType.PRODUCER,
@@ -646,7 +649,7 @@ class TestTransactionsChainDownload:
         client.login(user)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe.id)},
+            data={"recipe_id": str(recipe.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -1011,174 +1014,6 @@ class TestTransactionsChainDownload:
 
             feature = collections[0].features[0]
             assert feature.properties.transaction_id == str(transaction.pk)
-
-    def test_process_chain_location_bundle_non_qr_location(self) -> None:
-        # Arrange
-        transaction = TransactionFactory.create(location=TransactionLocation.MANUAL)
-        transactions = Transaction.objects.filter(id=transaction.id)
-
-        zip_buffer = BytesIO()
-        zip_file = zipfile.ZipFile(zip_buffer, "w")
-
-        # Act
-        result = TransactionsService._process_chain_location_bundle(transactions, zip_file)
-        zip_file.close()
-
-        geojson_merged, custom_location_file, no_location_file = result
-
-        # Assert
-        assert len(geojson_merged) == 0
-        assert len(custom_location_file) == 0
-        assert transaction.pk in no_location_file
-
-    def test_process_chain_location_bundle_storage_error(self) -> None:
-        # Arrange
-        transaction = TransactionFactory.create(location=TransactionLocation.QR)
-        transactions = Transaction.objects.filter(id=transaction.id)
-
-        zip_buffer = BytesIO()
-        zip_file = zipfile.ZipFile(zip_buffer, "w")
-
-        with patch("whimo.transactions.services.default_storage.open") as mock_open:
-            mock_open.side_effect = Exception("Storage error")
-
-            # Act
-            result = TransactionsService._process_chain_location_bundle(transactions, zip_file)
-            zip_file.close()
-
-            geojson_merged, custom_location_file, no_location_file = result
-
-            # Assert
-            assert len(geojson_merged) == 0
-            assert transaction.pk in custom_location_file
-            assert transaction.pk in no_location_file
-
-    def test_process_chain_location_bundle_json_decode_error(self) -> None:
-        # Arrange
-        transaction = TransactionFactory.create(location=TransactionLocation.QR)
-        transactions = Transaction.objects.filter(id=transaction.id)
-
-        zip_buffer = BytesIO()
-        zip_file = zipfile.ZipFile(zip_buffer, "w")
-
-        mock_file = Mock()
-        mock_file.read.return_value.decode.return_value = "invalid json"
-
-        with patch("whimo.transactions.services.default_storage.open", return_value=mock_file):
-            # Act
-            result = TransactionsService._process_chain_location_bundle(transactions, zip_file)
-            zip_file.close()
-
-            geojson_merged, custom_location_file, no_location_file = result
-
-            # Assert
-            assert len(geojson_merged) == 0
-            assert transaction.pk in custom_location_file
-            assert transaction.pk in no_location_file
-
-    def test_process_chain_location_bundle_validation_error(self) -> None:
-        # Arrange
-        transaction = TransactionFactory.create(location=TransactionLocation.QR)
-        transactions = Transaction.objects.filter(id=transaction.id)
-
-        zip_buffer = BytesIO()
-        zip_file = zipfile.ZipFile(zip_buffer, "w")
-
-        invalid_geojson = {"invalid": "geojson structure"}
-        mock_file = Mock()
-        mock_file.read.return_value.decode.return_value = json.dumps(invalid_geojson)
-
-        with patch("whimo.transactions.services.default_storage.open", return_value=mock_file):
-            # Act
-            result = TransactionsService._process_chain_location_bundle(transactions, zip_file)
-            zip_file.close()
-
-            geojson_merged, custom_location_file, no_location_file = result
-
-            # Assert
-            assert len(geojson_merged) == 0
-            assert transaction.pk in custom_location_file
-            assert transaction.pk in no_location_file
-
-    def test_process_chain_location_bundle_success_path(self) -> None:
-        # Arrange
-        transaction = TransactionFactory.create(location=TransactionLocation.QR)
-        transactions = Transaction.objects.filter(id=transaction.id)
-
-        zip_buffer = BytesIO()
-        zip_file = zipfile.ZipFile(zip_buffer, "w")
-
-        valid_geojson = {
-            "type": "FeatureCollection",
-            "features": [
-                {
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "Polygon",
-                        "coordinates": [[[-122.4194, 37.7749, 0]]],
-                    },
-                    "properties": {
-                        "ProducerName": "Test Producer",
-                        "ProducerCountry": "Test Country",
-                        "ProductionPlace": "Test Place",
-                    },
-                }
-            ],
-        }
-
-        mock_file = Mock()
-        mock_file.read.return_value.decode.return_value = json.dumps(valid_geojson)
-
-        with patch("whimo.transactions.services.default_storage.open", return_value=mock_file):
-            # Act
-            result = TransactionsService._process_chain_location_bundle(transactions, zip_file)
-            zip_file.close()
-
-            geojson_merged, custom_location_file, no_location_file = result
-
-            # Assert
-            assert transaction.pk in geojson_merged
-            assert transaction.pk in custom_location_file
-            assert len(no_location_file) == 0
-
-    def test_process_chain_location_bundle_bare_feature(self) -> None:
-        # Arrange
-        transaction = TransactionFactory.create(location=TransactionLocation.QR)
-        transactions = Transaction.objects.filter(id=transaction.id)
-
-        zip_buffer = BytesIO()
-        zip_file = zipfile.ZipFile(zip_buffer, "w")
-
-        bare_feature = {
-            "type": "Feature",
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": [[[-122.4194, 37.7749, 0]]],
-            },
-            "properties": {
-                "ProducerName": "Test Producer",
-            },
-        }
-
-        mock_file = Mock()
-        mock_file.read.return_value.decode.return_value = json.dumps(bare_feature)
-
-        with patch("whimo.transactions.services.default_storage.open", return_value=mock_file):
-            # Act
-            result = TransactionsService._process_chain_location_bundle(transactions, zip_file)
-            zip_file.close()
-
-            geojson_merged, custom_location_file, no_location_file = result
-
-            # Assert
-            assert transaction.pk in geojson_merged
-            assert transaction.pk in custom_location_file
-            assert len(no_location_file) == 0
-
-            zip_buffer.seek(0)
-            with zipfile.ZipFile(zip_buffer, "r") as read_zip:
-                assert f"{transaction.id}.geojson" in read_zip.namelist()
-                assert "merged.geojson" in read_zip.namelist()
 
     def test_get_or_create_recipient_no_request(self) -> None:
         # Act

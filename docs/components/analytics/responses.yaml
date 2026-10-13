@@ -21,6 +21,9 @@ AnalyticsData:
     - balance_summary
     - transactions_by_traceability
     - user_growth
+    - current_seasons
+    - season_transactions_daily
+    - transactions_by_seasons
   properties:
     active_traders:
       $ref: '#/ActiveTradersKPI'
@@ -36,6 +39,21 @@ AnalyticsData:
       type: array
       items:
         $ref: '#/UserGrowthItem'
+    current_seasons:
+      type: array
+      description: Harvest seasons that are currently active, one entry per season
+      items:
+        $ref: '#/CurrentSeason'
+    season_transactions_daily:
+      type: array
+      description: Transactions of the active seasons counted per day, oldest season first
+      items:
+        $ref: '#/SeasonTransactionsDaily'
+    transactions_by_seasons:
+      type: array
+      description: Transaction totals of the active seasons
+      items:
+        $ref: '#/SeasonTransactions'
 
 ActiveTradersKPI:
   type: object
@@ -120,6 +138,92 @@ UserGrowthItem:
       type: integer
       description: Cumulative count of registrations up to this date
       example: 142
+
+CurrentSeason:
+  type: object
+  description: An active harvest season and the number of transactions stamped with it
+  required:
+    - id
+    - name
+    - start_date
+    - end_date
+    - transactions_count
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Harvest season ID
+      example: "223e4567-e89b-12d3-a456-426614174000"
+    name:
+      type: string
+      description: Name of the harvest season
+      example: "2025/26 Cocoa"
+    start_date:
+      type: string
+      format: date
+      nullable: true
+      description: Inclusive first date of the season
+      example: "2025-10-01"
+    end_date:
+      type: string
+      format: date
+      nullable: true
+      description: Exclusive last date of the season
+      example: "2026-09-30"
+    transactions_count:
+      type: integer
+      description: Number of transactions stamped with this season
+      example: 312
+
+SeasonTransactionsDaily:
+  type: object
+  description: Transactions of one active season created on one day
+  required:
+    - date
+    - season_id
+    - season_name
+    - transactions_count
+  properties:
+    date:
+      type: string
+      format: date
+      description: Day the transactions were created on
+      example: "2026-01-15"
+    season_id:
+      type: string
+      format: uuid
+      description: Harvest season ID
+      example: "223e4567-e89b-12d3-a456-426614174000"
+    season_name:
+      type: string
+      description: Name of the harvest season
+      example: "2025/26 Cocoa"
+    transactions_count:
+      type: integer
+      description: Number of transactions created on that day in that season
+      example: 7
+
+SeasonTransactions:
+  type: object
+  description: Transaction total of one active harvest season
+  required:
+    - season_id
+    - season_name
+    - transactions_count
+  properties:
+    season_id:
+      type: string
+      format: uuid
+      description: Harvest season ID
+      example: "223e4567-e89b-12d3-a456-426614174000"
+    season_name:
+      type: string
+      description: Name of the harvest season
+      example: "2025/26 Cocoa"
+    transactions_count:
+      type: integer
+      description: Number of transactions stamped with this season
+      example: 312
 
 UserAnalyticsResponse:
   description: User-specific analytics data response with caching optimization

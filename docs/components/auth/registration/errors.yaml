@@ -12,4 +12,4 @@ GadgetAlreadyExistsError:
                 default: Gadget with this identifier already exists
               code:
                 type: string
-                default: api.conflict
+                default: registration.gadget_already_exists

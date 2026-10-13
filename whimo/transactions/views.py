@@ -8,9 +8,9 @@ from rest_framework.response import Response
 
 from whimo.common.schemas.base import DataResponse, PaginatedDataResponse
 from whimo.common.throttling import DownloadThrottle
-from whimo.transactions.export.resources import TransactionUserResource
+from whimo.transactions.export.resources import TransactionChainUserResource, TransactionUserResource
 from whimo.transactions.mappers import TransactionsMapper
-from whimo.transactions.schemas.dto import ChainFeatureCollectionDTO
+from whimo.transactions.schemas.dto import ChainFeatureCollectionDTO, TransactionStatusUpdateDTO
 from whimo.transactions.schemas.requests import (
     ConversionCreateRequest,
     ConversionRecipeListRequest,
@@ -46,9 +46,9 @@ class TransactionListCsvDownloadView(views.APIView):
         payload = TransactionListRequest.parse(request, from_query_params=True)
         transactions = TransactionsService.get_list_csv_export(user_id=request.user.id, request=payload)
 
-        resource = TransactionUserResource()
+        resource = TransactionChainUserResource() if payload.include_chain else TransactionUserResource()
         dataset = resource.export(transactions)
-        csv_data = dataset.csv
+        csv_data = dataset.export("csv", delimiter=";")
 
         response = HttpResponse(csv_data, content_type="text/csv")
         response["Content-Disposition"] = 'attachment; filename="transactions.csv"'
@@ -71,6 +71,31 @@ class TransactionTraceabilityCountsView(views.APIView):
             transaction_id=transaction_id,
         )
         return DataResponse(data=counts).as_response()
+
+
+class TransactionListLocationBundleDownloadView(views.APIView):
+    throttle_classes = [DownloadThrottle]
+
+    def get(self, request: Request, *_: Any, **__: Any) -> HttpResponse:
+        payload = TransactionListRequest.parse(request, from_query_params=True)
+        zip_data, bundle_dto = TransactionsService.get_list_location_bundle(user_id=request.user.id, request=payload)
+
+        response = HttpResponse(zip_data, content_type="application/zip")
+        response["Content-Disposition"] = 'attachment; filename="transactions_location_bundle.zip"'
+        response["X-Geojson-Merged-Transactions"] = str(len(bundle_dto.geojson_merged_transactions))
+        response["X-Custom-Location-File-Transactions"] = str(len(bundle_dto.custom_location_file_transactions))
+        response["X-No-Location-File-Transactions"] = str(len(bundle_dto.no_location_file_transactions))
+        return response
+
+
+class TransactionListLocationSummaryView(views.APIView):
+    throttle_classes = [DownloadThrottle]
+
+    def get(self, request: Request, *_: Any, **__: Any) -> Response:
+        payload = TransactionListRequest.parse(request, from_query_params=True)
+        summary = TransactionsService.get_list_location_summary(user_id=request.user.id, request=payload)
+
+        return DataResponse(data=summary).as_response()
 
 
 class TransactionProducerCreateView(views.APIView):
@@ -101,16 +126,36 @@ class ConversionView(views.APIView):
 
     def post(self, request: Request, *_: Any, **__: Any) -> Response:
         payload = ConversionCreateRequest.parse(request)
-        TransactionsService.create_conversion(user_id=request.user.id, request=payload)
-        return ConversionCompletedResponse().as_response()
+        conversion = TransactionsService.create_conversion(user_id=request.user.id, request=payload)
+
+        response = TransactionsMapper.to_conversion_dto(conversion)
+        return ConversionCompletedResponse(data=response).as_response()
+
+
+class ConversionDetailView(views.APIView):
+    def get(self, request: Request, group_id: UUID, *_: Any, **__: Any) -> Response:
+        conversion = TransactionsService.get_conversion(user_id=request.user.id, group_id=group_id)
+
+        response = TransactionsMapper.to_conversion_dto(conversion)
+        return DataResponse(data=response).as_response()
 
 
 class TransactionStatusUpdateView(views.APIView):
     def patch(self, request: Request, transaction_id: UUID, *_: Any, **__: Any) -> Response:
         payload = TransactionStatusUpdateRequest.parse(request)
-        TransactionsService.update_status(user_id=request.user.id, transaction_id=transaction_id, request=payload)
+        transaction, automatic_transaction = TransactionsService.update_status(
+            user_id=request.user.id,
+            transaction_id=transaction_id,
+            request=payload,
+        )
 
-        return TransactionStatusUpdatedResponse().as_response()
+        response = TransactionStatusUpdateDTO(
+            transaction=TransactionsMapper.to_dto(transaction, request.user.id),
+            automatic_transaction=(
+                TransactionsMapper.to_dto(automatic_transaction, request.user.id) if automatic_transaction else None
+            ),
+        )
+        return TransactionStatusUpdatedResponse(data=response).as_response()
 
 
 class TransactionGeodataUpdateView(views.APIView):
@@ -136,7 +181,8 @@ class TransactionNotificationResendView(views.APIView):
 class ChainFeatureCollectionDownloadView(views.APIView):
     throttle_classes = [DownloadThrottle]
 
-    def get(self, _: Request, transaction_id: UUID, *__: Any, **___: Any) -> Response:
+    def get(self, request: Request, transaction_id: UUID, *_: Any, **__: Any) -> Response:
+        TransactionsService.check_chain_access(user_id=request.user.id, transaction_id=transaction_id)
         data = TransactionsService.get_chain_feature_collection(transaction_id=transaction_id)
         feature_collection, succeed_transactions, failed_transactions = data
 
@@ -151,12 +197,13 @@ class ChainFeatureCollectionDownloadView(views.APIView):
 class ChainCsvDownloadView(views.APIView):
     throttle_classes = [DownloadThrottle]
 
-    def get(self, _: Request, transaction_id: UUID, *__: Any, **___: Any) -> HttpResponse:
+    def get(self, request: Request, transaction_id: UUID, *_: Any, **__: Any) -> HttpResponse:
+        TransactionsService.check_chain_access(user_id=request.user.id, transaction_id=transaction_id)
         chain_transactions = TransactionsService.get_chain_csv_export(transaction_id)
 
         resource = TransactionUserResource()
         dataset = resource.export(chain_transactions)
-        csv_data = dataset.csv
+        csv_data = dataset.export("csv", delimiter=";")
 
         response = HttpResponse(csv_data, content_type="text/csv")
         response["Content-Disposition"] = f'attachment; filename="transaction_{transaction_id}_chain.csv"'
@@ -167,7 +214,8 @@ class ChainCsvDownloadView(views.APIView):
 class ChainLocationBundleDownloadView(views.APIView):
     throttle_classes = [DownloadThrottle]
 
-    def get(self, _: Request, transaction_id: UUID, *__: Any, **___: Any) -> HttpResponse:
+    def get(self, request: Request, transaction_id: UUID, *_: Any, **__: Any) -> HttpResponse:
+        TransactionsService.check_chain_access(user_id=request.user.id, transaction_id=transaction_id)
         zip_data, bundle_dto = TransactionsService.get_chain_location_bundle(transaction_id=transaction_id)
 
         response = HttpResponse(zip_data, content_type="application/zip")

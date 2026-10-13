@@ -32,6 +32,14 @@ TransactionProducerCreateRequest:
                 format: binary
                 description: Location file
                 nullable: true
+              harvest_season_id:
+                type: string
+                format: uuid
+                description: |
+                  Harvest season the volume is recorded in. Optional; omitted, the backend assigns the
+                  active season covering the commodity. Past and archived seasons are accepted. Must cover
+                  the transaction commodity. One transaction carries one season.
+                nullable: true
 
 TransactionDownstreamCreateRequest:
   required: true
@@ -47,6 +55,16 @@ TransactionDownstreamCreateRequest:
               action:
                 $ref: './schemas.yaml#/TransactionAction'
                 description: Action in the transaction (buying or selling)
+              harvest_season_id:
+                type: string
+                format: uuid
+                description: |
+                  Required for both actions; the creator of the transaction chooses the season and it is
+                  never changed afterwards. Must cover the transaction commodity. Past and
+                  archived seasons are accepted. One transaction carries one season, so volume held in two
+                  seasons needs two separate transactions; there is no partial distribution between seasons.
+                  A buyer-created request is not validated against the seller balance, which stays private
+                  until the seller accepts.
 
 TransactionStatusUpdateRequest:
   required: true
@@ -90,11 +108,20 @@ ConversionCreateRequest:
         type: object
         required:
           - recipe_id
+          - harvest_season_id
         properties:
           recipe_id:
             type: string
             format: uuid
             description: ID of the conversion recipe to use
+          harvest_season_id:
+            type: string
+            format: uuid
+            description: |
+              Harvest season the conversion runs in. Required, and must cover every input and output
+              commodity of the recipe. Inputs are debited from it and outputs credited to it, so a
+              conversion never moves volume between seasons and never creates an automatic balance
+              adjustment.
           input_overrides:
             type: array
             description: Optional overrides for input commodities defined in the recipe

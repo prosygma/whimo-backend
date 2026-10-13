@@ -1,5 +1,6 @@
 import math
-from datetime import timedelta
+from datetime import date, timedelta
+from decimal import Decimal
 from http import HTTPStatus
 
 import factory
@@ -10,13 +11,15 @@ from django.urls import reverse
 from freezegun.api import FrozenDateTimeFactory
 from syrupy import SnapshotAssertion
 
+from tests.factories.commodities import CommodityFactory
+from tests.factories.harvest_seasons import HarvestSeasonCommodityFactory, HarvestSeasonFactory
 from tests.factories.transactions import TransactionFactory
 from tests.factories.users import UserFactory
 from tests.helpers.clients import APIClient
 from tests.helpers.constants import DEFAULT_DATETIME, MEDIUM_BATCH_SIZE, SMALL_BATCH_SIZE
 from tests.helpers.utils import queries_to_str
 from whimo.common.schemas.base import PaginatedDataResponse
-from whimo.db.enums import TransactionAction, TransactionStatus
+from whimo.db.enums import HarvestSeasonStatus, TransactionAction, TransactionStatus, TransactionType
 from whimo.transactions.schemas.dto import TransactionDTO
 
 pytestmark = [pytest.mark.django_db]
@@ -181,6 +184,49 @@ class TestTransactionsList:
         assert len(data_response.data) == SMALL_BATCH_SIZE
         assert all(transaction.action == action for transaction in data_response.data)
 
+    @pytest.mark.parametrize(
+        ("transaction_type", "is_automatic", "side", "volume", "signed_volume"),
+        [
+            (TransactionType.DOWNSTREAM, False, "buyer", Decimal(500), Decimal(500)),
+            (TransactionType.DOWNSTREAM, False, "seller", Decimal(500), Decimal(-500)),
+            (TransactionType.PRODUCER, False, "buyer", Decimal(500), Decimal(500)),
+            (TransactionType.PRODUCER, True, "buyer", Decimal(500), Decimal(500)),
+            (TransactionType.CONVERSION, False, "seller", Decimal(-1000), Decimal(-1000)),
+            (TransactionType.CONVERSION, False, "buyer", Decimal(850), Decimal(850)),
+        ],
+    )
+    def test_signed_volume(  # noqa: PLR0913 Too many arguments in function definition
+        self,
+        transaction_type: TransactionType,
+        is_automatic: bool,
+        side: str,
+        volume: Decimal,
+        signed_volume: Decimal,
+        client: APIClient,
+    ) -> None:
+        # Arrange
+        user = UserFactory.create()
+        transaction = TransactionFactory.create(
+            type=transaction_type,
+            is_automatic=is_automatic,
+            volume=volume,
+            **{side: user},
+        )
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=self.URL)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+
+        data_response = PaginatedDataResponse[list[TransactionDTO]](**response_json)
+        assert len(data_response.data) == 1
+        assert data_response.data[0].signed_volume == signed_volume
+        assert data_response.data[0].volume == transaction.volume
+
     def test_filter_by_created_at_from(
         self,
         client: APIClient,
@@ -291,6 +337,71 @@ class TestTransactionsList:
         assert len(data_response.data) == 1
         assert data_response.data[0].id == transaction.id
         assert data_response.data[0].commodity.id == transaction.commodity.id
+
+    def test_filter_by_harvest_season_id(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        transaction = TransactionFactory.create(buyer=user)
+        TransactionFactory.create_batch(size=SMALL_BATCH_SIZE, buyer=user)
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=f"{self.URL}?harvest_season_id={transaction.harvest_season_id}")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = PaginatedDataResponse[list[TransactionDTO]](**response_json)
+        assert len(data_response.data) == 1
+        assert data_response.data[0].id == transaction.id
+        assert data_response.data[0].harvest_season.id == transaction.harvest_season_id
+
+    def test_filter_by_harvest_season_status(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        snapshot: SnapshotAssertion,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        commodity = CommodityFactory.create(with_harvest_season=False)
+        past_season = HarvestSeasonFactory.create(
+            start_date=date(2024, 9, 1),
+            end_date=date(2025, 9, 1),
+            status=HarvestSeasonStatus.PAST,
+        )
+        active_season = HarvestSeasonFactory.create(start_date=date(2025, 9, 1), end_date=date(2026, 9, 1))
+        HarvestSeasonCommodityFactory.create(harvest_season=past_season, commodity=commodity)
+        HarvestSeasonCommodityFactory.create(harvest_season=active_season, commodity=commodity)
+
+        past = TransactionFactory.create(buyer=user, commodity=commodity, harvest_season=past_season)
+        TransactionFactory.create(buyer=user, commodity=commodity, harvest_season=active_season)
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=f"{self.URL}?harvest_season_status={HarvestSeasonStatus.PAST.value}")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json == snapshot
+
+        data_response = PaginatedDataResponse[list[TransactionDTO]](**response_json)
+        assert len(data_response.data) == 1
+        assert data_response.data[0].id == past.id
 
     def test_filter_by_buyer(
         self,

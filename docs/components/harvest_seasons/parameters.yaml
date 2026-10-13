@@ -1,0 +1,68 @@
+HarvestSeasonIdParameter:
+  name: harvest_season_id
+  in: query
+  schema:
+    type: string
+    format: uuid
+  description: |
+    Filter resources by harvest season. Omit to include all harvest seasons.
+    A transaction matches when its own harvest season equals this identifier.
+
+HarvestSeasonCommodityIdParameter:
+  name: commodity_id
+  in: query
+  schema:
+    type: array
+    items:
+      type: string
+      format: uuid
+  description: |
+    Repeatable. Returns only the seasons covering all given commodities.
+    Pass every input and output commodity of a recipe to find the seasons a conversion may run in.
+
+HarvestSeasonCommodityGroupIdParameter:
+  name: commodity_group_id
+  in: query
+  schema:
+    type: string
+    format: uuid
+  description: |
+    Returns the seasons of this commodity group. Every commodity in the group shares its seasons,
+    and each season is returned once.
+
+HarvestSeasonStatusParameter:
+  name: status
+  in: query
+  schema:
+    $ref: './schemas.yaml#/HarvestSeasonStatus'
+  description: Filter harvest seasons by status
+
+HarvestSeasonStatusFilterParameter:
+  name: harvest_season_status
+  in: query
+  schema:
+    $ref: './schemas.yaml#/HarvestSeasonStatus'
+  description: |
+    Keep only the rows whose harvest season has this status. Set to active to get everything from the
+    currently running seasons in one request, which no single harvest_season_id can express because several
+    seasons are active at the same time. Omit to include every status.
+
+BalanceHarvestSeasonIdParameter:
+  name: harvest_season_id
+  in: query
+  schema:
+    type: string
+    format: uuid
+  description: |
+    Keep only the balances of this harvest season. Omit to include every season, which is what the balance
+    detail screen does when it asks for one commodity across its seasons.
+
+BalanceHarvestSeasonStatusParameter:
+  name: harvest_season_status
+  in: query
+  schema:
+    $ref: './schemas.yaml#/HarvestSeasonStatus'
+  description: |
+    Keep only the balances whose harvest season has this status. Set to active to get everything held in the
+    currently running seasons in one request, which no single harvest_season_id can express because several
+    seasons are active at the same time. Omit to include every status.

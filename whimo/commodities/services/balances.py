@@ -2,14 +2,23 @@ from dataclasses import dataclass
 from typing import cast
 from uuid import UUID
 
-from django.db.models import Q, QuerySet
+from django.db.models import Case, IntegerField, OuterRef, Q, QuerySet, Subquery, Value, When
 
 from whimo.commodities.schemas.requests import BalanceListRequest
 from whimo.common.schemas.base import Pagination
 from whimo.common.utils import get_user_model, paginate_queryset
-from whimo.db.models import Balance
+from whimo.db.enums import TransactionStatus
+from whimo.db.enums.transactions import TransactionTraceability
+from whimo.db.models import Balance, Transaction
 
 User = get_user_model()
+
+DEFAULT_BALANCE_ORDERINGS = ("-harvest_season__start_date", "commodity__name")
+
+TRACEABILITY_RANK = Case(
+    *(When(traceability=item, then=Value(rank)) for rank, item in enumerate(sorted(TransactionTraceability))),
+    output_field=IntegerField(),
+)
 
 
 @dataclass(slots=True)
@@ -21,15 +30,27 @@ class BalancesService:
 
     @staticmethod
     def _filter_balances(user_id: UUID, request: BalanceListRequest) -> QuerySet[Balance]:
-        from django.db.models import Exists, OuterRef
+        from django.db.models import Exists
 
         from whimo.db.models import ConversionInput
 
         has_recipe_subquery = Exists(ConversionInput.objects.filter(commodity=OuterRef("commodity")))
+        worst_traceability_subquery = Subquery(
+            Transaction.objects.filter(
+                buyer_id=OuterRef("user_id"),
+                commodity_id=OuterRef("commodity_id"),
+                harvest_season_id=OuterRef("harvest_season_id"),
+                status=TransactionStatus.ACCEPTED,
+                traceability__isnull=False,
+            )
+            .annotate(traceability_rank=TRACEABILITY_RANK)
+            .order_by("traceability_rank")
+            .values("traceability")[:1]
+        )
         queryset = (
-            Balance.objects.select_related("commodity__group", "commodity")
-            .annotate(commodity_has_recipe=has_recipe_subquery)
-            .filter(user_id=user_id)
+            Balance.objects.select_related("commodity__group", "commodity", "harvest_season")
+            .annotate(commodity_has_recipe=has_recipe_subquery, worst_traceability=worst_traceability_subquery)
+            .filter(user_id=user_id, volume__gt=0)
         )
 
         if search := request.search:
@@ -45,7 +66,13 @@ class BalancesService:
         if commodity_id := request.commodity_id:
             queryset = queryset.filter(commodity_id=commodity_id)
 
-        if orderings := request.get_orderings():
-            queryset = queryset.order_by(*orderings)
+        if harvest_season_id := request.harvest_season_id:
+            queryset = queryset.filter(harvest_season_id=harvest_season_id)
+
+        if harvest_season_status := request.harvest_season_status:
+            queryset = queryset.filter(harvest_season__status=harvest_season_status)
+
+        orderings = request.get_orderings() or DEFAULT_BALANCE_ORDERINGS
+        queryset = queryset.order_by(*orderings)
 
         return cast(QuerySet[Balance], queryset)

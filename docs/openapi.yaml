@@ -2,7 +2,21 @@ openapi: 3.1.0
 
 info:
   title: Whimo API
-  description: API documentation for the Whimo application
+  description: |
+    API documentation for the Whimo application.
+
+    Harvest season rules the whole contract rests on:
+
+    - A transaction carries exactly one harvest season. There is no partial distribution between seasons,
+      so volume held in several seasons is moved by several transactions.
+    - The season is chosen by whoever creates the transaction, buyer or seller alike, and is never changed
+      afterwards. Accepting or rejecting never selects, splits or edits a season.
+    - Balance records are kept per commodity and season. The flat balance endpoint never combines seasons;
+      the grouped catalogue may sum them only when the caller omits its season filters.
+    - A shortfall of the seller balance is covered by an automatic balance adjustment only in the active
+      season. In a past or archived season the transaction simply cannot be accepted until the seller
+      raises the balance.
+    - A traceability chain never crosses a season boundary.
   version: 1.0.0
 
 servers:
@@ -312,6 +326,25 @@ paths:
         '401':
           $ref: './components/common/errors.yaml#/UnauthorizedError'
 
+  /users/exists/:
+    get:
+      tags: [ Users ]
+      summary: Check if a User ID exists
+      description: |
+        Checks whether a User ID belongs to an account that can receive a transaction, so the app can mark the
+        field while it is being filled instead of failing at the end of the flow. Deleted accounts read false,
+        and a transaction addressed to one is refused with transactions.recipient_not_found.
+      operationId: checkUserExists
+      parameters:
+        - $ref: './components/users/parameters.yaml#/UsernameParameter'
+      responses:
+        '200':
+          $ref: './components/users/responses.yaml#/UserExistsResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+
   /users/gadgets/exists/:
     get:
       tags: [ Users ]
@@ -485,6 +518,35 @@ paths:
         '403':
           $ref: './components/common/errors.yaml#/ForbiddenError'
 
+  /harvest-seasons/:
+    get:
+      tags: [ Harvest Seasons ]
+      summary: List harvest seasons
+      description: |
+        Returns harvest seasons available to the authenticated participant, ordered by
+        start_date descending. A season covers whole commodity groups. All commodities within a group share
+        its seasons, which never overlap and have at most one active season per group. Administrators must
+        configure an active season before recording a new harvest without an explicit season. Different
+        groups may have different active seasons; clients can select a group with commodity_group_id.
+        "All harvest seasons" is a client-only option, expressed by omitting
+        harvest_season_id from filtered requests.
+      operationId: listHarvestSeasons
+      parameters:
+        - $ref: './components/harvest_seasons/parameters.yaml#/HarvestSeasonCommodityIdParameter'
+        - $ref: './components/harvest_seasons/parameters.yaml#/HarvestSeasonCommodityGroupIdParameter'
+        - $ref: './components/harvest_seasons/parameters.yaml#/HarvestSeasonStatusParameter'
+        - $ref: './components/common/parameters.yaml#/PageParameter'
+        - $ref: './components/common/parameters.yaml#/PageSizeParameter'
+      responses:
+        '200':
+          $ref: './components/harvest_seasons/responses.yaml#/HarvestSeasonsListResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+
   /commodities/:
     get:
       tags: [ Commodities ]
@@ -511,12 +573,18 @@ paths:
     get:
       tags: [ Commodities ]
       summary: List commodities groups
-      description: Returns a paginated list of available commodities groups and their commodities with user's current balances
+      description: |
+        Returns a paginated list of available commodity groups and their commodities with the user's
+        balances. Season filters apply to the balances; groups and commodities remain in the catalogue
+        even if no matching balance exists. With no season filters, balances are summed across all seasons.
+        Use /commodities/balances/ for separate rows per season and their traceability.
       operationId: listCommoditiesGroups
       parameters:
         - $ref: './components/common/parameters.yaml#/SearchParameter'
         - $ref: './components/common/parameters.yaml#/PageParameter'
         - $ref: './components/common/parameters.yaml#/PageSizeParameter'
+        - $ref: './components/harvest_seasons/parameters.yaml#/BalanceHarvestSeasonIdParameter'
+        - $ref: './components/harvest_seasons/parameters.yaml#/BalanceHarvestSeasonStatusParameter'
       responses:
         '200':
           $ref: './components/commodities/responses.yaml#/CommoditiesGroupsListResponse'
@@ -531,8 +599,13 @@ paths:
     get:
       tags: [ Commodities ]
       summary: List user balances
-      description: Returns a paginated list of user's commodity balances
-      deprecated: true
+      description: |
+        Returns a paginated flat list of user's commodity balances. Each item represents one commodity and
+        harvest season pair, only non-zero balances are returned and volumes of different seasons are never
+        summed. Set commodity_id without harvest_season_id to get the season breakdown behind one catalogue
+        row, which is the balance detail screen, and harvest_season_status active to list what the
+        participant holds in every running season at once. Rows are ordered by the most recent season first
+        unless orderings says otherwise.
       operationId: listBalances
       parameters:
         - $ref: './components/common/parameters.yaml#/SearchParameter'
@@ -541,6 +614,8 @@ paths:
         - $ref: './components/commodities/parameters.yaml#/BalancesOrderingsParameter'
         - $ref: './components/commodities/parameters.yaml#/CommodityGroupIdParameter'
         - $ref: './components/commodities/parameters.yaml#/CommodityIdParameter'
+        - $ref: './components/harvest_seasons/parameters.yaml#/BalanceHarvestSeasonIdParameter'
+        - $ref: './components/harvest_seasons/parameters.yaml#/BalanceHarvestSeasonStatusParameter'
       responses:
         '200':
           $ref: './components/commodities/responses.yaml#/BalanceListResponse'
@@ -555,13 +630,23 @@ paths:
     get:
       tags: [ Transactions ]
       summary: List transactions
-      description: Returns a paginated list of transactions
+      description: |
+        Returns a paginated list of transactions. Filtering by harvest_season_id returns the transactions of
+        that season; omitting it returns everything. Every transaction carries a season, pending
+        buyer-created requests included. Combined with commodity_id it backs the source transactions block of
+        the balance detail screen.
+
+        Without group_conversions every item is a TransactionDTO and a conversion appears as one row per input and
+        output. With group_conversions=true a conversion is one ConversionTransactionDTO item; tell the two apart by
+        the inputs field.
       operationId: listTransactions
       parameters:
         - $ref: './components/common/parameters.yaml#/SearchParameter'
         - $ref: './components/common/parameters.yaml#/PageParameter'
         - $ref: './components/common/parameters.yaml#/PageSizeParameter'
         - $ref: './components/transactions/parameters.yaml#/OrderingsParameter'
+        - $ref: './components/transactions/parameters.yaml#/TypeParameter'
+        - $ref: './components/transactions/parameters.yaml#/GroupConversionsParameter'
         - $ref: './components/transactions/parameters.yaml#/StatusParameter'
         - $ref: './components/transactions/parameters.yaml#/ActionParameter'
         - $ref: './components/transactions/parameters.yaml#/CreatedAtFromParameter'
@@ -569,6 +654,8 @@ paths:
         - $ref: './components/transactions/parameters.yaml#/CommodityGroupIdParameter'
         - $ref: './components/transactions/parameters.yaml#/CommodityIdParameter'
         - $ref: './components/transactions/parameters.yaml#/BuyerIdParameter'
+        - $ref: './components/harvest_seasons/parameters.yaml#/HarvestSeasonIdParameter'
+        - $ref: './components/harvest_seasons/parameters.yaml#/HarvestSeasonStatusFilterParameter'
       responses:
         '200':
           $ref: './components/transactions/responses.yaml#/TransactionListResponse'
@@ -583,10 +670,18 @@ paths:
     get:
       tags: [ Transactions ]
       summary: Download filtered transactions as CSV
-      description: Downloads CSV file containing filtered transactions data based on query parameters
+      description: |
+        Downloads CSV file containing filtered transactions data based on query parameters. One row per
+        transaction, each carrying the id, name, start date, end date and status of its harvest season.
+        group_conversions never merges rows here: a conversion stays one row per input and output. It only
+        makes action=buying and action=selling leave conversions out, as in the list.
+        With include_chain the file also holds the upstream history of those transactions and a Tier column.
       operationId: downloadTransactionListCsv
       parameters:
         - $ref: './components/common/parameters.yaml#/SearchParameter'
+        - $ref: './components/transactions/parameters.yaml#/IncludeChainParameter'
+        - $ref: './components/transactions/parameters.yaml#/TypeParameter'
+        - $ref: './components/transactions/parameters.yaml#/GroupConversionsParameter'
         - $ref: './components/transactions/parameters.yaml#/StatusParameter'
         - $ref: './components/transactions/parameters.yaml#/ActionParameter'
         - $ref: './components/transactions/parameters.yaml#/CreatedAtFromParameter'
@@ -594,9 +689,77 @@ paths:
         - $ref: './components/transactions/parameters.yaml#/CommodityGroupIdParameter'
         - $ref: './components/transactions/parameters.yaml#/CommodityIdParameter'
         - $ref: './components/transactions/parameters.yaml#/BuyerIdParameter'
+        - $ref: './components/harvest_seasons/parameters.yaml#/HarvestSeasonIdParameter'
+        - $ref: './components/harvest_seasons/parameters.yaml#/HarvestSeasonStatusFilterParameter'
       responses:
         '200':
           $ref: './components/transactions/responses.yaml#/TransactionListCsvDownloadResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+
+  /transactions/download/bundle/:
+    get:
+      tags: [ Transactions ]
+      summary: Download farm geodata for the filtered transactions
+      description: |
+        Downloads one ZIP bundle with the farm geodata behind every chain of the filtered transactions, using
+        the contents and counts of the per-transaction bundle. It takes the filters of the CSV download, so
+        details, geolocations and both cover the same transactions. A farm reached through several
+        transactions appears once in the zip and once in the counts.
+      operationId: downloadTransactionListLocationBundle
+      parameters:
+        - $ref: './components/common/parameters.yaml#/SearchParameter'
+        - $ref: './components/transactions/parameters.yaml#/TypeParameter'
+        - $ref: './components/transactions/parameters.yaml#/GroupConversionsParameter'
+        - $ref: './components/transactions/parameters.yaml#/StatusParameter'
+        - $ref: './components/transactions/parameters.yaml#/ActionParameter'
+        - $ref: './components/transactions/parameters.yaml#/CreatedAtFromParameter'
+        - $ref: './components/transactions/parameters.yaml#/CreatedAtToParameter'
+        - $ref: './components/transactions/parameters.yaml#/CommodityGroupIdParameter'
+        - $ref: './components/transactions/parameters.yaml#/CommodityIdParameter'
+        - $ref: './components/transactions/parameters.yaml#/BuyerIdParameter'
+        - $ref: './components/harvest_seasons/parameters.yaml#/HarvestSeasonIdParameter'
+        - $ref: './components/harvest_seasons/parameters.yaml#/HarvestSeasonStatusFilterParameter'
+      responses:
+        '200':
+          $ref: './components/transactions/responses.yaml#/TransactionListLocationBundleDownloadResponse'
+        '400':
+          $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+
+  /transactions/download/summary/:
+    get:
+      tags: [ Transactions ]
+      summary: Farm and trader counts for the filtered transactions
+      description: |
+        Returns the numbers the download modal shows before the download starts: farms with full traceability,
+        farms added by hand, farms with no geodata, and how many traders the filtered transactions involve.
+        The numbers equal the headers of the bundle download made with the same filters, and the endpoint
+        opens no stored file.
+      operationId: getTransactionListLocationSummary
+      parameters:
+        - $ref: './components/common/parameters.yaml#/SearchParameter'
+        - $ref: './components/transactions/parameters.yaml#/TypeParameter'
+        - $ref: './components/transactions/parameters.yaml#/GroupConversionsParameter'
+        - $ref: './components/transactions/parameters.yaml#/StatusParameter'
+        - $ref: './components/transactions/parameters.yaml#/ActionParameter'
+        - $ref: './components/transactions/parameters.yaml#/CreatedAtFromParameter'
+        - $ref: './components/transactions/parameters.yaml#/CreatedAtToParameter'
+        - $ref: './components/transactions/parameters.yaml#/CommodityGroupIdParameter'
+        - $ref: './components/transactions/parameters.yaml#/CommodityIdParameter'
+        - $ref: './components/transactions/parameters.yaml#/BuyerIdParameter'
+        - $ref: './components/harvest_seasons/parameters.yaml#/HarvestSeasonIdParameter'
+        - $ref: './components/harvest_seasons/parameters.yaml#/HarvestSeasonStatusFilterParameter'
+      responses:
+        '200':
+          $ref: './components/transactions/responses.yaml#/TransactionListLocationSummaryResponse'
         '400':
           $ref: './components/common/errors.yaml#/BadRequestError'
         '401':
@@ -608,12 +771,16 @@ paths:
     post:
       tags: [ Transactions ]
       summary: Create producer transaction
-      description: Creates a new producer transaction where the authenticated user is the buyer
+      description: |
+        Creates a new producer transaction where the authenticated user is the buyer. harvest_season_id is
+        optional and defaults to the active season covering the commodity; a commodity without an active
+        season returns 409, and a season that does not cover the commodity returns 400. Volume from two
+        seasons is recorded with two transactions.
       operationId: createProducerTransaction
       requestBody:
         $ref: './components/transactions/requests.yaml#/TransactionProducerCreateRequest'
       responses:
-        '201':
+        '200':
           $ref: './components/transactions/responses.yaml#/TransactionCreatedResponse'
         '400':
           $ref: './components/common/errors.yaml#/BadRequestError'
@@ -623,17 +790,26 @@ paths:
           $ref: './components/common/errors.yaml#/ForbiddenError'
         '404':
           $ref: './components/common/errors.yaml#/NotFoundError'
+        '409':
+          $ref: './components/harvest_seasons/errors.yaml#/HarvestSeasonConflictError'
 
   /transactions/downstream/:
     post:
       tags: [ Transactions ]
       summary: Create downstream transaction
-      description: Creates a new downstream transaction where the authenticated user can be either buyer or seller
+      description: |
+        Creates a new downstream transaction where the authenticated user can be either buyer or seller. A
+        recipient named by User ID must belong to a live account: an unknown or deleted one is refused with
+        404 transactions.recipient_not_found, naming the recipient field.
+        harvest_season_id is required from both sides: a buyer states the season it wants to buy from and
+        the seller can only accept or reject that request as it stands. Balances
+        are not checked here, so a request the seller cannot cover is created normally and fails on
+        acceptance instead, which keeps the seller balance private.
       operationId: createDownstreamTransaction
       requestBody:
         $ref: './components/transactions/requests.yaml#/TransactionDownstreamCreateRequest'
       responses:
-        '201':
+        '200':
           $ref: './components/transactions/responses.yaml#/TransactionCreatedResponse'
         '400':
           $ref: './components/common/errors.yaml#/BadRequestError'
@@ -643,6 +819,8 @@ paths:
           $ref: './components/common/errors.yaml#/ForbiddenError'
         '404':
           $ref: './components/common/errors.yaml#/NotFoundError'
+        '409':
+          $ref: './components/harvest_seasons/errors.yaml#/HarvestSeasonConflictError'
 
   /transactions/conversion/:
     get:
@@ -667,15 +845,39 @@ paths:
     post:
       tags: [ Transactions ]
       summary: Create conversion transaction
-      description: Creates conversion transactions to transform input commodities into output commodities
+      description: |
+        Creates conversion transactions to transform input commodities into output commodities.
+        harvest_season_id is required and must cover every input and output commodity of the recipe;
+        a commodity outside it returns 400 and insufficient balance in that season returns 409.
+        Returns the created conversion, so an offline client can replace its placeholder.
       operationId: createConversionTransaction
       requestBody:
         $ref: './components/transactions/requests.yaml#/ConversionCreateRequest'
       responses:
-        '201':
+        '200':
           $ref: './components/transactions/responses.yaml#/ConversionCompletedResponse'
         '400':
           $ref: './components/common/errors.yaml#/BadRequestError'
+        '401':
+          $ref: './components/common/errors.yaml#/UnauthorizedError'
+        '403':
+          $ref: './components/common/errors.yaml#/ForbiddenError'
+        '404':
+          $ref: './components/common/errors.yaml#/NotFoundError'
+        '409':
+          $ref: './components/harvest_seasons/errors.yaml#/HarvestSeasonConflictError'
+
+  /transactions/conversion/{group_id}/:
+    get:
+      tags: [ Transactions ]
+      summary: Get conversion details
+      description: Returns one conversion with all of its inputs and outputs. Only its owner can read it.
+      operationId: getConversionDetails
+      parameters:
+        - $ref: './components/transactions/parameters.yaml#/GroupIdParameter'
+      responses:
+        '200':
+          $ref: './components/transactions/responses.yaml#/ConversionDetailResponse'
         '401':
           $ref: './components/common/errors.yaml#/UnauthorizedError'
         '403':
@@ -705,7 +907,10 @@ paths:
     get:
       tags: [ Transactions ]
       summary: Get transaction traceability counts
-      description: Returns traceability counts for a specific transaction
+      description: |
+        Returns traceability counts for a specific transaction. The response shape is unchanged but the
+        counts cover the chain of that transaction's harvest season only, because a chain never crosses a
+        season boundary.
       operationId: getTransactionTraceabilityCounts
       parameters:
         - $ref: './components/transactions/parameters.yaml#/TransactionIdParameter'
@@ -723,7 +928,13 @@ paths:
     patch:
       tags: [ Transactions ]
       summary: Update transaction status
-      description: Updates the status of a pending transaction (accept or reject)
+      description: |
+        Updates the status of a pending transaction (accept or reject). The request carries only status:
+        the season was fixed when the transaction was created and acceptance never selects or splits one;
+        sending season fields here is a 400. The seller balance of that season is revalidated on
+        acceptance. In an active season a shortfall is covered by an automatic balance adjustment, returned
+        alongside the transaction. In a past or archived season it returns 409, and the seller either raises
+        the balance and accepts later, or rejects and creates its own transaction for the volume it holds.
       operationId: updateTransactionStatus
       parameters:
         - $ref: './components/transactions/parameters.yaml#/TransactionIdParameter'
@@ -740,6 +951,8 @@ paths:
           $ref: './components/common/errors.yaml#/ForbiddenError'
         '404':
           $ref: './components/common/errors.yaml#/NotFoundError'
+        '409':
+          $ref: './components/harvest_seasons/errors.yaml#/HarvestSeasonConflictError'
 
   /transactions/{transaction_id}/geodata/:
     patch:
@@ -807,7 +1020,10 @@ paths:
     get:
       tags: [ Transactions ]
       summary: Download transaction chain as CSV
-      description: Downloads CSV file containing all transactions data in the transaction chain
+      description: |
+        Downloads CSV file containing all transactions data in the transaction chain, with the harvest
+        season columns of the list export. The chain covers one season, since a chain never crosses a
+        season boundary.
       operationId: downloadTransactionChainCsv
       parameters:
         - $ref: './components/transactions/parameters.yaml#/TransactionIdParameter'
@@ -827,7 +1043,15 @@ paths:
     get:
       tags: [ Transactions ]
       summary: Download transaction chain bundle
-      description: Downloads ZIP bundle containing GeoJSON files for the entire transaction chain
+      description: |
+        Downloads a ZIP bundle with the farm geodata behind the transaction chain. It covers the farms of the
+        chain only, which are the producer transactions with no seller; the trades between them carry no
+        geodata and are left out of the zip and of the three counts. Each farm falls into exactly one count,
+        by its location: qr and gps have full traceability, file and manual were added by hand, and a farm
+        with no location has no geodata at all. The zip holds the stored geojson of every qr farm, the
+        uploaded file of every file farm, and merged.geojson with the qr features plus one Point per gps and
+        manual farm. A farm whose stored file is missing or unreadable keeps its count and is left out of the
+        zip.
       operationId: downloadTransactionChainBundle
       parameters:
         - $ref: './components/transactions/parameters.yaml#/TransactionIdParameter'

@@ -3,6 +3,7 @@ from uuid import UUID
 
 from push_notifications.models import APNSDevice, GCMDevice
 
+from whimo.common.test_mode import is_test_mode
 from whimo.common.utils import get_user_model
 from whimo.contrib.tasks.notifications import send_apns_push, send_gcm_push
 from whimo.db.enums.notifications import NotificationDeviceType, NotificationType
@@ -39,7 +40,7 @@ class NotificationsPushService:
 
     @staticmethod
     def send_push(notifications_ids: list[UUID]) -> None:
-        if not notifications_ids:
+        if not notifications_ids or is_test_mode():
             return
 
         notifications = list(

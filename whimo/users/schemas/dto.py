@@ -17,3 +17,7 @@ class UserDTO(BaseModelDTO):
 
 class GadgetExistsDTO(BaseModel):
     exists: bool
+
+
+class UserExistsDTO(BaseModel):
+    exists: bool

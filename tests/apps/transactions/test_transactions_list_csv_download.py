@@ -1,20 +1,34 @@
 import csv
 import io
-from datetime import timedelta
+from datetime import date, timedelta
+from decimal import Decimal
 from http import HTTPStatus
 from unittest.mock import patch
+from uuid import UUID
 
 import factory
 import pytest
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from freezegun.api import FrozenDateTimeFactory
 from syrupy import SnapshotAssertion
 
-from tests.factories.transactions import TransactionFactory
+from tests.apps.transactions.test_transactions_chain_bundle_download import farm, trade
+from tests.factories.commodities import CommodityFactory
+from tests.factories.harvest_seasons import HarvestSeasonCommodityFactory, HarvestSeasonFactory
+from tests.factories.transactions import TransactionFactory, create_conversion
 from tests.factories.users import UserFactory
 from tests.helpers.clients import APIClient
-from tests.helpers.constants import DEFAULT_DATETIME, SMALL_BATCH_SIZE
-from whimo.db.enums import TransactionAction, TransactionStatus
+from tests.helpers.constants import DEFAULT_DATETIME, MEDIUM_BATCH_SIZE, SMALL_BATCH_SIZE
+from tests.helpers.utils import queries_to_str
+from whimo.db.enums import (
+    HarvestSeasonStatus,
+    TransactionAction,
+    TransactionLocation,
+    TransactionStatus,
+    TransactionType,
+)
 
 pytestmark = [pytest.mark.django_db]
 
@@ -44,7 +58,7 @@ class TestTransactionsListCsvDownload:
         assert response["X-Total-Transactions"] == "4"
 
         csv_content = response.content.decode("utf-8")
-        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        csv_reader = csv.DictReader(io.StringIO(csv_content), delimiter=";")
 
         expected_headers = [
             "Transaction ID",
@@ -65,6 +79,11 @@ class TestTransactionsListCsvDownload:
             "Commodity Name",
             "Commodity Unit",
             "Commodity Group",
+            "Harvest Season ID",
+            "Harvest Season Name",
+            "Harvest Season Start Date",
+            "Harvest Season End Date",
+            "Harvest Season Status",
             "Seller ID",
             "Seller Created At",
             "Buyer ID",
@@ -102,7 +121,7 @@ class TestTransactionsListCsvDownload:
         assert response["Content-Type"] == "text/csv"
 
         csv_content = response.content.decode("utf-8")
-        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        csv_reader = csv.DictReader(io.StringIO(csv_content), delimiter=";")
         rows = list(csv_reader)
 
         assert len(rows) == 1
@@ -126,7 +145,7 @@ class TestTransactionsListCsvDownload:
         assert response.status_code == HTTPStatus.OK
 
         csv_content = response.content.decode("utf-8")
-        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        csv_reader = csv.DictReader(io.StringIO(csv_content), delimiter=";")
         rows = list(csv_reader)
 
         assert len(rows) == 2  # noqa: PLR2004 Magic value used in comparison
@@ -152,12 +171,77 @@ class TestTransactionsListCsvDownload:
         assert response.status_code == HTTPStatus.OK
 
         csv_content = response.content.decode("utf-8")
-        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        csv_reader = csv.DictReader(io.StringIO(csv_content), delimiter=";")
         rows = list(csv_reader)
 
         assert len(rows) == 1
         assert rows[0]["Transaction ID"] == str(transaction.id)
         assert rows[0]["Commodity ID"] == str(transaction.commodity.id)
+
+    def test_every_row_carries_its_season(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+    ) -> None:
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        transactions = TransactionFactory.create_batch(size=SMALL_BATCH_SIZE, buyer=user)
+
+        client.login(user)
+
+        response = client.get(path=self.URL)
+
+        assert response.status_code == HTTPStatus.OK
+
+        rows = list(csv.DictReader(io.StringIO(response.content.decode("utf-8")), delimiter=";"))
+        assert len(rows) == SMALL_BATCH_SIZE
+
+        seasons = {str(transaction.harvest_season_id): transaction.harvest_season for transaction in transactions}
+        for row in rows:
+            season = seasons[row["Harvest Season ID"]]
+            assert row["Harvest Season Name"] == season.name
+            assert row["Harvest Season Start Date"] == str(season.start_date)
+            assert row["Harvest Season End Date"] == str(season.end_date)
+            assert row["Harvest Season Status"] == season.status
+
+    def test_filter_by_harvest_season(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+    ) -> None:
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        commodity = CommodityFactory.create(with_harvest_season=False)
+        past_season = HarvestSeasonFactory.create(
+            start_date=date(2024, 9, 1),
+            end_date=date(2025, 9, 1),
+            status=HarvestSeasonStatus.PAST,
+        )
+        active_season = HarvestSeasonFactory.create(start_date=date(2025, 9, 1), end_date=date(2026, 9, 1))
+        HarvestSeasonCommodityFactory.create(harvest_season=past_season, commodity=commodity)
+        HarvestSeasonCommodityFactory.create(harvest_season=active_season, commodity=commodity)
+
+        past = TransactionFactory.create(buyer=user, commodity=commodity, harvest_season=past_season)
+        TransactionFactory.create(buyer=user, commodity=commodity, harvest_season=active_season)
+
+        client.login(user)
+
+        # Act
+        by_id = client.get(path=f"{self.URL}?harvest_season_id={past_season.id}")
+        by_status = client.get(path=f"{self.URL}?harvest_season_status={HarvestSeasonStatus.PAST.value}")
+
+        # Assert
+        assert by_id.status_code == HTTPStatus.OK
+        assert by_status.status_code == HTTPStatus.OK
+        assert by_id["X-Total-Transactions"] == "1"
+
+        for response in (by_id, by_status):
+            rows = list(csv.DictReader(io.StringIO(response.content.decode("utf-8")), delimiter=";"))
+            assert len(rows) == 1
+            assert rows[0]["Transaction ID"] == str(past.id)
+            assert rows[0]["Harvest Season ID"] == str(past_season.id)
 
     def test_filter_by_created_at_range(
         self,
@@ -179,7 +263,7 @@ class TestTransactionsListCsvDownload:
         assert response.status_code == HTTPStatus.OK
 
         csv_content = response.content.decode("utf-8")
-        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        csv_reader = csv.DictReader(io.StringIO(csv_content), delimiter=";")
         rows = list(csv_reader)
 
         assert len(rows) == 2  # noqa: PLR2004 Magic value used in comparison
@@ -210,7 +294,7 @@ class TestTransactionsListCsvDownload:
         assert response.status_code == HTTPStatus.OK
 
         csv_content = response.content.decode("utf-8")
-        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        csv_reader = csv.DictReader(io.StringIO(csv_content), delimiter=";")
         rows = list(csv_reader)
 
         assert len(rows) == 1
@@ -261,6 +345,103 @@ class TestTransactionsListCsvDownload:
 
         assert response.status_code == HTTPStatus.UNAUTHORIZED, response_json
         assert response_json == snapshot
+
+    def test_group_conversions_keeps_one_row_per_transaction(self, client: APIClient) -> None:
+        user = UserFactory.create()
+        purchase = TransactionFactory.create(type=TransactionType.DOWNSTREAM, buyer=user)
+        conversion = create_conversion(user, UUID(int=1), inputs=[Decimal(10)], outputs=[Decimal(5), Decimal(3)])
+
+        client.login(user)
+
+        response = client.get(path=f"{self.URL}?group_conversions=true")
+        buying_response = client.get(path=f"{self.URL}?group_conversions=true&action={TransactionAction.BUYING}")
+
+        assert response.status_code == HTTPStatus.OK
+        csv_reader = csv.DictReader(io.StringIO(response.content.decode("utf-8")), delimiter=";")
+        rows = {row["Transaction ID"] for row in csv_reader}
+        assert rows == {str(transaction.id) for transaction in [purchase, *conversion]}
+
+        assert buying_response.status_code == HTTPStatus.OK
+        csv_reader = csv.DictReader(io.StringIO(buying_response.content.decode("utf-8")), delimiter=";")
+        assert [row["Transaction ID"] for row in csv_reader] == [str(purchase.id)]
+
+    def test_include_chain_adds_the_upstream_suppliers(self, client: APIClient) -> None:
+        user, trader, farmer = UserFactory.create(), UserFactory.create(), UserFactory.create()
+        commodity = CommodityFactory.create()
+
+        harvest = farm(farmer, commodity, TransactionLocation.GPS, farm_latitude=1, farm_longitude=2)
+        supply = trade(farmer, trader, commodity)
+        purchase = trade(trader, user, commodity)
+
+        client.login(user)
+
+        response = client.get(path=f"{self.URL}?include_chain=true")
+
+        assert response.status_code == HTTPStatus.OK
+        assert response["X-Total-Transactions"] == "3"
+
+        csv_reader = csv.DictReader(io.StringIO(response.content.decode("utf-8")), delimiter=";")
+        tiers = {row["Transaction ID"]: row["Tier"] for row in csv_reader}
+        assert tiers == {str(purchase.id): "0", str(supply.id): "1", str(harvest.id): "2"}
+
+    def test_include_chain_lists_a_shared_supplier_once(self, client: APIClient) -> None:
+        user, trader, farmer = UserFactory.create(), UserFactory.create(), UserFactory.create()
+        commodity = CommodityFactory.create()
+
+        supply = trade(farmer, trader, commodity)
+        trade(trader, user, commodity)
+        trade(trader, user, commodity)
+
+        client.login(user)
+
+        response = client.get(path=f"{self.URL}?include_chain=true")
+
+        assert response.status_code == HTTPStatus.OK
+
+        csv_reader = csv.DictReader(io.StringIO(response.content.decode("utf-8")), delimiter=";")
+        rows = [row["Transaction ID"] for row in csv_reader]
+        assert rows.count(str(supply.id)) == 1
+        assert len(rows) == 3  # noqa: PLR2004 Magic value used in comparison
+
+    def test_without_include_chain_the_file_stops_at_the_user_rows(self, client: APIClient) -> None:
+        user, trader, farmer = UserFactory.create(), UserFactory.create(), UserFactory.create()
+        commodity = CommodityFactory.create()
+
+        trade(farmer, trader, commodity)
+        purchase = trade(trader, user, commodity)
+
+        client.login(user)
+
+        response = client.get(path=self.URL)
+
+        assert response.status_code == HTTPStatus.OK
+        assert response["X-Total-Transactions"] == "1"
+
+        csv_content = response.content.decode("utf-8")
+        csv_reader = csv.DictReader(io.StringIO(csv_content), delimiter=";")
+        assert [row["Transaction ID"] for row in csv_reader] == [str(purchase.id)]
+        assert "Tier" not in csv_content.splitlines()[0]
+
+    def test_include_chain_query_count_follows_chain_depth(self, client: APIClient) -> None:
+        user, trader, farmer = UserFactory.create(), UserFactory.create(), UserFactory.create()
+        commodity = CommodityFactory.create()
+
+        trade(farmer, trader, commodity)
+        trade(trader, user, commodity)
+
+        client.login(user)
+
+        with CaptureQueriesContext(connection) as single_queries:
+            client.get(path=f"{self.URL}?include_chain=true")
+
+        for _ in range(MEDIUM_BATCH_SIZE):
+            trade(trader, user, commodity)
+
+        with CaptureQueriesContext(connection) as queries:
+            response = client.get(path=f"{self.URL}?include_chain=true")
+
+        assert response.status_code == HTTPStatus.OK
+        assert len(queries) == len(single_queries), queries_to_str(queries)
 
     def test_csv_filename_format(self, client: APIClient) -> None:
         user = UserFactory.create()

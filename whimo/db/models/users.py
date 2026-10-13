@@ -37,7 +37,7 @@ class CustomUserManager(UserManager):
         NotificationSettings.objects.bulk_create(settings_to_create, ignore_conflicts=True)
 
     def generate_prefetch_gadgets(self, relation: str = "", include_unverified: bool = False) -> models.Prefetch:
-        gadgets_queryset = Gadget.objects.all()
+        gadgets_queryset = Gadget.objects.order_by("-created_at", "id")
         if not include_unverified:
             gadgets_queryset = gadgets_queryset.filter(is_verified=True)
 

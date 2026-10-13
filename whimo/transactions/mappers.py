@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import timedelta
 from decimal import Decimal
+from typing import cast
 from uuid import UUID
 
 from django.conf import settings
@@ -11,7 +12,14 @@ from whimo.commodities.mappers.commodities import CommoditiesMapper
 from whimo.db.enums import TransactionAction, TransactionLocation, TransactionStatus, TransactionType
 from whimo.db.enums.transactions import TransactionTraceability
 from whimo.db.models import ConversionRecipe, Transaction
-from whimo.transactions.schemas.dto import ConversionDTO, ConversionRecipeDTO, TransactionDTO
+from whimo.harvest_seasons.mappers import HarvestSeasonsMapper
+from whimo.transactions.schemas.dto import (
+    ConversionDTO,
+    ConversionItemDTO,
+    ConversionRecipeDTO,
+    ConversionTransactionDTO,
+    TransactionDTO,
+)
 from whimo.transactions.schemas.requests import TransactionDownstreamCreateRequest, TransactionProducerCreateRequest
 from whimo.users.mappers.users import UsersMapper
 
@@ -36,6 +44,7 @@ class TransactionsMapper:
             created_at=entity.created_at,
             # ---
             type=TransactionType(entity.type),
+            group_id=entity.group_id,
             status=TransactionStatus(entity.status),
             action=action,
             traceability=TransactionTraceability(entity.traceability) if entity.traceability else None,
@@ -49,7 +58,9 @@ class TransactionsMapper:
             farm_longitude=entity.farm_longitude,
             # ---
             commodity=commodity,
+            harvest_season=HarvestSeasonsMapper.to_dto(entity.harvest_season),
             volume=entity.volume,
+            signed_volume=-abs(entity.volume) if action == TransactionAction.SELLING else abs(entity.volume),
             # ---
             is_buying_from_farmer=entity.is_buying_from_farmer,
             is_automatic=entity.is_automatic,
@@ -62,13 +73,48 @@ class TransactionsMapper:
         )
 
     @staticmethod
-    def to_dto_list(entities: list[Transaction], user_id: UUID) -> list[TransactionDTO]:
-        return [TransactionsMapper.to_dto(entity, user_id) for entity in entities]
+    def to_dto_list(
+        entities: list[Transaction | list[Transaction]],
+        user_id: UUID,
+    ) -> list[TransactionDTO | ConversionTransactionDTO]:
+        return [
+            TransactionsMapper.to_conversion_dto(entity)
+            if isinstance(entity, list)
+            else TransactionsMapper.to_dto(entity, user_id)
+            for entity in entities
+        ]
+
+    @staticmethod
+    def to_conversion_dto(entities: list[Transaction]) -> ConversionTransactionDTO:
+        entities = sorted(entities, key=lambda entity: -abs(entity.volume))
+        head = entities[0]
+
+        return ConversionTransactionDTO(
+            group_id=cast(UUID, head.group_id),
+            created_at=head.created_at,
+            # ---
+            type=TransactionType(head.type),
+            status=TransactionStatus(head.status),
+            traceability=TransactionTraceability(head.traceability) if head.traceability else None,
+            # ---
+            harvest_season=HarvestSeasonsMapper.to_dto(head.harvest_season),
+            inputs=[TransactionsMapper.to_conversion_item_dto(entity) for entity in entities if entity.seller_id],
+            outputs=[TransactionsMapper.to_conversion_item_dto(entity) for entity in entities if entity.buyer_id],
+        )
+
+    @staticmethod
+    def to_conversion_item_dto(entity: Transaction) -> ConversionItemDTO:
+        return ConversionItemDTO(
+            id=entity.id,
+            commodity=CommoditiesMapper.to_dto_with_group(entity.commodity),
+            volume=entity.volume,
+        )
 
     @staticmethod
     def from_producer_request(
         user_id: UUID,
         traceability: TransactionTraceability,
+        harvest_season_id: UUID,
         request: TransactionProducerCreateRequest,
     ) -> Transaction:
         return Transaction(
@@ -85,6 +131,7 @@ class TransactionsMapper:
             farm_longitude=request.farm_longitude,
             # ---
             commodity_id=request.commodity_id,
+            harvest_season_id=harvest_season_id,
             volume=request.volume,
             # ---
             is_buying_from_farmer=request.is_buying_from_farmer,
@@ -101,6 +148,7 @@ class TransactionsMapper:
         user_id: UUID,
         seller_id: UUID | None,
         buyer_id: UUID | None,
+        harvest_season_id: UUID,
         request: TransactionDownstreamCreateRequest,
     ) -> Transaction:
         return Transaction(
@@ -117,6 +165,7 @@ class TransactionsMapper:
             farm_longitude=None,
             # ---
             commodity_id=request.commodity_id,
+            harvest_season_id=harvest_season_id,
             volume=request.volume,
             # ---
             is_buying_from_farmer=False,
@@ -132,6 +181,7 @@ class TransactionsMapper:
     def to_automatic_transaction(
         user_id: UUID,
         commodity_id: UUID,
+        harvest_season_id: UUID,
         negative_volume: Decimal,
     ) -> Transaction:
         return Transaction(
@@ -148,6 +198,7 @@ class TransactionsMapper:
             farm_latitude=None,
             # ---
             commodity_id=commodity_id,
+            harvest_season_id=harvest_season_id,
             volume=-negative_volume,
             # ---
             is_buying_from_farmer=False,
@@ -163,6 +214,7 @@ class TransactionsMapper:
     def to_conversion_transaction(  # noqa: PLR0913 Too many arguments in function definition
         user_id: UUID,
         commodity_id: UUID,
+        harvest_season_id: UUID,
         volume: Decimal,
         traceability: TransactionTraceability,
         is_input: bool,
@@ -183,6 +235,7 @@ class TransactionsMapper:
             farm_latitude=None,
             # ---
             commodity_id=commodity_id,
+            harvest_season_id=harvest_season_id,
             volume=-volume if is_input else volume,
             # ---
             is_buying_from_farmer=False,

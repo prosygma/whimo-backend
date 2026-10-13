@@ -1,0 +1,24 @@
+# serializer version: 1
+# name: TestUsersExists.test_an_active_user_exists
+  dict({
+    'data': dict({
+      'exists': True,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestUsersExists.test_an_unknown_user_does_not_exist
+  dict({
+    'data': dict({
+      'exists': False,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestUsersExists.test_unauthorized
+  dict({
+    'code': 'drf.not_authenticated',
+    'message': 'Authentication credentials were not provided.',
+    'success': False,
+  })
+# ---

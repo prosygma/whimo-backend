@@ -1,0 +1,41 @@
+HarvestSeasonConflictError:
+  description: |
+    The selected harvest season cannot satisfy the operation, or the commodity has no active season to
+    fall back on. A commodity can never have two active seasons at once: a unique constraint holds that.
+
+    Seller balances are revalidated when a transaction is accepted, so a client working from a stale
+    balance (offline, or a second device on the same account) gets this error instead of a silent
+    overdraft. In an active season a shortfall is covered by an automatic balance adjustment and no error
+    is raised; in a past or archived season it always fails and the seller has to raise the balance or
+    reject. The errors object is returned only to the owner of the balance, never to the other party.
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '../common/schemas.yaml#/ErrorResponse'
+          - type: object
+            properties:
+              message:
+                type: string
+                default: Insufficient balance for the selected harvest season
+              code:
+                type: string
+                enum:
+                  - transactions.insufficient_harvest_season_balance
+                  - harvest_seasons.active_not_configured
+              errors:
+                type: object
+                properties:
+                  harvest_season_id:
+                    type: string
+                    format: uuid
+                  available_volume:
+                    type: number
+                    format: double
+                  requested_volume:
+                    type: number
+                    format: double
+                examples:
+                  - harvest_season_id: '223e4567-e89b-12d3-a456-426614174000'
+                    available_volume: 60.0
+                    requested_volume: 100.0

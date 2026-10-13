@@ -17,6 +17,11 @@ class Balance(BaseModel):
         on_delete=models.PROTECT,
         help_text=_("Balance user"),
     )
+    harvest_season = models.ForeignKey(
+        "db.HarvestSeason",
+        on_delete=models.PROTECT,
+        help_text=_("Harvest season the volume was harvested in"),
+    )
 
     history = HistoricalRecords(
         excluded_fields=(
@@ -30,3 +35,9 @@ class Balance(BaseModel):
         db_table = "balances"
         verbose_name = _("Balance")
         verbose_name_plural = _("Balances")
+        constraints = (
+            models.UniqueConstraint(
+                fields=("user", "commodity", "harvest_season"),
+                name="balance_user_commodity_harvest_season_unique",
+            ),
+        )

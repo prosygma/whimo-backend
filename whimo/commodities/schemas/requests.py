@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from whimo.common.schemas.base import OrderingRequestMixin, PaginationRequest
+from whimo.db.enums import HarvestSeasonStatus
 
 
 class CommodityListRequest(PaginationRequest):
@@ -10,12 +11,16 @@ class CommodityListRequest(PaginationRequest):
 
 class CommodityGroupListRequest(PaginationRequest):
     search: str | None = None
+    harvest_season_id: UUID | None = None
+    harvest_season_status: HarvestSeasonStatus | None = None
 
 
 class BalanceListRequest(PaginationRequest, OrderingRequestMixin):
     search: str | None = None
     commodity_group_id: UUID | None = None
     commodity_id: UUID | None = None
+    harvest_season_id: UUID | None = None
+    harvest_season_status: HarvestSeasonStatus | None = None
 
     @property
     def orderings_map(self) -> dict[str, str]:

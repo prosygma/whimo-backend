@@ -11,6 +11,7 @@ from syrupy import SnapshotAssertion
 from tests.factories.balances import BalanceFactory
 from tests.factories.commodities import CommodityFactory
 from tests.factories.conversions import ConversionInputFactory, ConversionOutputFactory, ConversionRecipeFactory
+from tests.factories.harvest_seasons import HarvestSeasonFactory
 from tests.factories.transactions import TransactionFactory
 from tests.factories.users import UserFactory
 from tests.helpers.clients import APIClient
@@ -184,8 +185,9 @@ class TestTransactionsTraceabilityCounts:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        beans = CommodityFactory.create(name="Cacao Beans")
-        oil = CommodityFactory.create(name="Cacao Oil")
+        harvest_season = HarvestSeasonFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans", with_harvest_season=harvest_season)
+        oil = CommodityFactory.create(name="Cacao Oil", with_harvest_season=harvest_season)
 
         # beans -> oil
         TransactionFactory.create(
@@ -207,7 +209,7 @@ class TestTransactionsTraceabilityCounts:
         client.login(user)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe.id)},
+            data={"recipe_id": str(recipe.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -261,9 +263,10 @@ class TestTransactionsTraceabilityCounts:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        beans = CommodityFactory.create(name="Cacao Beans")
-        oil = CommodityFactory.create(name="Cacao Oil")
-        chocolate = CommodityFactory.create(name="Chocolate")
+        harvest_season = HarvestSeasonFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans", with_harvest_season=harvest_season)
+        oil = CommodityFactory.create(name="Cacao Oil", with_harvest_season=harvest_season)
+        chocolate = CommodityFactory.create(name="Chocolate", with_harvest_season=harvest_season)
 
         # beans -> oil -> chocolate
         TransactionFactory.create(
@@ -285,7 +288,7 @@ class TestTransactionsTraceabilityCounts:
         client.login(user)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe1.id)},
+            data={"recipe_id": str(recipe1.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -296,7 +299,7 @@ class TestTransactionsTraceabilityCounts:
 
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe2.id)},
+            data={"recipe_id": str(recipe2.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -355,9 +358,10 @@ class TestTransactionsTraceabilityCounts:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        beans = CommodityFactory.create(name="Cacao Beans")
-        sugar = CommodityFactory.create(name="Sugar")
-        chocolate = CommodityFactory.create(name="Chocolate")
+        harvest_season = HarvestSeasonFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans", with_harvest_season=harvest_season)
+        sugar = CommodityFactory.create(name="Sugar", with_harvest_season=harvest_season)
+        chocolate = CommodityFactory.create(name="Chocolate", with_harvest_season=harvest_season)
 
         # beans + sugar -> chocolate
         TransactionFactory.create(
@@ -390,7 +394,7 @@ class TestTransactionsTraceabilityCounts:
         client.login(user)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe.id)},
+            data={"recipe_id": str(recipe.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -443,9 +447,10 @@ class TestTransactionsTraceabilityCounts:
         freezer.move_to(DEFAULT_DATETIME)
 
         user = UserFactory.create()
-        beans = CommodityFactory.create(name="Cacao Beans")
-        sugar = CommodityFactory.create(name="Sugar")
-        oil = CommodityFactory.create(name="Cacao Oil")
+        harvest_season = HarvestSeasonFactory.create()
+        beans = CommodityFactory.create(name="Cacao Beans", with_harvest_season=harvest_season)
+        sugar = CommodityFactory.create(name="Sugar", with_harvest_season=harvest_season)
+        oil = CommodityFactory.create(name="Cacao Oil", with_harvest_season=harvest_season)
 
         # beans -> oil, but user also has a sugar producer (noise)
         TransactionFactory.create(
@@ -476,7 +481,7 @@ class TestTransactionsTraceabilityCounts:
         client.login(user)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe.id)},
+            data={"recipe_id": str(recipe.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -532,9 +537,10 @@ class TestTransactionsTraceabilityCounts:
         farmer = UserFactory.create()
         noise_seller = UserFactory.create()
 
-        palm_oil = CommodityFactory.create(name="Palm Oil")
-        oilcake = CommodityFactory.create(name="Oilcake")
-        noise_commodity = CommodityFactory.create(name="Noise Commodity")
+        harvest_season = HarvestSeasonFactory.create()
+        palm_oil = CommodityFactory.create(name="Palm Oil", with_harvest_season=harvest_season)
+        oilcake = CommodityFactory.create(name="Oilcake", with_harvest_season=harvest_season)
+        noise_commodity = CommodityFactory.create(name="Noise Commodity", with_harvest_season=harvest_season)
 
         # farmer -> jonas (palm_oil), jonas converts palm_oil -> oilcake, jonas -> user (oilcake)
         # jonas also has an unrelated purchase (noise) that must NOT appear in the chain
@@ -566,7 +572,7 @@ class TestTransactionsTraceabilityCounts:
         client.login(jonas)
         response = client.post(
             path=reverse("transactions_conversion"),
-            data={"recipe_id": str(recipe.id)},
+            data={"recipe_id": str(recipe.id), "harvest_season_id": str(harvest_season.id)},
             format="json",
         )
         assert response.status_code == HTTPStatus.OK
@@ -589,7 +595,6 @@ class TestTransactionsTraceabilityCounts:
             created_by=jonas,
         )
 
-        BalanceFactory.create(user=jonas, commodity=oilcake, volume=Decimal("5000.0"))
         BalanceFactory.create(user=user, commodity=oilcake, volume=Decimal("5000.0"))
 
         url = reverse(self.URL, args=(transaction.id,))

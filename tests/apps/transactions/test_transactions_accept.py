@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, timedelta
 from decimal import Decimal
 from http import HTTPStatus
 
@@ -7,16 +7,19 @@ import pytest
 from django.urls import reverse
 from freezegun.api import FrozenDateTimeFactory
 from syrupy import SnapshotAssertion
+from syrupy.filters import props
 
 from tests.factories.balances import BalanceFactory
+from tests.factories.commodities import CommodityFactory
+from tests.factories.harvest_seasons import HarvestSeasonCommodityFactory, HarvestSeasonFactory
 from tests.factories.transactions import TransactionFactory
 from tests.factories.users import UserFactory
 from tests.helpers.clients import APIClient
 from tests.helpers.constants import DEFAULT_DATETIME
-from whimo.db.enums import TransactionStatus, TransactionType
+from whimo.db.enums import HarvestSeasonStatus, TransactionStatus, TransactionType
 from whimo.db.enums.notifications import NotificationStatus, NotificationType
 from whimo.db.enums.transactions import TransactionTraceability
-from whimo.db.models import Notification, Transaction
+from whimo.db.models import Balance, Notification, Transaction
 
 pytestmark = [pytest.mark.django_db]
 
@@ -241,7 +244,7 @@ class TestTransactionsAccept:
 
         # Assert
         assert response.status_code == HTTPStatus.OK, response_json
-        assert response_json == snapshot
+        assert response_json == snapshot(exclude=props("id"))
 
         transaction.refresh_from_db()
         assert transaction.status == TransactionStatus.ACCEPTED
@@ -269,6 +272,152 @@ class TestTransactionsAccept:
 
         seller_balance.refresh_from_db()
         assert seller_balance.volume == 0
+
+    @pytest.mark.parametrize("status", [HarvestSeasonStatus.PAST, HarvestSeasonStatus.ARCHIVED])
+    def test_past_season_is_never_overdrawn(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+        status: HarvestSeasonStatus,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        seller = UserFactory.create()
+
+        commodity = CommodityFactory.create(with_harvest_season=False)
+        past_season = HarvestSeasonFactory.create(
+            start_date=date(2024, 9, 1),
+            end_date=date(2025, 9, 1),
+            status=status,
+        )
+        HarvestSeasonCommodityFactory.create(harvest_season=past_season, commodity=commodity)
+
+        transaction = TransactionFactory.create(
+            buyer=user,
+            seller=seller,
+            created_by=seller,
+            commodity=commodity,
+            harvest_season=past_season,
+            volume=Decimal("100.0"),
+            type=TransactionType.DOWNSTREAM,
+            status=TransactionStatus.PENDING,
+        )
+        seller_balance = BalanceFactory.create(
+            user=seller,
+            commodity=commodity,
+            harvest_season=past_season,
+            volume=Decimal("40.0"),
+        )
+
+        client.login(user)
+
+        # Act
+        response = client.patch(
+            path=reverse(self.URL, args=(transaction.id,)),
+            data={"status": TransactionStatus.ACCEPTED},
+        )
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.CONFLICT, response_json
+        assert response_json["code"] == "transactions.insufficient_harvest_season_balance"
+        assert response_json["errors"]["harvest_season_id"] == str(past_season.id)
+        assert Decimal(str(response_json["errors"]["available_volume"])) == Decimal("40.0")
+        assert Decimal(str(response_json["errors"]["requested_volume"])) == Decimal("100.0")
+
+        transaction.refresh_from_db()
+        assert transaction.status == TransactionStatus.PENDING
+
+        seller_balance.refresh_from_db()
+        assert seller_balance.volume == Decimal("40.0")
+        assert not Balance.objects.filter(user=user, commodity=commodity).exists()
+        assert not Transaction.objects.filter(is_automatic=True).exists()
+
+    def test_volume_moves_inside_the_transaction_season(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+
+        user = UserFactory.create()
+        seller = UserFactory.create()
+
+        commodity = CommodityFactory.create(with_harvest_season=False)
+        past_season = HarvestSeasonFactory.create(
+            start_date=date(2024, 9, 1),
+            end_date=date(2025, 9, 1),
+            status=HarvestSeasonStatus.PAST,
+        )
+        active_season = HarvestSeasonFactory.create(start_date=date(2025, 9, 1), end_date=date(2026, 9, 1))
+        HarvestSeasonCommodityFactory.create(harvest_season=past_season, commodity=commodity)
+        HarvestSeasonCommodityFactory.create(harvest_season=active_season, commodity=commodity)
+
+        transaction = TransactionFactory.create(
+            buyer=user,
+            seller=seller,
+            created_by=seller,
+            commodity=commodity,
+            harvest_season=past_season,
+            volume=Decimal("30.0"),
+            type=TransactionType.DOWNSTREAM,
+            status=TransactionStatus.PENDING,
+        )
+        BalanceFactory.create(user=seller, commodity=commodity, harvest_season=past_season, volume=Decimal("50.0"))
+        active_balance = BalanceFactory.create(
+            user=seller,
+            commodity=commodity,
+            harvest_season=active_season,
+            volume=Decimal("70.0"),
+        )
+
+        client.login(user)
+
+        # Act
+        response = client.patch(
+            path=reverse(self.URL, args=(transaction.id,)),
+            data={"status": TransactionStatus.ACCEPTED},
+        )
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+        assert response_json["data"]["automatic_transaction"] is None
+        assert response_json["data"]["transaction"]["harvest_season"]["id"] == str(past_season.id)
+
+        assert Balance.objects.get(user=seller, harvest_season=past_season).volume == Decimal("20.0")
+        active_balance.refresh_from_db()
+        assert active_balance.volume == Decimal("70.0")
+        assert Balance.objects.get(user=user, harvest_season=past_season).volume == Decimal("30.0")
+
+    def test_season_fields_are_rejected_on_status_update(self, client: APIClient) -> None:
+        # Arrange
+        user = UserFactory.create()
+        seller = UserFactory.create()
+        transaction = TransactionFactory.create(
+            buyer=user,
+            seller=seller,
+            created_by=seller,
+            type=TransactionType.DOWNSTREAM,
+            status=TransactionStatus.PENDING,
+        )
+
+        client.login(user)
+
+        # Act
+        response = client.patch(
+            path=reverse(self.URL, args=(transaction.id,)),
+            data={"status": TransactionStatus.ACCEPTED, "harvest_season_id": str(transaction.harvest_season_id)},
+        )
+
+        # Assert
+        assert response.status_code == HTTPStatus.BAD_REQUEST, response.json()
+
+        transaction.refresh_from_db()
+        assert transaction.status == TransactionStatus.PENDING
 
     def test_transaction_expired(
         self,

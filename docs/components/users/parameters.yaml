@@ -1,3 +1,11 @@
+UsernameParameter:
+  name: username
+  in: query
+  required: true
+  description: User ID to check, as the app shows it on a profile
+  schema:
+    type: string
+
 GadgetIdentifierParameter:
   name: identifier
   in: query

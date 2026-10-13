@@ -1,0 +1,45 @@
+HarvestSeasonStatus:
+  description: Lifecycle classification of a harvest season
+  type: string
+  enum:
+    - active
+    - past
+    - archived
+
+HarvestSeasonDTO:
+  description: |
+    Backend-managed period in which volume was harvested. A season covers one or more complete commodity
+    groups. Seasons of one group never overlap and at most one is active. Group membership is not part of
+    the payload; use commodity_group_id or commodity_id to obtain the applicable seasons.
+  type: object
+  required:
+    - id
+    - name
+    - start_date
+    - end_date
+    - status
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Stable harvest season identifier used by filters and mutations
+      examples: [ '223e4567-e89b-12d3-a456-426614174000' ]
+    name:
+      type: string
+      description: Auto-generated display label combining the commodity group and marketing year. Dates
+        alone do not identify a season, since different commodity groups may have different seasons over
+        the same period
+      examples: [ 'Cocoa 2025/26' ]
+    start_date:
+      type: string
+      format: date
+      description: Inclusive first date of the harvest season
+      examples: [ '2025-09-01' ]
+    end_date:
+      type: string
+      format: date
+      description: Exclusive end date of the harvest season
+      examples: [ '2026-09-01' ]
+    status:
+      $ref: '#/HarvestSeasonStatus'
+      description: Descriptive status; transacting in a past or archived season is allowed

@@ -13,3 +13,4 @@ class EmailOrPhoneRequiredError(BadRequest):
 
 class GadgetAlreadyExistsError(Conflict):
     message = _("Gadget with this identifier already exists")
+    code = "registration.gadget_already_exists"
