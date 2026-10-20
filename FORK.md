@@ -75,6 +75,7 @@ first candidate PR for EFI. Put Cameroon-specific features in their own Django
 app (for example `whimo/camertrace/`, added to `INSTALLED_APPS`) so that their
 models and migrations never collide with EFI's.
 
-Brand sources (logos, graphic chart, export scripts) are outside the repo, in
-`Documents/whimo/logos/camertrace-cicc/` (`charte-graphique.html`,
-`render.sh`, `declinaisons/`).
+Brand sources (logos, graphic chart, export scripts) are outside the repo. The
+logo in use is v3, in `Documents/whimo/logos/camertrace-cicc-v3/` (`render.sh`,
+`check_fit.py`, `declinaisons/`); the graphic chart (`charte-graphique.html`)
+is still in `Documents/whimo/logos/camertrace-cicc/`.
