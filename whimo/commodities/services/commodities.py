@@ -24,7 +24,7 @@ class CommoditiesService:
 
     @staticmethod
     def _filter_commodities(params: CommodityListRequest) -> QuerySet[Commodity]:
-        queryset = Commodity.objects.annotate_has_recipe().select_related("group")
+        queryset = Commodity.objects.annotate_has_recipe().select_related("group").filter(is_archived=False)
 
         if search := params.search:
             queryset = queryset.filter(
@@ -43,7 +43,9 @@ class CommoditiesService:
             harvest_season_id=params.harvest_season_id,
             harvest_season_status=params.harvest_season_status,
         )
-        queryset = CommodityGroup.objects.prefetch_related(Prefetch("commodities", queryset=commodities_with_balances))
+        queryset = CommodityGroup.objects.filter(is_archived=False).prefetch_related(
+            Prefetch("commodities", queryset=commodities_with_balances.filter(is_archived=False))
+        )
 
         if search := params.search:
             queryset = queryset.filter(Q(name__icontains=search) | Q(name_variants__icontains=search))

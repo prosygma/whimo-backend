@@ -1,32 +1,3 @@
-TypeParameter:
-  name: type
-  in: query
-  schema:
-    $ref: './schemas.yaml#/TransactionType'
-  description: Filter transactions by type. type=conversion backs the Conversion tab.
-
-GroupConversionsParameter:
-  name: group_conversions
-  in: query
-  schema:
-    type: boolean
-    default: false
-  description: |
-    Return each conversion as one ConversionTransactionDTO item instead of one row per input and output.
-    Pagination counts these items. With this flag, action=buying and action=selling exclude conversions.
-    Search, commodity, commodity group and harvest season filters match a conversion when any of its inputs or
-    outputs match. Sorting by commodity_name or amount uses the largest output. A conversion without group_id
-    still appears as separate rows.
-
-GroupIdParameter:
-  name: group_id
-  in: path
-  schema:
-    type: string
-    format: uuid
-  description: Identifier of the conversion (group_id)
-  required: true
-
 IncludeChainParameter:
   name: include_chain
   in: query

@@ -77,31 +77,7 @@ class TransactionsStorage:
             raise NotFound(errors={"transaction": [transaction_id]}) from err
 
     @staticmethod
-    def get_conversions(group_ids: set[UUID]) -> dict[UUID, list[Transaction]]:
-        conversions: dict[UUID, list[Transaction]] = defaultdict(list)
-        rows = Transaction.objects.select_related("commodity__group", "commodity", "harvest_season").filter(
-            type=TransactionType.CONVERSION,
-            group_id__in=group_ids,
-        )
-        for row in rows:
-            conversions[cast(UUID, row.group_id)].append(row)
-
-        return conversions
-
-    @staticmethod
-    def get_user_conversion(user_id: UUID, group_id: UUID) -> list[Transaction]:
-        conversion = TransactionsStorage.get_conversions({group_id}).get(group_id)
-        if not conversion or user_id not in {conversion[0].buyer_id, conversion[0].seller_id}:
-            raise NotFound(errors={"conversion": [group_id]})
-
-        return conversion
-
-    @staticmethod
-    def filter_transactions(
-        user_id: UUID,
-        request: TransactionListRequest,
-        collapse_conversions: bool = False,
-    ) -> QuerySet[Transaction]:
+    def filter_transactions(user_id: UUID, request: TransactionListRequest) -> QuerySet[Transaction]:
         queryset = Transaction.objects.select_related(
             "commodity__group",
             "commodity",
@@ -128,11 +104,7 @@ class TransactionsStorage:
         if request.action == TransactionAction.SELLING:
             _filter &= Q(seller_id=user_id)
 
-        if request.action and request.group_conversions:
-            _filter &= ~Q(type=TransactionType.CONVERSION)
-
         lookups = {
-            "type": request.type,
             "status": request.status,
             "created_at__gte": request.created_at_from,
             "created_at__lte": request.created_at_to,
@@ -144,17 +116,6 @@ class TransactionsStorage:
         for lookup, value in lookups.items():
             if value:
                 _filter &= Q(**{lookup: value})
-
-        if collapse_conversions:
-            grouped = Q(type=TransactionType.CONVERSION, group_id__isnull=False)
-            matched_groups = Transaction.objects.filter(_filter & grouped).values("group_id")
-            heads = (
-                Transaction.objects.filter(type=TransactionType.CONVERSION, group_id__in=matched_groups)
-                .order_by("group_id", "-volume", "id")
-                .distinct("group_id")
-                .values("id")
-            )
-            _filter = (_filter & ~grouped) | Q(pk__in=heads)
 
         queryset = queryset.filter(_filter)
 
@@ -346,12 +307,9 @@ class TransactionsStorage:
             )
             transactions_ids = set(base_query.filter(Exists(matching_sellers)).values_list("pk", flat=True))
 
-            # Without a group_id there is no way to tell which inputs fed this output:
-            # group_id=None would match every ungrouped input of the season, from any user.
             conversion_outputs = transactions_query.filter(
                 type=TransactionType.CONVERSION,
                 seller_id__isnull=True,
-                group_id__isnull=False,
             )
 
             for conversion_output in conversion_outputs:

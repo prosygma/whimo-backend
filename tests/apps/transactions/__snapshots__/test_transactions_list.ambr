@@ -38,7 +38,6 @@
         'expires_at': None,
         'farm_latitude': -56.19,
         'farm_longitude': -81.93,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -143,7 +142,6 @@
         'expires_at': None,
         'farm_latitude': -55.2,
         'farm_longitude': -10.91,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000001',
@@ -218,7 +216,6 @@
         'expires_at': None,
         'farm_latitude': -56.19,
         'farm_longitude': -81.93,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -308,7 +305,6 @@
         'expires_at': None,
         'farm_latitude': 39.28,
         'farm_longitude': 77.65,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000003',
@@ -383,7 +379,6 @@
         'expires_at': None,
         'farm_latitude': -6.63,
         'farm_longitude': 33.06,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000002',
@@ -473,7 +468,6 @@
         'expires_at': None,
         'farm_latitude': 5.98,
         'farm_longitude': 6.13,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -577,7 +571,6 @@
         'expires_at': None,
         'farm_latitude': -56.19,
         'farm_longitude': -81.93,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -667,7 +660,6 @@
         'expires_at': None,
         'farm_latitude': -56.19,
         'farm_longitude': -81.93,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -757,7 +749,6 @@
         'expires_at': None,
         'farm_latitude': 39.28,
         'farm_longitude': 77.65,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000003',
@@ -832,7 +823,6 @@
         'expires_at': None,
         'farm_latitude': -6.63,
         'farm_longitude': 33.06,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000002',
@@ -922,7 +912,6 @@
         'expires_at': None,
         'farm_latitude': -55.2,
         'farm_longitude': -10.91,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000001',
@@ -997,7 +986,6 @@
         'expires_at': None,
         'farm_latitude': -56.19,
         'farm_longitude': -81.93,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -1087,7 +1075,6 @@
         'expires_at': None,
         'farm_latitude': -56.19,
         'farm_longitude': -81.93,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -1177,7 +1164,6 @@
         'expires_at': None,
         'farm_latitude': 4.94,
         'farm_longitude': -17.12,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2025-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -1267,7 +1253,6 @@
         'expires_at': None,
         'farm_latitude': 82.45,
         'farm_longitude': -46.08,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000001',
@@ -1357,7 +1342,6 @@
         'expires_at': None,
         'farm_latitude': 37.17,
         'farm_longitude': 12.42,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000003',
@@ -1447,7 +1431,6 @@
         'expires_at': None,
         'farm_latitude': -56.19,
         'farm_longitude': -81.93,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -1537,7 +1520,6 @@
         'expires_at': None,
         'farm_latitude': 4.75,
         'farm_longitude': -119.06,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000002',
@@ -1634,7 +1616,6 @@
         'expires_at': None,
         'farm_latitude': -55.2,
         'farm_longitude': -10.91,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000001',
@@ -1709,7 +1690,6 @@
         'expires_at': None,
         'farm_latitude': 4.75,
         'farm_longitude': -119.06,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000002',
@@ -1784,7 +1764,6 @@
         'expires_at': None,
         'farm_latitude': -56.19,
         'farm_longitude': -81.93,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -1874,7 +1853,6 @@
         'expires_at': None,
         'farm_latitude': -56.19,
         'farm_longitude': -81.93,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -1949,7 +1927,6 @@
         'expires_at': None,
         'farm_latitude': 4.75,
         'farm_longitude': -119.06,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000002',
@@ -2024,7 +2001,6 @@
         'expires_at': None,
         'farm_latitude': -55.2,
         'farm_longitude': -10.91,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000001',
@@ -2114,7 +2090,6 @@
         'expires_at': None,
         'farm_latitude': -55.2,
         'farm_longitude': -10.91,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000001',
@@ -2189,7 +2164,6 @@
         'expires_at': None,
         'farm_latitude': -56.19,
         'farm_longitude': -81.93,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -2264,7 +2238,6 @@
         'expires_at': None,
         'farm_latitude': -6.63,
         'farm_longitude': 33.06,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000002',
@@ -2354,7 +2327,6 @@
         'expires_at': None,
         'farm_latitude': -6.63,
         'farm_longitude': 33.06,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000002',
@@ -2429,7 +2401,6 @@
         'expires_at': None,
         'farm_latitude': -56.19,
         'farm_longitude': -81.93,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -2504,7 +2475,6 @@
         'expires_at': None,
         'farm_latitude': -55.2,
         'farm_longitude': -10.91,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000001',
@@ -2594,7 +2564,6 @@
         'expires_at': None,
         'farm_latitude': -55.2,
         'farm_longitude': -10.91,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000001',
@@ -2669,7 +2638,6 @@
         'expires_at': None,
         'farm_latitude': -6.63,
         'farm_longitude': 33.06,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000002',
@@ -2744,7 +2712,6 @@
         'expires_at': None,
         'farm_latitude': -56.19,
         'farm_longitude': -81.93,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -2834,7 +2801,6 @@
         'expires_at': None,
         'farm_latitude': -6.63,
         'farm_longitude': 33.06,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000002',
@@ -2909,7 +2875,6 @@
         'expires_at': None,
         'farm_latitude': -55.2,
         'farm_longitude': -10.91,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000001',
@@ -2984,7 +2949,6 @@
         'expires_at': None,
         'farm_latitude': -56.19,
         'farm_longitude': -81.93,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -3074,7 +3038,6 @@
         'expires_at': None,
         'farm_latitude': 1.55,
         'farm_longitude': -9.82,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000004',
@@ -3149,7 +3112,6 @@
         'expires_at': None,
         'farm_latitude': 39.28,
         'farm_longitude': 77.65,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000003',
@@ -3239,7 +3201,6 @@
         'expires_at': None,
         'farm_latitude': -6.63,
         'farm_longitude': 33.06,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000002',
@@ -3314,7 +3275,6 @@
         'expires_at': None,
         'farm_latitude': -55.2,
         'farm_longitude': -10.91,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000001',
@@ -3404,7 +3364,6 @@
         'expires_at': None,
         'farm_latitude': -56.19,
         'farm_longitude': -81.93,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -3494,7 +3453,6 @@
         'expires_at': None,
         'farm_latitude': -56.19,
         'farm_longitude': -81.93,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',
@@ -3584,7 +3542,6 @@
         'expires_at': None,
         'farm_latitude': 39.28,
         'farm_longitude': 77.65,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000003',
@@ -3659,7 +3616,6 @@
         'expires_at': None,
         'farm_latitude': -6.63,
         'farm_longitude': 33.06,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000002',
@@ -3734,7 +3690,6 @@
         'expires_at': None,
         'farm_latitude': -55.2,
         'farm_longitude': -10.91,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000001',
@@ -3809,7 +3764,6 @@
         'expires_at': None,
         'farm_latitude': -56.19,
         'farm_longitude': -81.93,
-        'group_id': None,
         'harvest_season': dict({
           'end_date': '2026-09-01',
           'id': '00000000-0000-0000-0000-000000000000',

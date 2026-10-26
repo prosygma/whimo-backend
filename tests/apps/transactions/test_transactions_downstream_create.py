@@ -518,6 +518,32 @@ class TestTransactionsDownstreamCreate:
         assert response.status_code == HTTPStatus.NOT_FOUND, response_json
         assert response_json == snapshot
 
+    def test_commodity_archived(self, client: APIClient) -> None:
+        # Arrange
+        user = UserFactory.create()
+        recipient = UserFactory.create()
+        commodity = CommodityFactory.create(is_archived=True)
+
+        request_data = {
+            "commodity_id": str(commodity.id),
+            "harvest_season_id": str(commodity.harvest_seasons.get().id),
+            "volume": 1,
+            "action": TransactionAction.BUYING,
+            "recipient": json.dumps({"name": recipient.username}),
+        }
+
+        client.login(user)
+
+        # Act
+        response = client.post(path=self.URL, data=request_data)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.BAD_REQUEST, response_json
+        assert response_json["code"] == "commodities.archived"
+        assert response_json["errors"]["commodity_id"] == str(commodity.id)
+        assert not Transaction.objects.filter(created_by_id=user.id).exists()
+
     def test_recipient_does_not_exist(
         self,
         client: APIClient,

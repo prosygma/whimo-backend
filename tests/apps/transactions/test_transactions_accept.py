@@ -204,6 +204,42 @@ class TestTransactionsAccept:
         assert transaction.status == TransactionStatus.ACCEPTED
         assert transaction.traceability == TransactionTraceability.INCOMPLETE
 
+    def test_commodity_archived(self, client: APIClient) -> None:
+        # Arrange
+        user = UserFactory.create()
+        seller = UserFactory.create()
+
+        transaction_volume = 100
+
+        transaction = TransactionFactory.create(
+            buyer=user,
+            seller=seller,
+            created_by=seller,
+            volume=transaction_volume,
+            type=TransactionType.DOWNSTREAM,
+            status=TransactionStatus.PENDING,
+        )
+        transaction.commodity.set_archived(True)
+
+        BalanceFactory.create(user=seller, commodity=transaction.commodity, volume=transaction_volume)
+
+        url = reverse(self.URL, args=(transaction.id,))
+        request_data = {
+            "status": TransactionStatus.ACCEPTED,
+        }
+
+        client.login(user)
+
+        # Act
+        response = client.patch(path=url, data=request_data)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+
+        transaction.refresh_from_db()
+        assert transaction.status == TransactionStatus.ACCEPTED
+
     def test_negative_volume(
         self,
         client: APIClient,

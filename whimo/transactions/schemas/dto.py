@@ -19,7 +19,6 @@ class TransactionDTO(BaseModelDTO):
     created_at: datetime | None
 
     type: TransactionType
-    group_id: UUID | None
     status: TransactionStatus
     action: TransactionAction | None
     traceability: TransactionTraceability | None
@@ -45,24 +44,6 @@ class TransactionDTO(BaseModelDTO):
     seller: UserDTO | None
     buyer: UserDTO | None
     created_by_id: UUID
-
-
-class ConversionItemDTO(BaseModelDTO):
-    commodity: CommodityWithGroupDTO
-    volume: FloatDecimal
-
-
-class ConversionTransactionDTO(BaseModel):
-    group_id: UUID
-    created_at: datetime
-
-    type: TransactionType
-    status: TransactionStatus
-    traceability: TransactionTraceability | None
-
-    harvest_season: HarvestSeasonDTO
-    inputs: list[ConversionItemDTO]
-    outputs: list[ConversionItemDTO]
 
 
 class TransactionStatusUpdateDTO(BaseModel):

@@ -44,7 +44,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'seat 2025/26',
@@ -94,7 +93,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'seat 2025/26',
@@ -164,7 +162,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'seat 2025/26',
@@ -214,7 +211,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'seat 2025/26',
@@ -296,7 +292,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'seat 2025/26',
@@ -366,7 +361,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'seat 2025/26',
@@ -436,7 +430,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'seat 2025/26',
@@ -506,7 +499,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'seat 2025/26',
@@ -597,7 +589,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'go 2025/26',
@@ -667,7 +658,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'go 2025/26',
@@ -737,7 +727,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'seat 2025/26',
@@ -779,7 +768,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'seat 2025/26',
@@ -875,7 +863,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'go 2025/26',
@@ -945,7 +932,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'go 2025/26',
@@ -1015,7 +1001,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'go 2025/26',
@@ -1085,7 +1070,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'go 2025/26',
@@ -1155,7 +1139,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'go 2025/26',
@@ -1225,7 +1208,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'go 2025/26',
@@ -1295,7 +1277,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'go 2025/26',
@@ -1365,7 +1346,6 @@
       'expires_at': '2020-01-31T00:00:00Z',
       'farm_latitude': None,
       'farm_longitude': None,
-      'group_id': None,
       'harvest_season': dict({
         'end_date': '2026-09-01',
         'name': 'go 2025/26',

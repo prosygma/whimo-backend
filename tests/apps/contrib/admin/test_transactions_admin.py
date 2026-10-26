@@ -8,6 +8,7 @@ from tests.factories.users import GadgetFactory, UserFactory
 from tests.helpers.clients import AdminClient
 from whimo.contrib.admin.transactions import TransactionAdmin
 from whimo.db.enums import GadgetType
+from whimo.db.enums.harvest_seasons import HarvestSeasonStatus
 
 pytestmark = [pytest.mark.django_db]
 
@@ -125,6 +126,8 @@ class TestTransactionsAdmin:
         # Act
         short_id_result = TransactionAdmin.short_id(None, transaction)
         commodity_link_result = TransactionAdmin.commodity_link(None, transaction)
+        harvest_season_link_result = TransactionAdmin.harvest_season_link(None, transaction)
+        harvest_season_status_result = TransactionAdmin.harvest_season_status_labeled(None, transaction)
         seller_link_result = TransactionAdmin.seller_link(None, transaction)
         buyer_link_result = TransactionAdmin.buyer_link(None, transaction)
         created_by_link_result = TransactionAdmin.created_by_link(None, transaction)
@@ -135,6 +138,8 @@ class TestTransactionsAdmin:
         # Assert
         assert short_id_result is not None
         assert commodity_link_result is not None
+        assert harvest_season_link_result is not None
+        assert harvest_season_status_result == HarvestSeasonStatus(transaction.harvest_season.status).name
         assert seller_link_result is not None
         assert buyer_link_result is not None
         assert created_by_link_result is not None

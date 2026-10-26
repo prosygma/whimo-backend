@@ -168,6 +168,27 @@ class TestCommoditiesGroupsList:
         assert len(data_response.data) == 1
         assert data_response.data[0].id == group.id
 
+    def test_archived_hidden(self, client: APIClient) -> None:
+        # Arrange
+        user = UserFactory.create()
+        group = CommodityGroupFactory.create()
+        commodity = CommodityFactory.create(group=group)
+        CommodityFactory.create(group=group, is_archived=True)
+        CommodityGroupFactory.create(is_archived=True)
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=self.URL)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+
+        data_response = PaginatedDataResponse[list[CommodityGroupWithCommoditiesBalancesDTO]](**response_json)
+        assert [item.id for item in data_response.data] == [group.id]
+        assert [item.id for item in data_response.data[0].commodities] == [commodity.id]
+
     @pytest.mark.parametrize(("page", "page_size"), [(1, 2), (2, 2)])
     def test_pagination(
         self,

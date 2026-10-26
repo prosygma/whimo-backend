@@ -12,6 +12,7 @@ from django.utils.safestring import SafeString
 from django.utils.translation import gettext_lazy as _
 from simple_history.admin import SimpleHistoryAdmin
 from unfold.admin import ModelAdmin
+from unfold.contrib.filters.admin import AllValuesCheckboxFilter
 from unfold.decorators import display
 from unfold.widgets import UnfoldAdminSelectWidget
 
@@ -70,18 +71,28 @@ class HarvestSeasonForm(forms.ModelForm):
         if group is None or not year or not start_month or not duration_months:
             return cleaned_data
 
+        # The month fields are what the admin edits; the stored dates are derived from them and
+        # have to be dropped, or editing a season fails against its own pre-edit period.
+        self.instance.start_date = None
+        self.instance.end_date = None
+
         preview = HarvestSeason(year=year, start_month=start_month, duration_months=duration_months)
         preview.full_clean(exclude=["commodity_group", "name", "start_date", "end_date"], validate_constraints=False)
 
         conflicts = Q(period__overlap=preview.period)
         if cleaned_data.get("status") == HarvestSeasonStatus.ACTIVE:
             conflicts |= Q(status=HarvestSeasonStatus.ACTIVE)
-        if (
+        conflict = (
             HarvestSeasonCommodity.objects.filter(conflicts, commodity__group=group)
             .exclude(harvest_season_id=self.instance.pk)
-            .exists()
-        ):
-            self.add_error("commodity_group", _("Another season overlaps or is active for this group."))
+            .select_related("harvest_season")
+            .first()
+        )
+        if conflict:
+            self.add_error(
+                "commodity_group",
+                _("%(season)s already covers this group, archive it first.") % {"season": conflict.harvest_season.name},
+            )
 
         return cleaned_data
 
@@ -102,7 +113,9 @@ class HarvestSeasonAdmin(ModelAdmin, SimpleHistoryAdmin):
     list_filter = (
         "status",
         "commodity_group",
+        ("country", AllValuesCheckboxFilter),
     )
+    list_filter_submit = True
     search_fields = ("name", "country")
     ordering = ("-start_date",)
 

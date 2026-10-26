@@ -6,7 +6,6 @@ import pytest
 from django.urls import reverse
 from freezegun.api import FrozenDateTimeFactory
 from syrupy import SnapshotAssertion
-from syrupy.filters import props
 
 from tests.factories.balances import BalanceFactory
 from tests.factories.commodities import CommodityFactory
@@ -58,14 +57,11 @@ class TestRecipeBasedConversion:
 
         # Assert
         assert response.status_code == HTTPStatus.OK, response_json
-        assert response_json == snapshot(exclude=props("id", "group_id"))
+        assert response_json == snapshot
 
         transactions = list(
             Transaction.objects.filter(created_by_id=user.id, type=TransactionType.CONVERSION).order_by("volume")
         )
-        assert response_json["data"]["group_id"] == str(transactions[0].group_id)
-        assert [item["id"] for item in response_json["data"]["inputs"]] == [str(transactions[0].id)]
-        assert [item["id"] for item in response_json["data"]["outputs"]] == [str(transactions[1].id)]
 
         expected_transaction_count = 2
         assert len(transactions) == expected_transaction_count
@@ -274,6 +270,39 @@ class TestRecipeBasedConversion:
 
         # Assert
         assert response.status_code == HTTPStatus.BAD_REQUEST
+
+    @pytest.mark.parametrize("archived_side", ["input", "output"])
+    def test_recipe_commodity_archived(self, archived_side: str, client: APIClient) -> None:
+        # Arrange
+        user = UserFactory.create()
+        harvest_season = HarvestSeasonFactory.create()
+        input_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
+        output_commodity = CommodityFactory.create(with_harvest_season=harvest_season)
+        archived_commodity = input_commodity if archived_side == "input" else output_commodity
+        archived_commodity.set_archived(True)
+
+        recipe = ConversionRecipeFactory.create(name="Test Recipe")
+        ConversionInputFactory.create(recipe=recipe, commodity=input_commodity, quantity=Decimal("10.0"))
+        ConversionOutputFactory.create(recipe=recipe, commodity=output_commodity, quantity=Decimal("5.0"))
+
+        BalanceFactory.create(user=user, commodity=input_commodity, volume=Decimal("20.0"))
+
+        request_data = {
+            "recipe_id": str(recipe.id),
+            "harvest_season_id": str(harvest_season.id),
+        }
+
+        client.login(user)
+
+        # Act
+        response = client.post(path=self.URL, data=request_data, format="json")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.BAD_REQUEST, response_json
+        assert response_json["code"] == "commodities.archived"
+        assert response_json["errors"]["commodity_id"] == str(archived_commodity.id)
+        assert not Transaction.objects.filter(created_by_id=user.id).exists()
 
     def test_insufficient_balance(
         self,

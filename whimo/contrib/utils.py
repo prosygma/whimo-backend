@@ -7,10 +7,14 @@ from typing import Any, Sequence, Type
 from django import forms
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import Model
+from django.db.models import Model, QuerySet
+from django.http import HttpRequest
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import SafeString
+from django.utils.translation import gettext_lazy as _
+from django_stubs_ext import StrPromise
+from unfold.contrib.filters.admin import AllValuesCheckboxFilter, RadioFilter
 from unfold.widgets import INPUT_CLASSES, SELECT_CLASSES
 
 from whimo.db.models import BaseModel
@@ -25,6 +29,29 @@ class ReadOnlyAdminMixin:
 
     def has_change_permission(self, _: WSGIRequest, __: Any | None = None) -> bool:
         return False
+
+
+class HarvestSeasonStatusFilter(AllValuesCheckboxFilter):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.title = _("harvest season status")
+
+
+class ArchivedStatusFilter(RadioFilter):
+    title = _("status")
+    parameter_name = "status"
+    all_option = None  # type: ignore[assignment]
+
+    def lookups(self, *__: Any) -> tuple[tuple[str, StrPromise], ...]:
+        return (("active", _("Active")), ("archived", _("Archived")), ("all", _("All")))
+
+    def value(self) -> str:
+        return super().value() or "active"
+
+    def queryset(self, _: HttpRequest, queryset: QuerySet) -> QuerySet:
+        if self.value() == "all":
+            return queryset
+        return queryset.filter(is_archived=self.value() == "archived")
 
 
 class NameVariantsWidget(forms.Widget):

@@ -119,6 +119,27 @@ class TestConversionRecipesList:
         assert len(data_response.data) == 1
         assert data_response.data[0].id == recipe_with_commodity.id
 
+    @pytest.mark.parametrize("archived_side", ["input", "output"])
+    def test_recipe_with_archived_commodity_hidden(self, archived_side: str, client: APIClient) -> None:
+        user = UserFactory.create()
+        recipe = ConversionRecipeFactory.create()
+        ConversionInputFactory.create(recipe=recipe)
+        ConversionOutputFactory.create(recipe=recipe)
+
+        archived_recipe = ConversionRecipeFactory.create()
+        ConversionInputFactory.create(recipe=archived_recipe, commodity__is_archived=archived_side == "input")
+        ConversionOutputFactory.create(recipe=archived_recipe, commodity__is_archived=archived_side == "output")
+
+        client.login(user)
+
+        response = client.get(path=self.URL)
+        response_json = response.json()
+
+        assert response.status_code == HTTPStatus.OK, response_json
+
+        data_response = PaginatedDataResponse[list[ConversionRecipeDTO]](**response_json)
+        assert [item.id for item in data_response.data] == [recipe.id]
+
     @pytest.mark.parametrize(("page", "page_size"), [(1, 2), (2, 2)])
     def test_pagination(
         self,
