@@ -12,8 +12,15 @@ from unfold.contrib.filters.admin import AllValuesCheckboxFilter, AutocompleteSe
 from unfold.contrib.import_export.forms import ExportForm
 from unfold.decorators import action, display
 
-from whimo.contrib.utils import ReadOnlyAdminMixin, change_link_with_icon, colored_text, text_with_icon
+from whimo.contrib.utils import (
+    HarvestSeasonStatusFilter,
+    ReadOnlyAdminMixin,
+    change_link_with_icon,
+    colored_text,
+    text_with_icon,
+)
 from whimo.db.enums import TransactionStatus, TransactionType
+from whimo.db.enums.harvest_seasons import HarvestSeasonStatus
 from whimo.db.enums.transactions import TransactionTraceability
 from whimo.db.models import Transaction
 from whimo.db.storages import TransactionsStorage
@@ -33,6 +40,8 @@ class TransactionAdmin(ReadOnlyAdminMixin, ModelAdmin, ExportActionMixin, Simple
         "status_labeled",
         "traceability_labeled",
         "commodity_link",
+        "harvest_season_link",
+        "harvest_season_status_labeled",
         "seller_link",
         "buyer_link",
         "created_by_link",
@@ -40,6 +49,8 @@ class TransactionAdmin(ReadOnlyAdminMixin, ModelAdmin, ExportActionMixin, Simple
     )
     list_filter = (
         ("commodity", AutocompleteSelectFilter),
+        ("harvest_season", AutocompleteSelectFilter),
+        ("harvest_season__status", HarvestSeasonStatusFilter),
         ("seller", AutocompleteSelectFilter),
         ("buyer", AutocompleteSelectFilter),
         ("created_by", AutocompleteSelectFilter),
@@ -49,19 +60,19 @@ class TransactionAdmin(ReadOnlyAdminMixin, ModelAdmin, ExportActionMixin, Simple
         ("created_at", RangeDateFilter),
     )
     list_filter_submit = True
-    list_select_related = ("commodity", "seller", "buyer", "created_by")
+    list_select_related = ("commodity", "harvest_season", "seller", "buyer", "created_by")
     search_fields = ("commodity__name", "commodity__code", "seller__username", "buyer__username")
     ordering = ("-created_at",)
 
     fieldsets = (
         (_("Transaction"), {"fields": ("status", "traceability", "seller", "buyer", "created_by")}),
-        (_("Commodity"), {"fields": ("commodity", "volume")}),
+        (_("Commodity"), {"fields": ("commodity", "volume", "harvest_season")}),
         (_("Location"), {"fields": ("location", "transaction_latitude", "transaction_longitude")}),
         (_("Metadata"), {"fields": ("id", "created_at", "updated_at")}),
     )
 
     readonly_fields = ("id", "created_at", "updated_at")
-    autocomplete_fields = ("commodity", "seller", "buyer")
+    autocomplete_fields = ("commodity", "harvest_season", "seller", "buyer")
 
     def get_export_queryset(self, request: HttpRequest) -> QuerySet[Transaction]:
         return (
@@ -115,6 +126,22 @@ class TransactionAdmin(ReadOnlyAdminMixin, ModelAdmin, ExportActionMixin, Simple
     @display(description="Commodity", ordering="commodity__name", label=True)
     def commodity_link(self, obj: Transaction) -> SafeString | None:
         return change_link_with_icon(obj.commodity, text=str(obj.commodity))
+
+    @display(description="Harvest Season", ordering="harvest_season__start_date", label=True)
+    def harvest_season_link(self, obj: Transaction) -> SafeString | None:
+        return change_link_with_icon(obj.harvest_season, text=str(obj.harvest_season))
+
+    @display(
+        description="Season Status",
+        ordering="harvest_season__status",
+        label={
+            HarvestSeasonStatus.ACTIVE.name: "success",
+            HarvestSeasonStatus.PAST.name: "info",
+            HarvestSeasonStatus.ARCHIVED.name: "warning",
+        },
+    )
+    def harvest_season_status_labeled(self, obj: Transaction) -> str:
+        return HarvestSeasonStatus(obj.harvest_season.status).name
 
     @display(description="Seller", ordering="seller__id", label=True)
     def seller_link(self, obj: Transaction) -> SafeString | None:

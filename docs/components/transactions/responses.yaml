@@ -10,9 +10,7 @@ TransactionListResponse:
               data:
                 type: array
                 items:
-                  oneOf:
-                    - $ref: './schemas.yaml#/TransactionDTO'
-                    - $ref: './schemas.yaml#/ConversionTransactionDTO'
+                  $ref: './schemas.yaml#/TransactionDTO'
 
 TransactionDetailResponse:
   description: Transaction details
@@ -267,23 +265,9 @@ ConversionCompletedResponse:
     application/json:
       schema:
         allOf:
-          - $ref: '../common/schemas.yaml#/DataResponse'
+          - $ref: '../common/schemas.yaml#/BaseResponse'
           - type: object
             properties:
-              data:
-                $ref: './schemas.yaml#/ConversionTransactionDTO'
               message:
                 type: string
                 default: Conversion completed successfully
-
-ConversionDetailResponse:
-  description: Conversion details
-  content:
-    application/json:
-      schema:
-        allOf:
-          - $ref: '../common/schemas.yaml#/DataResponse'
-          - type: object
-            properties:
-              data:
-                $ref: './schemas.yaml#/ConversionTransactionDTO'

@@ -122,3 +122,11 @@ class CommodityNotInHarvestSeasonError(BadRequest):
 
     def __init__(self, harvest_season_id: UUID, commodity_id: UUID) -> None:
         self.errors = {"harvest_season_id": harvest_season_id, "commodity_id": commodity_id}
+
+
+class CommodityArchivedError(BadRequest):
+    message = _("Commodity is archived")
+    code = "commodities.archived"
+
+    def __init__(self, commodity_id: UUID) -> None:
+        self.errors = {"commodity_id": commodity_id}

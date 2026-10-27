@@ -171,6 +171,26 @@ class TestTransactionsDetail:
         assert transaction.traceability is None
         assert data_response.data.traceability == TransactionTraceability.INCOMPLETE
 
+    def test_archived_commodity(self, client: APIClient) -> None:
+        # Arrange
+        user = UserFactory.create()
+        transaction = TransactionFactory.create(buyer=user, commodity__is_archived=True)
+
+        url = reverse(self.URL, args=(transaction.id,))
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=url)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+
+        data_response = DataResponse[TransactionDTO](**response_json)
+        assert data_response.data.commodity.id == transaction.commodity.id
+        assert data_response.data.commodity.name == transaction.commodity.name
+
     def test_transaction_does_not_exist(
         self,
         client: APIClient,

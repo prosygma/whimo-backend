@@ -11,6 +11,7 @@ from pytest_mock import MockerFixture
 from syrupy import SnapshotAssertion
 
 from tests.factories.commodities import CommodityFactory, CommodityGroupFactory
+from tests.factories.conversions import ConversionInputFactory, ConversionOutputFactory, ConversionRecipeFactory
 from tests.factories.users import UserFactory
 from tests.helpers.clients import APIClient
 from tests.helpers.constants import DEFAULT_DATETIME, MEDIUM_BATCH_SIZE, SMALL_BATCH_SIZE
@@ -139,6 +140,44 @@ class TestCommoditiesList:
         assert len(data_response.data) == 1
         assert data_response.data[0].id == commodity.id
         assert data_response.data[0].group.id == group.id
+
+    def test_archived_hidden(self, client: APIClient) -> None:
+        # Arrange
+        user = UserFactory.create()
+        commodity = CommodityFactory.create()
+        CommodityFactory.create(is_archived=True)
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=self.URL)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+
+        data_response = PaginatedDataResponse[list[CommodityWithGroupDTO]](**response_json)
+        assert [item.id for item in data_response.data] == [commodity.id]
+
+    def test_has_recipe_ignores_recipes_with_archived_commodities(self, client: APIClient) -> None:
+        # Arrange
+        user = UserFactory.create()
+        commodity = CommodityFactory.create()
+        recipe = ConversionRecipeFactory.create()
+        ConversionInputFactory.create(recipe=recipe, commodity=commodity)
+        ConversionOutputFactory.create(recipe=recipe, commodity__is_archived=True)
+
+        client.login(user)
+
+        # Act
+        response = client.get(path=self.URL)
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response_json
+
+        data_response = PaginatedDataResponse[list[CommodityWithGroupDTO]](**response_json)
+        assert [(item.id, item.has_recipe) for item in data_response.data] == [(commodity.id, False)]
 
     @pytest.mark.parametrize(("page", "page_size"), [(1, 2), (2, 2)])
     def test_pagination(

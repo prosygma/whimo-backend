@@ -635,18 +635,12 @@ paths:
         that season; omitting it returns everything. Every transaction carries a season, pending
         buyer-created requests included. Combined with commodity_id it backs the source transactions block of
         the balance detail screen.
-
-        Without group_conversions every item is a TransactionDTO and a conversion appears as one row per input and
-        output. With group_conversions=true a conversion is one ConversionTransactionDTO item; tell the two apart by
-        the inputs field.
       operationId: listTransactions
       parameters:
         - $ref: './components/common/parameters.yaml#/SearchParameter'
         - $ref: './components/common/parameters.yaml#/PageParameter'
         - $ref: './components/common/parameters.yaml#/PageSizeParameter'
         - $ref: './components/transactions/parameters.yaml#/OrderingsParameter'
-        - $ref: './components/transactions/parameters.yaml#/TypeParameter'
-        - $ref: './components/transactions/parameters.yaml#/GroupConversionsParameter'
         - $ref: './components/transactions/parameters.yaml#/StatusParameter'
         - $ref: './components/transactions/parameters.yaml#/ActionParameter'
         - $ref: './components/transactions/parameters.yaml#/CreatedAtFromParameter'
@@ -673,15 +667,11 @@ paths:
       description: |
         Downloads CSV file containing filtered transactions data based on query parameters. One row per
         transaction, each carrying the id, name, start date, end date and status of its harvest season.
-        group_conversions never merges rows here: a conversion stays one row per input and output. It only
-        makes action=buying and action=selling leave conversions out, as in the list.
         With include_chain the file also holds the upstream history of those transactions and a Tier column.
       operationId: downloadTransactionListCsv
       parameters:
         - $ref: './components/common/parameters.yaml#/SearchParameter'
         - $ref: './components/transactions/parameters.yaml#/IncludeChainParameter'
-        - $ref: './components/transactions/parameters.yaml#/TypeParameter'
-        - $ref: './components/transactions/parameters.yaml#/GroupConversionsParameter'
         - $ref: './components/transactions/parameters.yaml#/StatusParameter'
         - $ref: './components/transactions/parameters.yaml#/ActionParameter'
         - $ref: './components/transactions/parameters.yaml#/CreatedAtFromParameter'
@@ -713,8 +703,6 @@ paths:
       operationId: downloadTransactionListLocationBundle
       parameters:
         - $ref: './components/common/parameters.yaml#/SearchParameter'
-        - $ref: './components/transactions/parameters.yaml#/TypeParameter'
-        - $ref: './components/transactions/parameters.yaml#/GroupConversionsParameter'
         - $ref: './components/transactions/parameters.yaml#/StatusParameter'
         - $ref: './components/transactions/parameters.yaml#/ActionParameter'
         - $ref: './components/transactions/parameters.yaml#/CreatedAtFromParameter'
@@ -746,8 +734,6 @@ paths:
       operationId: getTransactionListLocationSummary
       parameters:
         - $ref: './components/common/parameters.yaml#/SearchParameter'
-        - $ref: './components/transactions/parameters.yaml#/TypeParameter'
-        - $ref: './components/transactions/parameters.yaml#/GroupConversionsParameter'
         - $ref: './components/transactions/parameters.yaml#/StatusParameter'
         - $ref: './components/transactions/parameters.yaml#/ActionParameter'
         - $ref: './components/transactions/parameters.yaml#/CreatedAtFromParameter'
@@ -849,7 +835,6 @@ paths:
         Creates conversion transactions to transform input commodities into output commodities.
         harvest_season_id is required and must cover every input and output commodity of the recipe;
         a commodity outside it returns 400 and insufficient balance in that season returns 409.
-        Returns the created conversion, so an offline client can replace its placeholder.
       operationId: createConversionTransaction
       requestBody:
         $ref: './components/transactions/requests.yaml#/ConversionCreateRequest'
@@ -866,24 +851,6 @@ paths:
           $ref: './components/common/errors.yaml#/NotFoundError'
         '409':
           $ref: './components/harvest_seasons/errors.yaml#/HarvestSeasonConflictError'
-
-  /transactions/conversion/{group_id}/:
-    get:
-      tags: [ Transactions ]
-      summary: Get conversion details
-      description: Returns one conversion with all of its inputs and outputs. Only its owner can read it.
-      operationId: getConversionDetails
-      parameters:
-        - $ref: './components/transactions/parameters.yaml#/GroupIdParameter'
-      responses:
-        '200':
-          $ref: './components/transactions/responses.yaml#/ConversionDetailResponse'
-        '401':
-          $ref: './components/common/errors.yaml#/UnauthorizedError'
-        '403':
-          $ref: './components/common/errors.yaml#/ForbiddenError'
-        '404':
-          $ref: './components/common/errors.yaml#/NotFoundError'
 
   /transactions/{transaction_id}/:
     get:

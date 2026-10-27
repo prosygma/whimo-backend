@@ -4,14 +4,13 @@ from whimo.commodities.mappers.commodities_groups import CommoditiesGroupsMapper
 from whimo.commodities.schemas.dto import CommodityDTO, CommodityWithBalanceDTO, CommodityWithGroupDTO
 from whimo.common.utils import localized_name
 from whimo.db.models import Commodity
+from whimo.db.models.commodities import COMMODITY_HAS_RECIPE_FIELD
 
 
 @dataclass(slots=True)
 class CommoditiesMapper:
     @staticmethod
     def to_dto(commodity: Commodity) -> CommodityDTO:
-        from whimo.db.models.commodities import COMMODITY_HAS_RECIPE_FIELD
-
         has_recipe = getattr(commodity, COMMODITY_HAS_RECIPE_FIELD, False)
 
         return CommodityDTO(
@@ -24,8 +23,6 @@ class CommoditiesMapper:
 
     @staticmethod
     def to_dto_with_group(commodity: Commodity) -> CommodityWithGroupDTO:
-        from whimo.db.models.commodities import COMMODITY_HAS_RECIPE_FIELD
-
         group = CommoditiesGroupsMapper.to_dto(commodity.group)
         has_recipe = getattr(commodity, COMMODITY_HAS_RECIPE_FIELD, False)
 
@@ -48,8 +45,6 @@ class CommoditiesMapper:
 
     @staticmethod
     def to_dto_with_balance(commodity: Commodity) -> CommodityWithBalanceDTO:
-        from whimo.db.models.commodities import COMMODITY_HAS_RECIPE_FIELD
-
         group = CommoditiesGroupsMapper.to_dto(commodity.group)
         has_recipe = getattr(commodity, COMMODITY_HAS_RECIPE_FIELD, False)
 

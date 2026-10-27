@@ -1,10 +1,8 @@
 import csv
 import io
 from datetime import date, timedelta
-from decimal import Decimal
 from http import HTTPStatus
 from unittest.mock import patch
-from uuid import UUID
 
 import factory
 import pytest
@@ -17,18 +15,12 @@ from syrupy import SnapshotAssertion
 from tests.apps.transactions.test_transactions_chain_bundle_download import farm, trade
 from tests.factories.commodities import CommodityFactory
 from tests.factories.harvest_seasons import HarvestSeasonCommodityFactory, HarvestSeasonFactory
-from tests.factories.transactions import TransactionFactory, create_conversion
+from tests.factories.transactions import TransactionFactory
 from tests.factories.users import UserFactory
 from tests.helpers.clients import APIClient
 from tests.helpers.constants import DEFAULT_DATETIME, MEDIUM_BATCH_SIZE, SMALL_BATCH_SIZE
 from tests.helpers.utils import queries_to_str
-from whimo.db.enums import (
-    HarvestSeasonStatus,
-    TransactionAction,
-    TransactionLocation,
-    TransactionStatus,
-    TransactionType,
-)
+from whimo.db.enums import HarvestSeasonStatus, TransactionAction, TransactionLocation, TransactionStatus
 
 pytestmark = [pytest.mark.django_db]
 
@@ -176,6 +168,22 @@ class TestTransactionsListCsvDownload:
 
         assert len(rows) == 1
         assert rows[0]["Transaction ID"] == str(transaction.id)
+        assert rows[0]["Commodity ID"] == str(transaction.commodity.id)
+
+    def test_archived_commodity_exported(self, client: APIClient) -> None:
+        user = UserFactory.create()
+        transaction = TransactionFactory.create(buyer=user, commodity__is_archived=True)
+
+        client.login(user)
+
+        response = client.get(path=self.URL)
+
+        assert response.status_code == HTTPStatus.OK
+
+        csv_content = response.content.decode("utf-8")
+        rows = list(csv.DictReader(io.StringIO(csv_content), delimiter=";"))
+
+        assert [row["Transaction ID"] for row in rows] == [str(transaction.id)]
         assert rows[0]["Commodity ID"] == str(transaction.commodity.id)
 
     def test_every_row_carries_its_season(
@@ -345,25 +353,6 @@ class TestTransactionsListCsvDownload:
 
         assert response.status_code == HTTPStatus.UNAUTHORIZED, response_json
         assert response_json == snapshot
-
-    def test_group_conversions_keeps_one_row_per_transaction(self, client: APIClient) -> None:
-        user = UserFactory.create()
-        purchase = TransactionFactory.create(type=TransactionType.DOWNSTREAM, buyer=user)
-        conversion = create_conversion(user, UUID(int=1), inputs=[Decimal(10)], outputs=[Decimal(5), Decimal(3)])
-
-        client.login(user)
-
-        response = client.get(path=f"{self.URL}?group_conversions=true")
-        buying_response = client.get(path=f"{self.URL}?group_conversions=true&action={TransactionAction.BUYING}")
-
-        assert response.status_code == HTTPStatus.OK
-        csv_reader = csv.DictReader(io.StringIO(response.content.decode("utf-8")), delimiter=";")
-        rows = {row["Transaction ID"] for row in csv_reader}
-        assert rows == {str(transaction.id) for transaction in [purchase, *conversion]}
-
-        assert buying_response.status_code == HTTPStatus.OK
-        csv_reader = csv.DictReader(io.StringIO(buying_response.content.decode("utf-8")), delimiter=";")
-        assert [row["Transaction ID"] for row in csv_reader] == [str(purchase.id)]
 
     def test_include_chain_adds_the_upstream_suppliers(self, client: APIClient) -> None:
         user, trader, farmer = UserFactory.create(), UserFactory.create(), UserFactory.create()

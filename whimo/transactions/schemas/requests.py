@@ -11,13 +11,7 @@ from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from whimo.common.schemas.base import BaseRequest, OrderingRequestMixin, PaginationRequest
 from whimo.common.schemas.dto import CreateGadgetDTO
-from whimo.db.enums import (
-    HarvestSeasonStatus,
-    TransactionAction,
-    TransactionLocation,
-    TransactionStatus,
-    TransactionType,
-)
+from whimo.db.enums import HarvestSeasonStatus, TransactionAction, TransactionLocation, TransactionStatus
 from whimo.transactions.schemas.dto import FeatureCollection
 from whimo.transactions.schemas.errors import (
     CommodityGroupRequiredError,
@@ -179,7 +173,6 @@ class TransactionStatusUpdateRequest(BaseRequest):
 
 class TransactionListRequest(PaginationRequest, OrderingRequestMixin):
     search: str | None = None
-    type: TransactionType | None = None
     status: TransactionStatus | None = None
     action: TransactionAction | None = None
     created_at_from: datetime | None = None
@@ -189,7 +182,6 @@ class TransactionListRequest(PaginationRequest, OrderingRequestMixin):
     buyer_id: UUID | None = None
     harvest_season_id: UUID | None = None
     harvest_season_status: HarvestSeasonStatus | None = None
-    group_conversions: bool = False
     include_chain: bool = False
 
     @property

@@ -24,7 +24,7 @@ from whimo.analytics.schemas.dto import (
 )
 from whimo.common.test_mode import is_test_mode
 from whimo.common.utils import get_user_model, localized_name
-from whimo.db.enums.transactions import TransactionTraceability
+from whimo.db.enums.transactions import TransactionStatus, TransactionTraceability
 from whimo.db.models import Balance, HarvestSeason, Transaction
 from whimo.transactions.constants import LOCATION_S3_PREFIX
 
@@ -252,8 +252,6 @@ class AnalyticsService:
 
     @staticmethod
     def _get_all_chain_transactions_for_user(transaction_id: UUID, commodity_id: UUID) -> QuerySet[Transaction]:
-        from whimo.db.enums.transactions import TransactionStatus
-
         chain_transactions = Transaction.objects.none()
         base_query = Transaction.objects.filter(commodity_id=commodity_id)
 

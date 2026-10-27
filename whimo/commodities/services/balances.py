@@ -2,14 +2,14 @@ from dataclasses import dataclass
 from typing import cast
 from uuid import UUID
 
-from django.db.models import Case, IntegerField, OuterRef, Q, QuerySet, Subquery, Value, When
+from django.db.models import Case, Exists, IntegerField, OuterRef, Q, QuerySet, Subquery, Value, When
 
 from whimo.commodities.schemas.requests import BalanceListRequest
 from whimo.common.schemas.base import Pagination
 from whimo.common.utils import get_user_model, paginate_queryset
 from whimo.db.enums import TransactionStatus
 from whimo.db.enums.transactions import TransactionTraceability
-from whimo.db.models import Balance, Transaction
+from whimo.db.models import Balance, ConversionInput, Transaction
 
 User = get_user_model()
 
@@ -30,10 +30,6 @@ class BalancesService:
 
     @staticmethod
     def _filter_balances(user_id: UUID, request: BalanceListRequest) -> QuerySet[Balance]:
-        from django.db.models import Exists
-
-        from whimo.db.models import ConversionInput
-
         has_recipe_subquery = Exists(ConversionInput.objects.filter(commodity=OuterRef("commodity")))
         worst_traceability_subquery = Subquery(
             Transaction.objects.filter(

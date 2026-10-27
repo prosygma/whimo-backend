@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from datetime import timedelta
 from decimal import Decimal
-from typing import cast
 from uuid import UUID
 
 from django.conf import settings
@@ -13,13 +12,7 @@ from whimo.db.enums import TransactionAction, TransactionLocation, TransactionSt
 from whimo.db.enums.transactions import TransactionTraceability
 from whimo.db.models import ConversionRecipe, Transaction
 from whimo.harvest_seasons.mappers import HarvestSeasonsMapper
-from whimo.transactions.schemas.dto import (
-    ConversionDTO,
-    ConversionItemDTO,
-    ConversionRecipeDTO,
-    ConversionTransactionDTO,
-    TransactionDTO,
-)
+from whimo.transactions.schemas.dto import ConversionDTO, ConversionRecipeDTO, TransactionDTO
 from whimo.transactions.schemas.requests import TransactionDownstreamCreateRequest, TransactionProducerCreateRequest
 from whimo.users.mappers.users import UsersMapper
 
@@ -44,7 +37,6 @@ class TransactionsMapper:
             created_at=entity.created_at,
             # ---
             type=TransactionType(entity.type),
-            group_id=entity.group_id,
             status=TransactionStatus(entity.status),
             action=action,
             traceability=TransactionTraceability(entity.traceability) if entity.traceability else None,
@@ -73,42 +65,8 @@ class TransactionsMapper:
         )
 
     @staticmethod
-    def to_dto_list(
-        entities: list[Transaction | list[Transaction]],
-        user_id: UUID,
-    ) -> list[TransactionDTO | ConversionTransactionDTO]:
-        return [
-            TransactionsMapper.to_conversion_dto(entity)
-            if isinstance(entity, list)
-            else TransactionsMapper.to_dto(entity, user_id)
-            for entity in entities
-        ]
-
-    @staticmethod
-    def to_conversion_dto(entities: list[Transaction]) -> ConversionTransactionDTO:
-        entities = sorted(entities, key=lambda entity: -abs(entity.volume))
-        head = entities[0]
-
-        return ConversionTransactionDTO(
-            group_id=cast(UUID, head.group_id),
-            created_at=head.created_at,
-            # ---
-            type=TransactionType(head.type),
-            status=TransactionStatus(head.status),
-            traceability=TransactionTraceability(head.traceability) if head.traceability else None,
-            # ---
-            harvest_season=HarvestSeasonsMapper.to_dto(head.harvest_season),
-            inputs=[TransactionsMapper.to_conversion_item_dto(entity) for entity in entities if entity.seller_id],
-            outputs=[TransactionsMapper.to_conversion_item_dto(entity) for entity in entities if entity.buyer_id],
-        )
-
-    @staticmethod
-    def to_conversion_item_dto(entity: Transaction) -> ConversionItemDTO:
-        return ConversionItemDTO(
-            id=entity.id,
-            commodity=CommoditiesMapper.to_dto_with_group(entity.commodity),
-            volume=entity.volume,
-        )
+    def to_dto_list(entities: list[Transaction], user_id: UUID) -> list[TransactionDTO]:
+        return [TransactionsMapper.to_dto(entity, user_id) for entity in entities]
 
     @staticmethod
     def from_producer_request(

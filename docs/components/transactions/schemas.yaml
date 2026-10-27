@@ -54,13 +54,6 @@ TransactionDTO:
     type:
       $ref: '#/TransactionType'
       description: Type of transaction
-    group_id:
-      type: string
-      format: uuid
-      description: |
-        Conversion the row belongs to. All inputs and outputs of one conversion share it. Null for producer and
-        downstream transactions, and for conversions created before grouping existed.
-      nullable: true
     status:
       $ref: '#/TransactionStatus'
       description: Status of the transaction
@@ -150,52 +143,6 @@ TransactionDTO:
       format: uuid
       description: ID of the user who created the transaction
       nullable: true
-
-ConversionItemDTO:
-  type: object
-  properties:
-    id:
-      type: string
-      format: uuid
-      description: ID of the transaction row behind this input or output
-    commodity:
-      $ref: '../commodities/schemas.yaml#/CommodityWithGroupDTO'
-    volume:
-      type: number
-      format: double
-      description: Signed volume, negative for an input and positive for an output
-      examples: [ -1000 ]
-
-ConversionTransactionDTO:
-  type: object
-  description: |
-    One conversion with all of its inputs and outputs. Inputs and outputs are ordered by volume, largest first.
-  properties:
-    group_id:
-      type: string
-      format: uuid
-      description: Identifier of the conversion, used by GET /transactions/conversion/{group_id}/
-    created_at:
-      type: string
-      format: date-time
-    type:
-      $ref: '#/TransactionType'
-      description: Always conversion
-    status:
-      $ref: '#/TransactionStatus'
-    traceability:
-      $ref: '#/TransactionTraceability'
-      nullable: true
-    harvest_season:
-      $ref: '../harvest_seasons/schemas.yaml#/HarvestSeasonDTO'
-    inputs:
-      type: array
-      items:
-        $ref: '#/ConversionItemDTO'
-    outputs:
-      type: array
-      items:
-        $ref: '#/ConversionItemDTO'
 
 LocationSummaryDTO:
   type: object

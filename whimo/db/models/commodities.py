@@ -8,9 +8,11 @@ from django.db import models, transaction
 from django.db.models import Exists, OuterRef, QuerySet, Subquery, Sum
 from django.utils.translation import gettext_lazy as _
 from simple_history.models import HistoricalRecords
+from simple_history.utils import bulk_update_with_history
 
 from whimo.db.enums import HarvestSeasonStatus
 from whimo.db.models import Balance, BaseModel
+from whimo.db.models.conversions import ConversionInput
 
 COMMODITY_BALANCE_FIELD = "_balance"
 COMMODITY_HAS_RECIPE_FIELD = "_has_recipe"
@@ -38,9 +40,12 @@ class CommodityManager(models.Manager):
         )
 
     def annotate_has_recipe(self) -> QuerySet["Commodity"]:
-        from whimo.db.models import ConversionInput
-
-        has_recipe_subquery = Exists(ConversionInput.objects.filter(commodity=OuterRef("pk")))
+        recipe_inputs = (
+            ConversionInput.objects.filter(commodity=OuterRef("pk"))
+            .exclude(recipe__inputs__commodity__is_archived=True)
+            .exclude(recipe__outputs__commodity__is_archived=True)
+        )
+        has_recipe_subquery = Exists(recipe_inputs)
         return self.annotate(**{COMMODITY_HAS_RECIPE_FIELD: has_recipe_subquery})
 
 
@@ -51,6 +56,7 @@ class CommodityGroup(BaseModel):
         blank=True,
         help_text=_("Name translations keyed by language code"),
     )
+    is_archived = models.BooleanField(default=False, help_text=_("Archived groups are hidden from new data entry"))
 
     history = HistoricalRecords(
         excluded_fields=(
@@ -73,6 +79,15 @@ class CommodityGroup(BaseModel):
     def __str__(self) -> str:
         return self.name
 
+    def set_archived(self, is_archived: bool) -> None:
+        with transaction.atomic():
+            self.is_archived = is_archived
+            self.save(update_fields=["is_archived", "updated_at"])
+            commodities = list(self.commodities.exclude(is_archived=is_archived))
+            for commodity in commodities:
+                commodity.is_archived = is_archived
+            bulk_update_with_history(commodities, Commodity, ["is_archived"])
+
 
 class Commodity(BaseModel):
     code = models.CharField(max_length=20, unique=True, help_text=_("Commodity code"))
@@ -89,6 +104,7 @@ class Commodity(BaseModel):
         related_name="commodities",
         help_text=_("Commodity group"),
     )
+    is_archived = models.BooleanField(default=False, help_text=_("Archived commodities are hidden from new data entry"))
 
     objects = CommodityManager()
 
@@ -115,6 +131,10 @@ class Commodity(BaseModel):
                 .distinct()
             )
             through.objects.bulk_create(through(commodity=self, **season) for season in seasons)
+
+    def set_archived(self, is_archived: bool) -> None:
+        self.is_archived = is_archived
+        self.save(update_fields=["is_archived", "updated_at"])
 
     @property
     def balance(self) -> Decimal | None:

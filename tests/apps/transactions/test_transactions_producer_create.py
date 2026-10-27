@@ -218,6 +218,25 @@ class TestTransactionsProducerCreate:
         assert response_json["code"] == "harvest_seasons.active_not_configured"
         assert not Transaction.objects.filter(created_by_id=user.id).exists()
 
+    def test_commodity_archived(self, client: APIClient) -> None:
+        # Arrange
+        user = UserFactory.create()
+        commodity = CommodityFactory.create(is_archived=True)
+
+        request_data = {"commodity_id": str(commodity.id), "volume": 1, "is_buying_from_farmer": True}
+
+        client.login(user)
+
+        # Act
+        response = client.post(path=self.URL, data=request_data, format="multipart")
+        response_json = response.json()
+
+        # Assert
+        assert response.status_code == HTTPStatus.BAD_REQUEST, response_json
+        assert response_json["code"] == "commodities.archived"
+        assert response_json["errors"]["commodity_id"] == str(commodity.id)
+        assert not Transaction.objects.filter(created_by_id=user.id).exists()
+
     @pytest.mark.parametrize("location", [TransactionLocation.QR, TransactionLocation.GPS])
     def test_full_traceability(  # noqa: PLR0913 Too many arguments in function definition
         self,

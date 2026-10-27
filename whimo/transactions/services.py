@@ -42,6 +42,7 @@ from whimo.transactions.schemas.dto import (
 from whimo.transactions.schemas.errors import (
     ActiveHarvestSeasonNotConfiguredError,
     AtLeastOneInputRequiredError,
+    CommodityArchivedError,
     CommodityNotInHarvestSeasonError,
     InsufficientHarvestSeasonBalanceError,
     InvalidRecipeOverrideError,
@@ -83,20 +84,9 @@ class TransactionsService:
         return transaction
 
     @staticmethod
-    def list_transactions(
-        user_id: UUID,
-        request: TransactionListRequest,
-    ) -> tuple[list[Transaction | list[Transaction]], Pagination]:
-        queryset = TransactionsStorage.filter_transactions(user_id, request, request.group_conversions)
-        items, pagination = paginate_queryset(queryset=queryset, request=request)
-
-        group_ids = {item.group_id for item in items if item.group_id} if request.group_conversions else set()
-        conversions = TransactionsStorage.get_conversions(group_ids) if group_ids else {}
-        return [conversions.get(item.group_id, item) if item.group_id else item for item in items], pagination
-
-    @staticmethod
-    def get_conversion(user_id: UUID, group_id: UUID) -> list[Transaction]:
-        return TransactionsStorage.get_user_conversion(user_id, group_id)
+    def list_transactions(user_id: UUID, request: TransactionListRequest) -> tuple[list[Transaction], Pagination]:
+        queryset = TransactionsStorage.filter_transactions(user_id, request)
+        return paginate_queryset(queryset=queryset, request=request)
 
     @staticmethod
     def get_seller_traceability_counts(user_id: UUID, transaction_id: UUID) -> TraceabilityCountsDTO:
@@ -112,6 +102,9 @@ class TransactionsService:
             commodity = Commodity.objects.get(pk=request.commodity_id)
         except Commodity.DoesNotExist as err:
             raise NotFound(errors={"commodity": [request.commodity_id]}) from err
+
+        if commodity.is_archived:
+            raise CommodityArchivedError(commodity.pk)
 
         harvest_season_id = TransactionsService._resolve_harvest_season_id(commodity.pk, request.harvest_season_id)
         balance, _ = Balance.objects.get_or_create(
@@ -143,8 +136,13 @@ class TransactionsService:
     @staticmethod
     @db_transaction.atomic
     def create_downstream(user_id: UUID, request: TransactionDownstreamCreateRequest) -> Transaction:
-        if not Commodity.objects.filter(pk=request.commodity_id).exists():
-            raise NotFound(errors={"commodity": [request.commodity_id]})
+        try:
+            commodity = Commodity.objects.get(pk=request.commodity_id)
+        except Commodity.DoesNotExist as err:
+            raise NotFound(errors={"commodity": [request.commodity_id]}) from err
+
+        if commodity.is_archived:
+            raise CommodityArchivedError(commodity.pk)
 
         recipient, is_created = TransactionsService._get_or_create_recipient(request.recipient)
         recipient_id = recipient.id if recipient else None
@@ -373,6 +371,8 @@ class TransactionsService:
         except ConversionRecipe.DoesNotExist as err:
             raise RecipeNotFoundError from err
 
+        TransactionsService._validate_recipe_commodities_active(recipe)
+
         recipe_input_ids = {inp.commodity_id for inp in recipe.inputs_list}
         recipe_output_ids = {out.commodity_id for out in recipe.outputs_list}
 
@@ -446,7 +446,7 @@ class TransactionsService:
 
             Transaction.objects.bulk_create(all_transactions)
 
-        return TransactionsStorage.get_user_conversion(user_id, group_id)
+            return all_transactions
 
     @staticmethod
     def _upload_location_file(transaction_id: UUID, location_file: InMemoryUploadedFile | None) -> None:
@@ -747,6 +747,13 @@ class TransactionsService:
             raise NotFound(errors={"commodities": ["One or more commodities do not exist"]})
 
     @staticmethod
+    def _validate_recipe_commodities_active(recipe: ConversionRecipe) -> None:
+        commodities = [item.commodity for item in recipe.inputs_list] + [item.commodity for item in recipe.outputs_list]
+        for commodity in commodities:
+            if commodity.is_archived:
+                raise CommodityArchivedError(commodity.pk)
+
+    @staticmethod
     def _resolve_harvest_season_id(commodity_id: UUID, harvest_season_id: UUID | None) -> UUID:
         if not harvest_season_id:
             return TransactionsService._get_active_harvest_season_id(commodity_id)
@@ -887,7 +894,11 @@ class TransactionsService:
 
     @staticmethod
     def _filter_conversion_recipes(request: ConversionRecipeListRequest) -> QuerySet[ConversionRecipe]:
-        queryset = ConversionRecipe.objects.prefetch_conversion_data()
+        queryset = (
+            ConversionRecipe.objects.prefetch_conversion_data()
+            .exclude(inputs__commodity__is_archived=True)
+            .exclude(outputs__commodity__is_archived=True)
+        )
 
         if search := request.search:
             queryset = queryset.filter(Q(name__icontains=search))

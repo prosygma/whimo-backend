@@ -1,46 +1,6 @@
 # serializer version: 1
 # name: TestRecipeBasedConversion.test_success_with_recipe_defaults
   dict({
-    'data': dict({
-      'created_at': '2020-01-01T00:00:00Z',
-      'harvest_season': dict({
-        'end_date': '2026-09-01',
-        'name': 'front 2025/26',
-        'start_date': '2025-09-01',
-        'status': 'active',
-      }),
-      'inputs': list([
-        dict({
-          'commodity': dict({
-            'code': '8714',
-            'group': dict({
-              'name': 'seat',
-            }),
-            'has_recipe': False,
-            'name': 'ok',
-            'unit': 'tons',
-          }),
-          'volume': -10.0,
-        }),
-      ]),
-      'outputs': list([
-        dict({
-          'commodity': dict({
-            'code': '1858',
-            'group': dict({
-              'name': 'light',
-            }),
-            'has_recipe': False,
-            'name': 'Democrat',
-            'unit': 'tons',
-          }),
-          'volume': 5.0,
-        }),
-      ]),
-      'status': 'accepted',
-      'traceability': 'incomplete',
-      'type': 'conversion',
-    }),
     'message': 'Conversion completed successfully',
     'success': True,
   })

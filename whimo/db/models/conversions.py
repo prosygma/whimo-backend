@@ -1,5 +1,6 @@
 from typing import cast
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
@@ -67,6 +68,14 @@ class ConversionRecipe(BaseModel):
         ordering = ("-created_at",)
 
 
+def _validate_commodity_not_archived(item: "ConversionInput | ConversionOutput") -> None:
+    if not item.commodity_id or not item.commodity.is_archived:
+        return
+    if type(item).objects.filter(pk=item.pk, commodity_id=item.commodity_id).exists():
+        return
+    raise ValidationError({"commodity": _("An archived commodity cannot be used in conversion rules.")})
+
+
 class ConversionInput(BaseModel):
     recipe = models.ForeignKey(
         "ConversionRecipe",
@@ -100,6 +109,10 @@ class ConversionInput(BaseModel):
         verbose_name_plural = _("Conversion Inputs")
         ordering = ("recipe", "commodity")
         unique_together = [("recipe", "commodity")]
+
+    def clean(self) -> None:
+        super().clean()
+        _validate_commodity_not_archived(self)
 
 
 class ConversionOutput(BaseModel):
@@ -135,3 +148,7 @@ class ConversionOutput(BaseModel):
         verbose_name_plural = _("Conversion Outputs")
         ordering = ("recipe", "commodity")
         unique_together = [("recipe", "commodity")]
+
+    def clean(self) -> None:
+        super().clean()
+        _validate_commodity_not_archived(self)

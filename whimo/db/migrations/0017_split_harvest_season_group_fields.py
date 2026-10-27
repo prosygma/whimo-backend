@@ -40,7 +40,7 @@ def backfill_harvest_season_fields(apps, schema_editor) -> None:
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("db", "0016_group_legacy_conversions"),
+        ("db", "0015_distinguish_commodity_names"),
     ]
 
     operations = [

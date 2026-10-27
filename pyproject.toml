@@ -32,9 +32,6 @@ dependencies = [
     "django-push-notifications[apns-async,fcm]>=3.2.1",
     "sentry-sdk[django]>=2.34.1",
     "telnyx>=4,<5",
-    "openpyxl>=3.1.5",
-    "segno>=1.6.6",
-    "reportlab>=5.0.1",
 ]
 
 [dependency-groups]
@@ -55,8 +52,6 @@ dev = [
     "syrupy>=4.9.1,<5",
     "tox>=4.25.0,<5",
     "types-authlib>=1.5.0.20250416",
-    "types-openpyxl>=3.1.5.20260827",
-    "zxing-cpp>=3.1.1",
 ]
 
 [tool.poetry]
@@ -132,7 +127,6 @@ module = [
     "firebase_admin.*",
     "import_export.*",
     "push_notifications.*",
-    "reportlab.*",
     "simple_history.*",
     "telnyx.*",
     "unfold.*",

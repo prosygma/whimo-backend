@@ -27,6 +27,8 @@ lint:
 
 test:
   stage: test
+  tags:
+    - aws
   image: ghcr.io/astral-sh/uv:debian
   before_script:
     - uv sync
@@ -67,75 +69,146 @@ test:
 .build: &build
   stage: build
   image: docker:28
-  before_script:
-    - echo $CI_JOB_TOKEN | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-  script:
-    - docker compose -f deploy/docker-compose.yaml build $SERVICE_NAME
-    - docker tag $IMAGE_NAME $CI_REGISTRY_IMAGE/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
-    - docker push $CI_REGISTRY_IMAGE/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+  tags:
+    - aws
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      aud: https://gitlab.com
   services:
     - name: docker:28-dind
       alias: docker
+  before_script:
+    - apk add --no-cache aws-cli curl jq
+    - >
+      aws_sts_output=$(aws sts assume-role-with-web-identity
+      --role-arn "arn:aws:iam::513952193387:role/gitlab-ci-cd-role-ec2-and-ecr"
+      --role-session-name "GitLabRunner-${CI_PROJECT_ID}-${CI_PIPELINE_ID}"
+      --web-identity-token ${GITLAB_OIDC_TOKEN}
+      --duration-seconds 3600
+      --region eu-west-1
+      --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'
+      --output text)
+    - export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" $aws_sts_output)
+    - aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 513952193387.dkr.ecr.eu-west-1.amazonaws.com
+  script:
+    - docker compose -f deploy/docker-compose.yaml build $SERVICE_NAME
+    - docker tag $IMAGE_NAME 513952193387.dkr.ecr.eu-west-1.amazonaws.com/$ECR_REPO:$IMAGE_TAG
+    - docker push 513952193387.dkr.ecr.eu-west-1.amazonaws.com/$ECR_REPO:$IMAGE_TAG
+  after_script:
+    # The image is already in ECR, so drop the local copies instead of keeping one per commit
+    - docker rmi $IMAGE_NAME 513952193387.dkr.ecr.eu-west-1.amazonaws.com/$ECR_REPO:$IMAGE_TAG || true
+    - docker builder prune -f
+    - docker image prune -f
 
-build:api:
+# API
+build:api:prod:
   <<: *build
   variables:
+    DOCKER_HOST: unix:///var/run/docker.sock
     SERVICE_NAME: api
     IMAGE_NAME: whimo-api
+    ECR_REPO: whimo-prod
+    IMAGE_TAG: api-$CI_COMMIT_SHORT_SHA
   rules:
-    - if: $CI_COMMIT_REF_NAME == "develop"
+    - if: $CI_COMMIT_REF_NAME == "master"
 
-build:docs:
+build:api:staging:
   <<: *build
   variables:
+    DOCKER_HOST: unix:///var/run/docker.sock
+    SERVICE_NAME: api
+    IMAGE_NAME: whimo-api
+    ECR_REPO: whimo-staging
+    IMAGE_TAG: api-$CI_COMMIT_SHORT_SHA
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "stage"
+
+# DOCS
+build:docs:prod:
+  <<: *build
+  variables:
+    DOCKER_HOST: unix:///var/run/docker.sock
     SERVICE_NAME: docs
     IMAGE_NAME: whimo-docs
+    ECR_REPO: whimo-prod
+    IMAGE_TAG: docs-$CI_COMMIT_SHORT_SHA
   rules:
-    - if: $CI_COMMIT_REF_NAME == "develop"
+    - if: $CI_COMMIT_REF_NAME == "master"
 
-# Build Stage
+build:docs:staging:
+  <<: *build
+  variables:
+    DOCKER_HOST: unix:///var/run/docker.sock
+    SERVICE_NAME: docs
+    IMAGE_NAME: whimo-docs
+    ECR_REPO: whimo-staging
+    IMAGE_TAG: docs-$CI_COMMIT_SHORT_SHA
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "stage"
+
+# Deploy
 # ----------------------------------------------------------------------------------------------------------------------
 
 .deploy: &deploy
   stage: deploy
   image: alpine:3.21
+  tags:
+    - aws
   before_script:
     - apk update && apk add openssh-client
-    - eval $(ssh-agent -s) && ssh-add <(echo "$SSH_PRIVATE_KEY" | base64 -d)
+    - eval $(ssh-agent -s)
+    - echo "$AWS_SSH_PRIVATE_KEY" | base64 -d > /tmp/ssh_key
+    - chmod 600 /tmp/ssh_key
+    - ssh-add /tmp/ssh_key
     - mkdir -p ~/.ssh
     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
   script:
-    - scp -P $SSH_PORT -r ./deploy $SSH_USER@$SSH_HOST:$WORKING_DIRECTORY
-    - ssh -p $SSH_PORT -T $SSH_USER@$SSH_HOST "mkdir -p $WORKING_DIRECTORY/config"
-    - echo "$ENV_FILE" | base64 -d | ssh -p $SSH_PORT -T $SSH_USER@$SSH_HOST "cat > $WORKING_DIRECTORY/config/.env.$ENV"
+    - scp -P "${AWS_SSH_PORT:-22}" -r ./deploy "${AWS_SSH_USER}@${AWS_SSH_HOST}:${WORKING_DIRECTORY}"
+    - ssh -p "${AWS_SSH_PORT:-22}" -T "${AWS_SSH_USER}@${AWS_SSH_HOST}" "mkdir -p '${WORKING_DIRECTORY}/config'"
+    - echo "$ENV_FILE" | base64 -d | ssh -p "${AWS_SSH_PORT:-22}" -T "${AWS_SSH_USER}@${AWS_SSH_HOST}" "cat > '${WORKING_DIRECTORY}/config/.env.${ENV}'"
     - |
-      ssh -p $SSH_PORT -T $SSH_USER@$SSH_HOST "
-        export ENV=$ENV
-        export DOCS_IMAGE_NAME=$DOCS_IMAGE_NAME
-        export API_IMAGE_NAME=$API_IMAGE_NAME
+      ssh -p "${AWS_SSH_PORT:-22}" -T "${AWS_SSH_USER}@${AWS_SSH_HOST}" "
+        printf 'API_IMAGE_NAME=%s\nDOCS_IMAGE_NAME=%s\nENV=%s\n' \"$API_IMAGE_NAME\" \"$DOCS_IMAGE_NAME\" \"$ENV\" > '${WORKING_DIRECTORY}/deploy/.env'
+      "
 
-        echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-        docker compose -f $WORKING_DIRECTORY/deploy/docker-compose.yaml pull
-        docker compose -f $WORKING_DIRECTORY/deploy/docker-compose.yaml down
-        docker compose -f $WORKING_DIRECTORY/deploy/docker-compose.yaml up -d
-        docker image prune -f
+    - |
+      ssh -p "${AWS_SSH_PORT:-22}" -T "${AWS_SSH_USER}@${AWS_SSH_HOST}" "
+        aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 513952193387.dkr.ecr.eu-west-1.amazonaws.com &&
+        cd '${WORKING_DIRECTORY}' &&
+        docker compose -f deploy/${DOCKER_COMPOSE_FILE} pull &&
+        docker compose -f deploy/${DOCKER_COMPOSE_FILE} up -d &&
+        docker image prune -f &&
         docker builder prune -f
       "
 
-deploy:dev:
+deploy:staging:
   <<: *deploy
   variables:
-    # SSH Credentials
-    SSH_HOST: $SSH_DEV_HOST
-    SSH_PORT: $SSH_DEV_PORT
-    SSH_USER: $SSH_DEV_USER
-    SSH_PRIVATE_KEY: $SSH_DEV_PRIVATE_KEY
-    # Environment
-    ENV: dev
-    ENV_FILE: $ENV_DEV_FILE
-    WORKING_DIRECTORY: /var/www/whimo
-    # Docker Compose Images
-    DOCS_IMAGE_NAME: $CI_REGISTRY_IMAGE/whimo-docs:$CI_COMMIT_SHORT_SHA
-    API_IMAGE_NAME: $CI_REGISTRY_IMAGE/whimo-api:$CI_COMMIT_SHORT_SHA
+    DOCKER_HOST: unix:///var/run/docker.sock
+    AWS_SSH_HOST: $AWS_SSH_HOST_STAGE
+    AWS_SSH_PORT: $AWS_SSH_PORT_STAGE
+    AWS_SSH_USER: $AWS_SSH_USER_STAGE
+    DOCKER_COMPOSE_FILE: docker-compose.staging.yaml
+    ENV: staging
+    ENV_FILE: $ENV_STAGE_FILE
+    WORKING_DIRECTORY: /opt/docker/whimo-backend-stage
+    DOCS_IMAGE_NAME: 513952193387.dkr.ecr.eu-west-1.amazonaws.com/whimo-staging:docs-$CI_COMMIT_SHORT_SHA
+    API_IMAGE_NAME: 513952193387.dkr.ecr.eu-west-1.amazonaws.com/whimo-staging:api-$CI_COMMIT_SHORT_SHA
   rules:
-    - if: $CI_COMMIT_REF_NAME == "develop"
+    - if: $CI_COMMIT_REF_NAME == "stage"
+
+deploy:prod:
+  <<: *deploy
+  variables:
+    DOCKER_HOST: unix:///var/run/docker.sock
+    AWS_SSH_HOST: $AWS_SSH_HOST_PROD
+    AWS_SSH_PORT: $AWS_SSH_PORT_PROD
+    AWS_SSH_USER: $AWS_SSH_USER_PROD
+    DOCKER_COMPOSE_FILE: docker-compose.prod.yaml
+    ENV: prod
+    ENV_FILE: $ENV_PROD_FILE
+    WORKING_DIRECTORY: /opt/docker/whimo-backend-prod
+    DOCS_IMAGE_NAME: 513952193387.dkr.ecr.eu-west-1.amazonaws.com/whimo-prod:docs-$CI_COMMIT_SHORT_SHA
+    API_IMAGE_NAME: 513952193387.dkr.ecr.eu-west-1.amazonaws.com/whimo-prod:api-$CI_COMMIT_SHORT_SHA
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "master"

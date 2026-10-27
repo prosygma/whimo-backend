@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+
+{% load i18n unfold %}
+
+{% block custom_breadcrumbs %}
+    {% include "unfold/helpers/breadcrumb_item.html" with link="" name=title %}
+{% endblock %}
+
+{% block content %}
+    {% component "unfold/components/text.html" with class="mb-8 text-font-subtle-light dark:text-font-subtle-dark" %}
+        {% blocktranslate count counter=commodities_count %}{{ counter }} commodity will be hidden from new transactions and conversion rules.{% plural %}{{ counter }} commodities will be hidden from new transactions and conversion rules.{% endblocktranslate %}
+        {% blocktranslate %}{{ recipes_count }} conversion rules that use them will be hidden. {{ transactions_count }} existing transactions stay unchanged.{% endblocktranslate %}
+    {% endcomponent %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% component "unfold/components/button.html" with submit=1 %}
+            <span class="material-symbols-outlined">archive</span>
+            {% translate "Archive" %}
+        {% endcomponent %}
+    </form>
+{% endblock %}

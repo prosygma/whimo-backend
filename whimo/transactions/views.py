@@ -126,18 +126,8 @@ class ConversionView(views.APIView):
 
     def post(self, request: Request, *_: Any, **__: Any) -> Response:
         payload = ConversionCreateRequest.parse(request)
-        conversion = TransactionsService.create_conversion(user_id=request.user.id, request=payload)
-
-        response = TransactionsMapper.to_conversion_dto(conversion)
-        return ConversionCompletedResponse(data=response).as_response()
-
-
-class ConversionDetailView(views.APIView):
-    def get(self, request: Request, group_id: UUID, *_: Any, **__: Any) -> Response:
-        conversion = TransactionsService.get_conversion(user_id=request.user.id, group_id=group_id)
-
-        response = TransactionsMapper.to_conversion_dto(conversion)
-        return DataResponse(data=response).as_response()
+        TransactionsService.create_conversion(user_id=request.user.id, request=payload)
+        return ConversionCompletedResponse().as_response()
 
 
 class TransactionStatusUpdateView(views.APIView):

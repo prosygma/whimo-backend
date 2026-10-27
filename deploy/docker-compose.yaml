@@ -143,6 +143,7 @@ services:
 
   minio:
     image: quay.io/minio/minio:RELEASE.2025-05-24T17-08-30Z
+    pull_policy: missing
     restart: always
     hostname: minio.local
     command: [ "server", "/data", "--console-address", ":9001" ]

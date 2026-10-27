@@ -4,7 +4,6 @@ from whimo.transactions.views import (
     ChainCsvDownloadView,
     ChainFeatureCollectionDownloadView,
     ChainLocationBundleDownloadView,
-    ConversionDetailView,
     ConversionView,
     TransactionDetailView,
     TransactionDownstreamCreateView,
@@ -32,7 +31,6 @@ urlpatterns = [
     path("producer/", TransactionProducerCreateView.as_view(), name="transactions_producer_create"),
     path("downstream/", TransactionDownstreamCreateView.as_view(), name="transactions_downstream_create"),
     path("conversion/", ConversionView.as_view(), name="transactions_conversion"),
-    path("conversion/<uuid:group_id>/", ConversionDetailView.as_view(), name="transactions_conversion_detail"),
     path("<uuid:transaction_id>/", TransactionDetailView.as_view(), name="transactions_detail"),
     path(
         "<uuid:transaction_id>/traceability-counts/",

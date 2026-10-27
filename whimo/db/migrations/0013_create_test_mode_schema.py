@@ -17,7 +17,8 @@ class Migration(migrations.Migration):
             # own: without this, Django finds public.django_migrations already
             # fully applied and skips every migration for "test_mode", leaving the
             # schema empty and silently falling through to public on every query.
-            sql="CREATE TABLE IF NOT EXISTS test_mode.django_migrations (LIKE public.django_migrations INCLUDING ALL);",
+            sql="CREATE TABLE IF NOT EXISTS test_mode.django_migrations "
+            "(LIKE public.django_migrations INCLUDING ALL);",
             reverse_sql=migrations.RunSQL.noop,
         ),
     ]
