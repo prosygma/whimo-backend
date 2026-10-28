@@ -25,7 +25,6 @@ class Command(BaseCommand):
         parser.add_argument("--transactions", type=int, default=12)
         parser.add_argument("--balances", type=int, default=6)
         parser.add_argument("--notifications", type=int, default=6)
-        parser.add_argument("--seasons", type=int, default=2)
 
     @db_transaction.atomic
     def handle(self, *_: Any, **options: Any) -> None:
@@ -34,9 +33,10 @@ class Command(BaseCommand):
 
         try:
             from tests.factories.balances import BalanceFactory
+            from tests.factories.base import BaseFactory
             from tests.factories.commodities import CommodityFactory, CommodityGroupFactory
+            from tests.factories.harvest_seasons import HarvestSeasonFactory
             from tests.factories.notifications import NotificationFactory
-            from tests.factories.seasons import SeasonCommodityFactory, SeasonFactory
             from tests.factories.transactions import TransactionFactory
             from tests.factories.users import UserFactory
         except ImportError as exc:  # pragma: no cover
@@ -44,30 +44,21 @@ class Command(BaseCommand):
 
         # BaseFactory ids are UUID(int=n) from a sequence, so a fresh offset per run
         # avoids primary-key collisions when seeding an already-populated database.
+        # Every factory gets it, including the ones post-generation hooks call
+        # (notification settings, gadgets...).
         offset = random.randrange(10**6, 10**9)
-        factories = (
-            UserFactory,
-            CommodityGroupFactory,
-            CommodityFactory,
-            SeasonFactory,
-            SeasonCommodityFactory,
-            TransactionFactory,
-            BalanceFactory,
-            NotificationFactory,
-        )
-        for factory_class in factories:
+        pending = list(BaseFactory.__subclasses__())
+        while pending:
+            factory_class = pending.pop()
             factory_class.reset_sequence(offset)
+            pending.extend(factory_class.__subclasses__())
 
         users = UserFactory.create_batch(options["users"])
         group = CommodityGroupFactory.create()
-        commodities = CommodityFactory.create_batch(3, group=group)
-
-        seasons = []
-        for _season in range(options["seasons"]):
-            season = SeasonFactory.create()
-            for commodity in commodities[:2]:
-                SeasonCommodityFactory.create(season=season, commodity=commodity)
-            seasons.append(season)
+        # Transactions and balances take their commodity's first harvest season: one
+        # active season for the group (a group allows only one) holds every commodity.
+        season = HarvestSeasonFactory.create(commodity_group=group)
+        commodities = CommodityFactory.create_batch(3, group=group, with_harvest_season=season)
 
         transactions = []
         for index in range(options["transactions"]):
@@ -76,7 +67,6 @@ class Command(BaseCommand):
                     commodity=commodities[index % len(commodities)],
                     seller=users[index % len(users)],
                     buyer=users[(index + 1) % len(users)],
-                    season=seasons[index % len(seasons)] if seasons else None,
                 )
             )
 
@@ -94,7 +84,7 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Seeded {len(users)} users, {len(commodities)} commodities, {len(seasons)} seasons, "
+                f"Seeded {len(users)} users, {len(commodities)} commodities, 1 harvest season, "
                 f"{len(transactions)} transactions, {options['balances']} balances, "
                 f"{options['notifications']} notifications."
             )

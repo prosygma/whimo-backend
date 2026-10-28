@@ -120,28 +120,22 @@ test('db.Gadget with a user autocomplete', async ({ page, probe }) => {
   await saveAndRemember(page, 'db.Gadget', identifier);
 });
 
-test('db.Season with a commodity inline', async ({ page, probe }) => {
-  const token = `E2E-season-${RUN()}`;
-  const commodityToken = `E2E-commodity-${RUN()}`;
-  await visit(page, probe, modelByLabel('db.Season').urls.add!, { source: 'create' });
+test('db.HarvestSeason for the run\'s commodity group', async ({ page, probe }) => {
+  // The name and dates are computed from these fields; country carries the token.
+  const groupToken = `E2E-cg-${RUN()}`.slice(0, 50);
+  const token = `E2E-hs-${RUN()}`;
+  await visit(page, probe, modelByLabel('db.HarvestSeason').urls.add!, { source: 'create' });
 
-  const form = await prepareForm(page, 'season');
-  await form.locator('[name="name"]').fill(token);
-  await form.locator('[name="description"]').fill(`Created by the admin e2e suite, run ${RUN()}.`);
+  const form = await prepareForm(page, 'harvestseason');
+  await form.locator('[name="commodity_group"]').selectOption({ label: groupToken });
+  await form.locator('[name="country"]').fill(token);
+  await form.locator('[name="start_month"]').selectOption('9');
+  await form.locator('[name="year"]').fill(String(2000 + (runSeed() % 90)));
+  await form.locator('[name="duration_months"]').selectOption('12');
+  // A group allows one active and one past season; archived has no such limit.
+  await form.locator('[name="status"]').selectOption('archived');
 
-  // Dates that make the row "current", so the dashboard's current-seasons panel
-  // gets real data to render.
-  const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
-  const inAMonth = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
-  await form.locator('[name="start_date"]').fill(yesterday);
-  await form.locator('[name="end_date"]').fill(inAMonth);
-
-  if (await openInlineTab(page, 'season_commodities')) {
-    const index = await addInlineRow(page, 'season_commodities');
-    await chooseAutocomplete(page, `season_commodities-${index}-commodity`, commodityToken);
-  }
-
-  await saveAndRemember(page, 'db.Season', token);
+  await saveAndRemember(page, 'db.HarvestSeason', token);
 });
 
 test('db.ConversionRecipe with input and output inlines', async ({ page, probe }) => {
@@ -233,7 +227,7 @@ test('the generic filler understands every add form it can reach', async ({ page
   // not know how to handle, which is how an unsupported widget gets noticed.
   const unknowns: string[] = [];
   for (const model of [
-    modelByLabel('db.Season'),
+    modelByLabel('db.HarvestSeason'),
     modelByLabel('db.Commodity'),
     modelByLabel('db.CommodityGroup'),
     modelByLabel('db.ConversionRecipe'),

@@ -18,7 +18,7 @@ const DELETE_SUBMIT = 'form:has(input[name="post"]) [type="submit"]';
 const DELETE_ORDER = [
   'django_celery_beat.PeriodicTask',
   'db.ConversionRecipe',
-  'db.Season',
+  'db.HarvestSeason',
   'db.Gadget',
   'db.Commodity',
   'db.CommodityGroup',

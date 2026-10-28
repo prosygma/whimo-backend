@@ -11,7 +11,14 @@ export const READ_ONLY_MODELS = ['db.transaction', 'db.balance', 'db.notificatio
 /** Models whose delete view is denied (read-only ones, plus User). */
 export const NO_DELETE_MODELS = [...READ_ONLY_MODELS, 'db.user'];
 
+/**
+ * Single-row models: has_add_permission is true only while no row exists, so
+ * add/ answers 200 on an empty database and 403 once the row is saved.
+ */
+export const SINGLETON_MODELS = ['db.whatsappsettings'];
+
 export function expectedAddStatus(label: string): number[] {
+  if (SINGLETON_MODELS.includes(label.toLowerCase())) return [200, 403];
   return READ_ONLY_MODELS.includes(label.toLowerCase()) ? [403] : [200];
 }
 
@@ -31,7 +38,13 @@ export const SKIP_URL_PATTERNS = [
  * Responses sent as attachments. `page.goto` aborts on Content-Disposition,
  * so these are fetched with the request context instead.
  */
-export const DOWNLOAD_URL_PATTERNS = [/\/download_geojson\/$/, /\/export\/$/];
+export const DOWNLOAD_URL_PATTERNS = [
+  /\/download_geojson\/$/,
+  /\/export\/$/,
+  // Languages admin: the English template and each language's translations (JSON).
+  /\/admin\/languages\/language\/download-template\/$/,
+  /\/admin\/languages\/language\/[^/]+\/download\/$/,
+];
 
 export function isDownloadUrl(url: string): boolean {
   return DOWNLOAD_URL_PATTERNS.some((pattern) => pattern.test(url));

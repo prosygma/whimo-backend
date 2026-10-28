@@ -29,23 +29,23 @@ test('change forms render every inline tab', async ({ page, probe }) => {
 });
 
 test('save, save-and-continue and save-and-add-another all work', async ({ page, probe }) => {
-  const created = listCreated('db.Season')[0] ?? {
-    url: modelByLabel('db.Season').urls.change ?? '',
+  const created = listCreated('db.HarvestSeason')[0] ?? {
+    url: modelByLabel('db.HarvestSeason').urls.change ?? '',
   };
-  test.skip(!created.url, 'no season available');
+  test.skip(!created.url, 'no harvest season available');
 
   // _save -> changelist
-  await visit(page, probe, created.url, { source: 'change:db.Season:_save' });
-  const seasonForm = await prepareForm(page, 'season');
-  await seasonForm.locator('[name="description"]').fill(`edited by run ${runId()}`);
+  await visit(page, probe, created.url, { source: 'change:db.HarvestSeason:_save' });
+  const seasonForm = await prepareForm(page, 'harvestseason');
+  await seasonForm.locator('[name="country"]').fill(`edited by run ${runId()}`);
   let result = await submitForm(page, '_save');
   expect(result.outcome, result.errors.join(' | ')).toBe('saved');
-  expect(result.url).toContain('/admin/db/season/');
+  expect(result.url).toContain('/admin/db/harvestseason/');
 
   // The edit must have persisted.
-  await visit(page, probe, created.url, { source: 'change:db.Season:verify' });
-  const reloaded = await prepareForm(page, 'season');
-  await expect(reloaded.locator('[name="description"]')).toHaveValue(`edited by run ${runId()}`);
+  await visit(page, probe, created.url, { source: 'change:db.HarvestSeason:verify' });
+  const reloaded = await prepareForm(page, 'harvestseason');
+  await expect(reloaded.locator('[name="country"]')).toHaveValue(`edited by run ${runId()}`);
 
   // _continue -> stay on the change form with a success message
   result = await submitForm(page, '_continue');

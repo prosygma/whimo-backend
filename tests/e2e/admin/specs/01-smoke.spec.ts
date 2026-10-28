@@ -25,14 +25,15 @@ test('admin dashboard renders', async ({ page, probe }) => {
 });
 
 test('the page that fails in production renders locally', async ({ page, probe }) => {
-  // /admin/db/season/add/ is the exact URL from the production traceback
-  // (TemplateDoesNotExist: unfold/widgets/text.html).
-  await visit(page, probe, '/admin/db/season/add/', { source: 'smoke' });
+  // The production traceback was on /admin/db/season/add/ (TemplateDoesNotExist:
+  // unfold/widgets/text.html). EFI replaced Season with HarvestSeason, whose add
+  // form carries the same unfold text widget.
+  await visit(page, probe, '/admin/db/harvestseason/add/', { source: 'smoke' });
 
-  const nameInput = page.locator('form#season_form [name="name"]');
-  await expect(nameInput).toBeVisible();
+  const countryInput = page.locator('form#harvestseason_form [name="country"]');
+  await expect(countryInput).toBeVisible();
   // Unfold's text widget, not Django's plain one.
-  await expect(nameInput).toHaveClass(/border|rounded|px-3/);
+  await expect(countryInput).toHaveClass(/border|rounded|px-3/);
 });
 
 test('every app index is reachable', async ({ page, probe }) => {
