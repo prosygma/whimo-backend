@@ -14,7 +14,7 @@ Two goals drive how it is organised:
 
 | Branch | Content | Rule |
 |---|---|---|
-| `main` | exact copy of `upstream/main` | only `git merge --ff-only upstream/main`, never commit here |
+| `main` | exact copy of `upstream/main` | only `git merge --ff-only origin/main` (after `gh repo sync`), never commit here |
 | `camertrace` | `main` + brand overlay + Cameroon features | default branch, the one deployed; receives `main` by **merge** |
 | `feat/*`, `fix/*` | generic work, candidate for EFI | branch from **`main`**, PR to EFI, then merge into `camertrace` |
 | `cm/*` | Cameroon-only work | branch from **`camertrace`**, PR to `prosygma/whimo-backend:camertrace` |
@@ -28,12 +28,20 @@ scripts/fork-setup.sh     # upstream remote, push to EFI disabled, rerere, merge
 
 ## Pulling EFI's changes
 
+EFI's `main` goes into prosygma's `main` on GitHub first; local branches then
+take it from `origin`, never straight from `upstream`.
+
 ```bash
-git fetch upstream
-git switch main && git merge --ff-only upstream/main && git push origin main
+gh repo sync prosygma/whimo-backend --branch main     # EFI main -> prosygma main (GitHub)
+git fetch origin
+git switch main && git merge --ff-only origin/main
 git switch camertrace && git merge main          # resolve, build, test
 git push origin camertrace
 ```
+
+`git fetch upstream` is only for looking at what is coming. If EFI rewrote its
+history, `gh repo sync` refuses: save prosygma's `main` as an `archive/*` branch
+on GitHub first, then run it with `--force`.
 
 `rerere` replays conflict resolutions you already made once. Binary brand files
 listed in `.gitattributes` with `merge=ours` always keep the CamerTrace version.
