@@ -61,8 +61,16 @@ def send_whatsapp_otp(recipient: str, code: str, language: str | None = None) ->
     logger.info("WhatsApp verification code to %s sent: %s", recipient, message_id)
 
 
+class SendMailError(Exception):
+    """The relay refused the message (configuration, sender, content): retrying cannot succeed."""
+
+
+class SendMailTemporaryError(SendMailError):
+    """Network error, rate limit or relay failure: worth retrying."""
+
+
 @current_app.task(
-    autoretry_for=[Exception],
+    autoretry_for=[SendMailTemporaryError],
     retry_backoff=True,
     max_retries=3,
 )
@@ -70,22 +78,12 @@ def send_email(recipients: list[str], subject: str, message: str) -> None:
     logger.info("Sending email %s to %s", subject, ", ".join(recipients))
 
     if not settings.SENDMAIL_API_KEY:
-        raise Exception("SendMail API key not configured (SENDMAIL_API_KEY)")
-    if settings.SENDMAIL_API_SMTP_AUTH and not settings.SENDMAIL_API_SMTP_PASSWORD:
-        raise Exception("SendMail SMTP password not configured (SENDMAIL_API_SMTP_PASSWORD)")
+        raise SendMailError("SendMail API key not configured (SENDMAIL_API_KEY)")
+    if not settings.SENDMAIL_API_FROM_EMAIL:
+        raise SendMailError("SendMail sender not configured (SENDMAIL_API_FROM_EMAIL)")
 
+    # The relay chooses the SMTP transport itself, by profile or by sender domain.
     payload = {
-        "smtp": {
-            "host": settings.SENDMAIL_API_SMTP_HOST,
-            "port": settings.SENDMAIL_API_SMTP_PORT,
-            "auth": settings.SENDMAIL_API_SMTP_AUTH,
-            "username": settings.SENDMAIL_API_SMTP_USERNAME,
-            "password": settings.SENDMAIL_API_SMTP_PASSWORD,
-            "encryption": settings.SENDMAIL_API_SMTP_ENCRYPTION,
-            "auto_tls": settings.SENDMAIL_API_SMTP_AUTO_TLS,
-            "timeout": settings.SENDMAIL_API_SMTP_TIMEOUT,
-            "debug": settings.SENDMAIL_API_SMTP_DEBUG,
-        },
         "message": {
             "from": {
                 "email": settings.SENDMAIL_API_FROM_EMAIL,
@@ -98,11 +96,11 @@ def send_email(recipients: list[str], subject: str, message: str) -> None:
             "subject": subject,
             "body_html": message,
             "body_text": "",
-            "template": "",
-            "template_data": {},
             "attachments": [],
         },
     }
+    if settings.SENDMAIL_API_SMTP_PROFILE:
+        payload["smtp_profile"] = settings.SENDMAIL_API_SMTP_PROFILE
 
     headers = {
         "Content-Type": "application/json",
@@ -120,15 +118,21 @@ def send_email(recipients: list[str], subject: str, message: str) -> None:
             headers=headers,
             timeout=settings.SENDMAIL_API_TIMEOUT,
         )
-    except requests.exceptions.ConnectTimeout as exc:
-        raise Exception("SendMail API connection timeout") from exc
+    except requests.exceptions.RequestException as exc:
+        raise SendMailTemporaryError(f"SendMail API unreachable: {exc}") from exc
 
     if response.status_code != HTTPStatus.OK:
         logger.error(
             "SendMail API error: status=%d, response=%s",
             response.status_code,
-            response.text,
+            " ".join(response.text.split()),
         )
-        raise Exception(f"SendMail API error: {response.status_code}")
+        error_class = (
+            SendMailTemporaryError
+            if response.status_code >= HTTPStatus.INTERNAL_SERVER_ERROR
+            or response.status_code == HTTPStatus.TOO_MANY_REQUESTS
+            else SendMailError
+        )
+        raise error_class(f"SendMail API error: {response.status_code}")
 
     logger.info("Email %s to %s sent successfully", subject, ", ".join(recipients))
