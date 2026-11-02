@@ -7,6 +7,8 @@ from whimo.contrib.tasks.users import SendMailError, SendMailTemporaryError, sen
 
 pytestmark = [pytest.mark.django_db]
 
+SENT_RESPONSE = {"success": True, "message_id": "mail_1", "result": {"sent": True, "dry_run": False}}
+
 
 class TestUsersTasks:
     @override_settings(
@@ -23,6 +25,7 @@ class TestUsersTasks:
 
         mock_response = Mock()
         mock_response.status_code = 200
+        mock_response.json.return_value = SENT_RESPONSE
         mock_requests_post.return_value = mock_response
 
         # Act
@@ -45,7 +48,7 @@ class TestUsersTasks:
         SENDMAIL_API_SMTP_PROFILE="camertrace",
     )
     def test_send_email_selects_smtp_profile(self, mock_requests_post: MagicMock) -> None:
-        mock_requests_post.return_value = Mock(status_code=200)
+        mock_requests_post.return_value = Mock(status_code=200, json=Mock(return_value=SENT_RESPONSE))
 
         send_email(["user@example.com"], "Subject", "Body")
 
@@ -76,6 +79,21 @@ class TestUsersTasks:
 
         assert type(exc_info.value) is error_class
         assert SendMailTemporaryError in send_email.autoretry_for
+
+    @override_settings(SENDMAIL_API_KEY="test-key", SENDMAIL_API_FROM_EMAIL="contact@example.com")
+    def test_send_email_fails_when_relay_is_in_dry_run(self, mock_requests_post: MagicMock) -> None:
+        dry_run_response = {
+            "success": True,
+            "message": "Validation SMTP effectuee en mode dry-run.",
+            "message_id": "mail_2",
+            "result": {"sent": False, "dry_run": True},
+        }
+        mock_requests_post.return_value = Mock(status_code=200, json=Mock(return_value=dry_run_response))
+
+        with pytest.raises(SendMailError, match="dry-run") as exc_info:
+            send_email.run(["user@example.com"], "Subject", "Body")
+
+        assert type(exc_info.value) is SendMailError
 
     @override_settings(
         SMS_TELNYX_API_KEY="test_api_key",

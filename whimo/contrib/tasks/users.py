@@ -135,4 +135,27 @@ def send_email(recipients: list[str], subject: str, message: str) -> None:
         )
         raise error_class(f"SendMail API error: {response.status_code}")
 
-    logger.info("Email %s to %s sent successfully", subject, ", ".join(recipients))
+    try:
+        body = response.json()
+    except ValueError:
+        body = {}
+    if not isinstance(body, dict):
+        body = {}
+    result = body.get("result") if isinstance(body.get("result"), dict) else {}
+
+    # In dry-run mode (the relay's default) it answers 200 without sending anything.
+    if result.get("sent") is False:
+        logger.warning(
+            "SendMail API did not send the email: message=%s, message_id=%s, dry_run=%s",
+            body.get("message"),
+            body.get("message_id"),
+            result.get("dry_run"),
+        )
+        raise SendMailError(f"SendMail API did not send the email: {body.get('message')}")
+
+    logger.info(
+        "Email %s to %s sent successfully: %s",
+        subject,
+        ", ".join(recipients),
+        body.get("message_id"),
+    )
