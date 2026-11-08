@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from django.core.cache import cache
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import DatabaseError
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 
 from whimo.camertrace.models import DEFAULT_TRACEABILITY, GeodataOptions, GeodataSource, TraceabilityRule
 from whimo.db.enums.transactions import TransactionLocation, TransactionTraceability
@@ -73,6 +75,51 @@ def producer_traceability(source: GeodataSource) -> TransactionTraceability:
     if value is None:
         return DEFAULT_TRACEABILITY[source]
     return TransactionTraceability(value)
+
+
+# How each source reads in the apps' status panel ("Given by: ...").
+SOURCE_PANEL_LABELS = {
+    GeodataSource.CICC_QR: gettext_lazy("scanning the CICC QR code"),
+    GeodataSource.QR: gettext_lazy("scanning a GeoJSON QR code"),
+    GeodataSource.GPS: gettext_lazy("the device GPS on the plot"),
+    GeodataSource.FILE: gettext_lazy("an uploaded file"),
+    GeodataSource.MANUAL: gettext_lazy("a point picked on the map"),
+    GeodataSource.NONE_FROM_FARMER: gettext_lazy("no geodata (bought from a farmer)"),
+    GeodataSource.NONE: gettext_lazy("no geodata (bought from a cooperative)"),
+}
+
+
+def offered_sources(options: Options) -> list[GeodataSource]:
+    """Sources the apps currently let a buyer use, in panel order."""
+    hidden = set()
+    if not options.allow_cicc_qr:
+        hidden.add(GeodataSource.CICC_QR)
+    if not options.ask_on_plot:
+        hidden.add(GeodataSource.GPS)
+    if not options.allow_gps_point:
+        hidden.add(GeodataSource.MANUAL)
+    return [source for source in GeodataSource if source not in hidden]
+
+
+def traceability_descriptions(options: Options | None = None) -> dict[str, str]:
+    """Explanation of each traceability status for the apps' status panel, in the active
+    language, built from the current rules and the sources the apps offer."""
+    options = options or get_options()
+    by_status: dict[TransactionTraceability, list[str]] = {status: [] for status in TransactionTraceability}
+    for source in offered_sources(options):
+        by_status[producer_traceability(source)].append(str(SOURCE_PANEL_LABELS[source]))
+
+    downstream = _("A downstream transaction takes the lowest status of its supplies.")
+    descriptions = {}
+    for status, labels in by_status.items():
+        if labels:
+            sources = _("Given by: %(sources)s.") % {"sources": ", ".join(labels)}
+        elif status == TransactionTraceability.INCOMPLETE:
+            sources = _("A chain that starts with a downstream transaction, without any supply.")
+        else:
+            sources = _("No geodata source gives this status for a producer transaction.")
+        descriptions[status.value] = f"{sources} {downstream}"
+    return descriptions
 
 
 def is_cicc_geojson(location_file: InMemoryUploadedFile, *, require_source_mark: bool = False) -> bool:

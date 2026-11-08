@@ -689,3 +689,37 @@ msgstr ""
 
 msgid "CICC QR code is invalid: it needs the plot coordinates and the NIPr_CICC, GLN_Parcelle and Lien_GS1_Parcelle fields"
 msgstr ""
+
+msgid "scanning the CICC QR code"
+msgstr ""
+
+msgid "scanning a GeoJSON QR code"
+msgstr ""
+
+msgid "the device GPS on the plot"
+msgstr ""
+
+msgid "an uploaded file"
+msgstr ""
+
+msgid "a point picked on the map"
+msgstr ""
+
+msgid "no geodata (bought from a farmer)"
+msgstr ""
+
+msgid "no geodata (bought from a cooperative)"
+msgstr ""
+
+msgid "A downstream transaction takes the lowest status of its supplies."
+msgstr ""
+
+#, python-format
+msgid "Given by: %(sources)s."
+msgstr ""
+
+msgid "A chain that starts with a downstream transaction, without any supply."
+msgstr ""
+
+msgid "No geodata source gives this status for a producer transaction."
+msgstr ""

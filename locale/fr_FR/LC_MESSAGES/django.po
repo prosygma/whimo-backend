@@ -608,3 +608,37 @@ msgstr "Sans géodonnée"
 
 msgid "CICC QR code is invalid: it needs the plot coordinates and the NIPr_CICC, GLN_Parcelle and Lien_GS1_Parcelle fields"
 msgstr "Code QR du CICC invalide : il doit contenir les coordonnées de la parcelle et les champs NIPr_CICC, GLN_Parcelle et Lien_GS1_Parcelle"
+
+msgid "scanning the CICC QR code"
+msgstr "le scan du code QR du CICC"
+
+msgid "scanning a GeoJSON QR code"
+msgstr "le scan d'un code QR GeoJSON"
+
+msgid "the device GPS on the plot"
+msgstr "le GPS de l'appareil sur la parcelle"
+
+msgid "an uploaded file"
+msgstr "un fichier importé"
+
+msgid "a point picked on the map"
+msgstr "un point placé sur la carte"
+
+msgid "no geodata (bought from a farmer)"
+msgstr "aucune géodonnée (achat auprès d'un producteur)"
+
+msgid "no geodata (bought from a cooperative)"
+msgstr "aucune géodonnée (achat auprès d'une coopérative)"
+
+msgid "A downstream transaction takes the lowest status of its supplies."
+msgstr "Une transaction en aval prend le statut le plus faible de ses approvisionnements."
+
+#, python-format
+msgid "Given by: %(sources)s."
+msgstr "Obtenu avec : %(sources)s."
+
+msgid "A chain that starts with a downstream transaction, without any supply."
+msgstr "Une chaîne qui commence par une transaction en aval, sans aucun approvisionnement."
+
+msgid "No geodata source gives this status for a producer transaction."
+msgstr "Aucune source de géodonnée ne donne ce statut pour une transaction producteur."

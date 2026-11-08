@@ -1364,6 +1364,17 @@
     "Point picked on the map": "Point picked on the map",
     "No geodata, bought from a farmer": "No geodata, bought from a farmer",
     "No geodata": "No geodata",
-    "CICC QR code is invalid: it needs the plot coordinates and the NIPr_CICC, GLN_Parcelle and Lien_GS1_Parcelle fields": "CICC QR code is invalid: it needs the plot coordinates and the NIPr_CICC, GLN_Parcelle and Lien_GS1_Parcelle fields"
+    "CICC QR code is invalid: it needs the plot coordinates and the NIPr_CICC, GLN_Parcelle and Lien_GS1_Parcelle fields": "CICC QR code is invalid: it needs the plot coordinates and the NIPr_CICC, GLN_Parcelle and Lien_GS1_Parcelle fields",
+    "scanning the CICC QR code": "scanning the CICC QR code",
+    "scanning a GeoJSON QR code": "scanning a GeoJSON QR code",
+    "the device GPS on the plot": "the device GPS on the plot",
+    "an uploaded file": "an uploaded file",
+    "a point picked on the map": "a point picked on the map",
+    "no geodata (bought from a farmer)": "no geodata (bought from a farmer)",
+    "no geodata (bought from a cooperative)": "no geodata (bought from a cooperative)",
+    "A downstream transaction takes the lowest status of its supplies.": "A downstream transaction takes the lowest status of its supplies.",
+    "Given by: %(sources)s.": "Given by: %(sources)s.",
+    "A chain that starts with a downstream transaction, without any supply.": "A chain that starts with a downstream transaction, without any supply.",
+    "No geodata source gives this status for a producer transaction.": "No geodata source gives this status for a producer transaction."
   }
 }

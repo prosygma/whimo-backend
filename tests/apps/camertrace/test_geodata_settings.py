@@ -3,6 +3,7 @@ from http import HTTPStatus
 import pytest
 from django.test import Client
 from django.urls import reverse
+from django.utils import translation
 
 from tests.factories.users import UserFactory
 from tests.helpers.clients import AdminClient
@@ -65,10 +66,13 @@ class TestAppOptionsApi:
         response = Client().get(self.URL)
 
         assert response.status_code == HTTPStatus.OK
-        assert response.json() == {
-            "success": True,
-            "data": {"ask_on_plot": True, "allow_gps_point": True, "allow_cicc_qr": False},
+        data = response.json()["data"]
+        assert {key: data[key] for key in ("ask_on_plot", "allow_gps_point", "allow_cicc_qr")} == {
+            "ask_on_plot": True,
+            "allow_gps_point": True,
+            "allow_cicc_qr": False,
         }
+        assert set(data["traceability_descriptions"]) == {"full", "conditional", "partial", "incomplete"}
         assert "max-age=300" in response["Cache-Control"]
 
     def test_follows_admin_changes(self) -> None:
@@ -79,6 +83,7 @@ class TestAppOptionsApi:
         options.save()
 
         data = Client().get(self.URL).json()["data"]
+        data.pop("traceability_descriptions")
 
         assert data == {"ask_on_plot": False, "allow_gps_point": False, "allow_cicc_qr": True}
 
@@ -87,6 +92,62 @@ class TestAppOptionsApi:
 
         assert response.status_code == HTTPStatus.OK
         assert response.json()["data"]["ask_on_plot"] is True
+
+
+class TestTraceabilityDescriptions:
+    URL = reverse("app_options")
+
+    def descriptions(self, language: str = "en") -> dict[str, str]:
+        response = Client().get(self.URL, HTTP_ACCEPT_LANGUAGE=language)
+        return response.json()["data"]["traceability_descriptions"]
+
+    def test_follow_the_seeded_rules(self) -> None:
+        descriptions = self.descriptions()
+
+        assert descriptions["full"].startswith("No geodata source gives this status")  # CICC scan is off
+        assert "scanning a GeoJSON QR code" in descriptions["conditional"]
+        assert "the device GPS on the plot" in descriptions["conditional"]
+        assert "a point picked on the map" in descriptions["partial"]
+        assert "bought from a cooperative" in descriptions["incomplete"]
+        assert all("lowest status of its supplies" in text for text in descriptions.values())
+
+    def test_enabled_cicc_scan_gives_full(self) -> None:
+        options = GeodataOptions.load()
+        options.allow_cicc_qr = True
+        options.save()
+
+        assert self.descriptions()["full"].startswith("Given by: scanning the CICC QR code.")
+
+    def test_disabled_options_hide_their_source(self) -> None:
+        options = GeodataOptions.load()
+        options.ask_on_plot = False
+        options.allow_gps_point = False
+        options.save()
+
+        text = " ".join(self.descriptions().values())
+        assert "device GPS" not in text
+        assert "map" not in text
+
+    def test_edited_rule_moves_the_source(self) -> None:
+        rule = TraceabilityRule.objects.get(source=GeodataSource.QR)
+        rule.traceability = TransactionTraceability.FULL
+        rule.save()
+
+        descriptions = self.descriptions()
+        assert "GeoJSON QR code" in descriptions["full"]
+        assert "GeoJSON QR code" not in descriptions["conditional"]
+
+    def test_no_source_left_for_incomplete(self) -> None:
+        TraceabilityRule.objects.filter(source=GeodataSource.NONE).update(traceability=TransactionTraceability.PARTIAL)
+        services.clear_cache()
+
+        assert self.descriptions()["incomplete"].startswith("A chain that starts with a downstream transaction")
+
+    def test_written_in_the_request_language(self) -> None:
+        with translation.override("fr"):
+            expected = translation.gettext("A downstream transaction takes the lowest status of its supplies.")
+
+        assert expected in self.descriptions("fr")["conditional"]
 
 
 class TestAdmin:

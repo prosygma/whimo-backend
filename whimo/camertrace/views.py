@@ -16,5 +16,6 @@ class AppOptionsView(PublicView):
             "ask_on_plot": options.ask_on_plot,
             "allow_gps_point": options.allow_gps_point,
             "allow_cicc_qr": options.allow_cicc_qr,
+            "traceability_descriptions": services.traceability_descriptions(options),
         }
         return DataResponse(data=data).as_response()

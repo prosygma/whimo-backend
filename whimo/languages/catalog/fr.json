@@ -1337,6 +1337,17 @@
     "Point picked on the map": "Point placé sur la carte",
     "No geodata, bought from a farmer": "Sans géodonnée, achat auprès d'un producteur",
     "No geodata": "Sans géodonnée",
-    "CICC QR code is invalid: it needs the plot coordinates and the NIPr_CICC, GLN_Parcelle and Lien_GS1_Parcelle fields": "Code QR du CICC invalide : il doit contenir les coordonnées de la parcelle et les champs NIPr_CICC, GLN_Parcelle et Lien_GS1_Parcelle"
+    "CICC QR code is invalid: it needs the plot coordinates and the NIPr_CICC, GLN_Parcelle and Lien_GS1_Parcelle fields": "Code QR du CICC invalide : il doit contenir les coordonnées de la parcelle et les champs NIPr_CICC, GLN_Parcelle et Lien_GS1_Parcelle",
+    "scanning the CICC QR code": "le scan du code QR du CICC",
+    "scanning a GeoJSON QR code": "le scan d'un code QR GeoJSON",
+    "the device GPS on the plot": "le GPS de l'appareil sur la parcelle",
+    "an uploaded file": "un fichier importé",
+    "a point picked on the map": "un point placé sur la carte",
+    "no geodata (bought from a farmer)": "aucune géodonnée (achat auprès d'un producteur)",
+    "no geodata (bought from a cooperative)": "aucune géodonnée (achat auprès d'une coopérative)",
+    "A downstream transaction takes the lowest status of its supplies.": "Une transaction en aval prend le statut le plus faible de ses approvisionnements.",
+    "Given by: %(sources)s.": "Obtenu avec : %(sources)s.",
+    "A chain that starts with a downstream transaction, without any supply.": "Une chaîne qui commence par une transaction en aval, sans aucun approvisionnement.",
+    "No geodata source gives this status for a producer transaction.": "Aucune source de géodonnée ne donne ce statut pour une transaction producteur."
   }
 }
