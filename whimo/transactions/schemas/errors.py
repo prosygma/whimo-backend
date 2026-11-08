@@ -30,6 +30,13 @@ class LocationFileInvalidSyntaxError(BadRequest):
     message = _("Location file syntax is invalid")
 
 
+class CiccQrInvalidError(BadRequest):
+    message = _(
+        "CICC QR code is invalid: it needs the plot coordinates and the NIPr_CICC, GLN_Parcelle "
+        "and Lien_GS1_Parcelle fields"
+    )
+
+
 class InvalidStatusUpdateError(BadRequest):
     message = _("Transaction can only be accepted or rejected")
 

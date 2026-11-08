@@ -16,6 +16,7 @@ from pydantic import ValidationError
 
 from whimo import brand
 from whimo.auth.registration.services import RegistrationService
+from whimo.camertrace import services as camertrace_services
 from whimo.common.schemas.base import Pagination
 from whimo.common.schemas.errors import NotFound
 from whimo.common.test_mode import is_test_mode
@@ -549,13 +550,9 @@ class TransactionsService:
 
     @staticmethod
     def _get_producer_traceability(request: TransactionProducerCreateRequest) -> TransactionTraceability:
-        if request.location in {TransactionLocation.QR, TransactionLocation.GPS}:
-            return TransactionTraceability.FULL
-
-        if request.location in {TransactionLocation.MANUAL, TransactionLocation.FILE}:
-            return TransactionTraceability.CONDITIONAL
-
-        return TransactionTraceability.PARTIAL if request.is_buying_from_farmer else TransactionTraceability.INCOMPLETE
+        # CamerTrace: the status per geodata source is set in the admin (Settings > Traceability rules).
+        source = camertrace_services.geodata_source(request.location, request.qr_source, request.is_buying_from_farmer)
+        return camertrace_services.producer_traceability(source)
 
     @staticmethod
     def _obtain_seller_id_and_buyer_id(

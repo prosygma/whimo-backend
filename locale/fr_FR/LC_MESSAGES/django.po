@@ -539,3 +539,72 @@ msgstr "Code %(code)s envoyé, identifiant du message %(id)s"
 
 msgid "WhatsApp"
 msgstr "WhatsApp"
+
+msgid "Settings"
+msgstr "Paramètres"
+
+msgid "Options"
+msgstr "Options"
+
+msgid "Traceability rules"
+msgstr "Règles de traçabilité"
+
+msgid "Traceability rule"
+msgstr "Règle de traçabilité"
+
+msgid "Geodata source"
+msgstr "Source de la géodonnée"
+
+msgid "Traceability status"
+msgstr "Statut de traçabilité"
+
+msgid "Applies to new transactions only."
+msgstr "S'applique uniquement aux nouvelles transactions."
+
+msgid "The status a new producer transaction gets from its geodata source. Changes apply to new transactions only."
+msgstr "Le statut qu'une nouvelle transaction producteur reçoit selon la source de sa géodonnée. Les modifications s'appliquent uniquement aux nouvelles transactions."
+
+msgid "Plot geodata in the mobile apps"
+msgstr "Géodonnées de la parcelle dans les applications mobiles"
+
+msgid "Ask « Yes, I am on the plot »"
+msgstr "Demander « Oui, je suis sur la parcelle »"
+
+msgid "Ask the buyer whether they are on the plot. When off, the question is skipped and the device GPS option is not offered."
+msgstr "Demander à l'acheteur s'il est sur la parcelle. Si désactivé, la question n'est pas posée et la géolocalisation de l'appareil n'est pas proposée."
+
+msgid "Offer « Add a GPS point »"
+msgstr "Proposer « Ajouter un point GPS »"
+
+msgid "Let the buyer pick the plot location on a map."
+msgstr "Permettre à l'acheteur de placer la parcelle sur une carte."
+
+msgid "Offer « Scan the CICC QR code »"
+msgstr "Proposer « Scanner le code QR du CICC »"
+
+msgid "Let the buyer scan the QR code of a CICC plot identification card."
+msgstr "Permettre à l'acheteur de scanner le code QR d'une fiche d'identification de parcelle du CICC."
+
+msgid "CICC QR code (certified geometer)"
+msgstr "Code QR du CICC (géomètre agréé)"
+
+msgid "GeoJSON QR code"
+msgstr "Code QR GeoJSON"
+
+msgid "Device GPS, on the plot"
+msgstr "GPS de l'appareil, sur la parcelle"
+
+msgid "Uploaded file"
+msgstr "Fichier importé"
+
+msgid "Point picked on the map"
+msgstr "Point placé sur la carte"
+
+msgid "No geodata, bought from a farmer"
+msgstr "Sans géodonnée, achat auprès d'un producteur"
+
+msgid "No geodata"
+msgstr "Sans géodonnée"
+
+msgid "CICC QR code is invalid: it needs the plot coordinates and the NIPr_CICC, GLN_Parcelle and Lien_GS1_Parcelle fields"
+msgstr "Code QR du CICC invalide : il doit contenir les coordonnées de la parcelle et les champs NIPr_CICC, GLN_Parcelle et Lien_GS1_Parcelle"

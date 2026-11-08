@@ -10,6 +10,8 @@ from pytest_django.fixtures import SettingsWrapper
 from pytest_django.plugin import DjangoDbBlocker
 from pytest_mock import MockerFixture
 
+from whimo.camertrace import services as camertrace_services
+from whimo.camertrace.models import DEFAULT_TRACEABILITY, GeodataOptions, TraceabilityRule
 from whimo.db.models import (
     Balance,
     Commodity,
@@ -67,6 +69,18 @@ def reset_cache(request: pytest.FixtureRequest) -> None:
         request.getfixturevalue("db")
         reset_languages()
         services.enabled_languages()
+        reset_camertrace_settings()
+
+
+def reset_camertrace_settings() -> None:
+    """Geodata options and traceability rules as migration camertrace/0004 seeds them, cached
+    like in production so that query counts only include the test's own queries."""
+    for source, traceability in DEFAULT_TRACEABILITY.items():
+        TraceabilityRule.objects.filter(source=source).update(traceability=traceability)
+    GeodataOptions.objects.update(ask_on_plot=True, allow_gps_point=True, allow_cicc_qr=False)
+    camertrace_services.clear_cache()
+    camertrace_services.get_rules()
+    camertrace_services.get_options()
 
 
 def reset_languages() -> None:

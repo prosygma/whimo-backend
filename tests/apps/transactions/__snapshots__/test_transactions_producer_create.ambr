@@ -121,7 +121,7 @@
     'success': True,
   })
 # ---
-# name: TestTransactionsProducerCreate.test_conditional_traceability[manual]
+# name: TestTransactionsProducerCreate.test_conditional_traceability[gps]
   dict({
     'data': dict({
       'action': 'buying',
@@ -162,7 +162,62 @@
       }),
       'is_automatic': False,
       'is_buying_from_farmer': True,
-      'location': 'manual',
+      'location': 'gps',
+      'seller': None,
+      'signed_volume': 1.0,
+      'status': 'accepted',
+      'traceability': 'conditional',
+      'transaction_latitude': None,
+      'transaction_longitude': None,
+      'type': 'producer',
+      'updated_at': '2020-01-01T00:00:00Z',
+      'volume': 1.0,
+    }),
+    'success': True,
+  })
+# ---
+# name: TestTransactionsProducerCreate.test_conditional_traceability[qr]
+  dict({
+    'data': dict({
+      'action': 'buying',
+      'buyer': dict({
+        'gadgets': list([
+          dict({
+            'identifier': 'vclayton@example.org',
+            'is_verified': True,
+            'type': 'email',
+          }),
+          dict({
+            'identifier': '51393328711',
+            'is_verified': True,
+            'type': 'phone',
+          }),
+        ]),
+        'username': 'cd18fc9fb6494384',
+      }),
+      'commodity': dict({
+        'code': '5871',
+        'group': dict({
+          'name': 'seat',
+        }),
+        'has_recipe': False,
+        'name': 'fish',
+        'unit': 'tons',
+      }),
+      'created_at': '2020-01-01T00:00:00Z',
+      'created_by_id': '00000000-0000-0000-0000-000000000000',
+      'expires_at': None,
+      'farm_latitude': None,
+      'farm_longitude': None,
+      'harvest_season': dict({
+        'end_date': '2026-09-01',
+        'name': 'seat 2025/26',
+        'start_date': '2025-09-01',
+        'status': 'active',
+      }),
+      'is_automatic': False,
+      'is_buying_from_farmer': True,
+      'location': 'qr',
       'seller': None,
       'signed_volume': 1.0,
       'status': 'accepted',
@@ -417,62 +472,7 @@
     'success': False,
   })
 # ---
-# name: TestTransactionsProducerCreate.test_full_traceability[gps]
-  dict({
-    'data': dict({
-      'action': 'buying',
-      'buyer': dict({
-        'gadgets': list([
-          dict({
-            'identifier': 'vclayton@example.org',
-            'is_verified': True,
-            'type': 'email',
-          }),
-          dict({
-            'identifier': '51393328711',
-            'is_verified': True,
-            'type': 'phone',
-          }),
-        ]),
-        'username': 'cd18fc9fb6494384',
-      }),
-      'commodity': dict({
-        'code': '5871',
-        'group': dict({
-          'name': 'seat',
-        }),
-        'has_recipe': False,
-        'name': 'fish',
-        'unit': 'tons',
-      }),
-      'created_at': '2020-01-01T00:00:00Z',
-      'created_by_id': '00000000-0000-0000-0000-000000000000',
-      'expires_at': None,
-      'farm_latitude': None,
-      'farm_longitude': None,
-      'harvest_season': dict({
-        'end_date': '2026-09-01',
-        'name': 'seat 2025/26',
-        'start_date': '2025-09-01',
-        'status': 'active',
-      }),
-      'is_automatic': False,
-      'is_buying_from_farmer': True,
-      'location': 'gps',
-      'seller': None,
-      'signed_volume': 1.0,
-      'status': 'accepted',
-      'traceability': 'full',
-      'transaction_latitude': None,
-      'transaction_longitude': None,
-      'type': 'producer',
-      'updated_at': '2020-01-01T00:00:00Z',
-      'volume': 1.0,
-    }),
-    'success': True,
-  })
-# ---
-# name: TestTransactionsProducerCreate.test_full_traceability[qr]
+# name: TestTransactionsProducerCreate.test_full_traceability_cicc_qr
   dict({
     'data': dict({
       'action': 'buying',
@@ -1101,7 +1101,7 @@
       'seller': None,
       'signed_volume': 1.0,
       'status': 'accepted',
-      'traceability': 'full',
+      'traceability': 'conditional',
       'transaction_latitude': 0.0,
       'transaction_longitude': 0.0,
       'type': 'producer',
@@ -1156,7 +1156,7 @@
       'seller': None,
       'signed_volume': 1.0,
       'status': 'accepted',
-      'traceability': 'conditional',
+      'traceability': 'partial',
       'transaction_latitude': 0.0,
       'transaction_longitude': 0.0,
       'type': 'producer',
@@ -1211,7 +1211,7 @@
       'seller': None,
       'signed_volume': 1.0,
       'status': 'accepted',
-      'traceability': 'full',
+      'traceability': 'conditional',
       'transaction_latitude': 0.0,
       'transaction_longitude': 0.0,
       'type': 'producer',

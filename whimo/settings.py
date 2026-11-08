@@ -430,11 +430,6 @@ UNFOLD = {
                         "icon": "task",
                         "link": reverse_lazy("admin:django_celery_beat_periodictask_changelist"),
                     },
-                    {
-                        "title": _("WhatsApp"),
-                        "icon": "chat",
-                        "link": reverse_lazy("admin:db_whatsappsettings_changelist"),
-                    },
                 ],
             },
             {
@@ -497,6 +492,27 @@ UNFOLD = {
                         "title": _("Balances"),
                         "icon": "account_balance",
                         "link": reverse_lazy("admin:db_balance_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Settings"),
+                "separator": True,
+                "items": [
+                    {
+                        "title": _("WhatsApp"),
+                        "icon": "chat",
+                        "link": reverse_lazy("admin:db_whatsappsettings_changelist"),
+                    },
+                    {
+                        "title": _("Options"),
+                        "icon": "tune",
+                        "link": reverse_lazy("admin:camertrace_geodataoptions_changelist"),
+                    },
+                    {
+                        "title": _("Traceability rules"),
+                        "icon": "rule",
+                        "link": reverse_lazy("admin:camertrace_traceabilityrule_changelist"),
                     },
                 ],
             },

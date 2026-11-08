@@ -3,7 +3,7 @@ import json
 from copy import deepcopy
 from datetime import datetime
 from decimal import Decimal
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -14,6 +14,7 @@ from whimo.common.schemas.dto import CreateGadgetDTO
 from whimo.db.enums import HarvestSeasonStatus, TransactionAction, TransactionLocation, TransactionStatus
 from whimo.transactions.schemas.dto import FeatureCollection
 from whimo.transactions.schemas.errors import (
+    CiccQrInvalidError,
     CommodityGroupRequiredError,
     ConversionDuplicateInputCommodityError,
     ConversionDuplicateOutputCommodityError,
@@ -59,6 +60,28 @@ def normalize_qr_location_file(location_file: InMemoryUploadedFile) -> InMemoryU
             location_file.size = len(content)
 
     return location_file
+
+
+def validate_qr_source(
+    location: TransactionLocation | None, location_file: InMemoryUploadedFile | None, qr_source: str | None
+) -> str | None:
+    """CamerTrace: a CICC plot QR code must be sent as a QR location whose GeoJSON carries the CICC keys.
+
+    Without `qr_source`, a QR GeoJSON marked `"Source": "CICC"` by the app is recognised too, so that
+    clients that can't send the extra field (iOS offline queue) still get the CICC rule."""
+    from whimo.camertrace.services import QR_SOURCE_CICC, is_cicc_geojson
+
+    if qr_source is None:
+        if (
+            location == TransactionLocation.QR
+            and location_file is not None
+            and is_cicc_geojson(location_file, require_source_mark=True)
+        ):
+            return QR_SOURCE_CICC
+        return None
+    if location != TransactionLocation.QR or location_file is None or not is_cicc_geojson(location_file):
+        raise CiccQrInvalidError
+    return qr_source
 
 
 class RecipientRequest(BaseRequest, CreateGadgetDTO):
@@ -122,6 +145,8 @@ class TransactionProducerCreateRequest(BaseTransactionRequest):
 
     location: TransactionLocation | None = None
 
+    qr_source: Literal["cicc"] | None = None
+
     @field_validator("farm_latitude", mode="before")
     def validate_farm_latitude(cls, latitude: Decimal | None) -> Decimal | None:
         return validate_latitude(latitude)
@@ -150,6 +175,8 @@ class TransactionProducerCreateRequest(BaseTransactionRequest):
 
         if self.location_file and self.location == TransactionLocation.QR:
             self.location_file = normalize_qr_location_file(self.location_file)
+
+        self.qr_source = validate_qr_source(self.location, self.location_file, self.qr_source)  # type: ignore[assignment]
 
         return self
 
@@ -207,6 +234,7 @@ class TransactionListRequest(PaginationRequest, OrderingRequestMixin):
 class TransactionGeodataUpdateRequest(BaseRequest):
     location: TransactionLocation
     location_file: InMemoryUploadedFile
+    qr_source: Literal["cicc"] | None = None
 
     @model_validator(mode="after")
     def validate_location_file(self) -> "TransactionGeodataUpdateRequest":
@@ -215,6 +243,8 @@ class TransactionGeodataUpdateRequest(BaseRequest):
 
         if self.location == TransactionLocation.QR:
             self.location_file = normalize_qr_location_file(self.location_file)
+
+        self.qr_source = validate_qr_source(self.location, self.location_file, self.qr_source)  # type: ignore[assignment]
 
         return self
 

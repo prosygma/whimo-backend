@@ -237,12 +237,10 @@ class TestTransactionsProducerCreate:
         assert response_json["errors"]["commodity_id"] == str(commodity.id)
         assert not Transaction.objects.filter(created_by_id=user.id).exists()
 
-    @pytest.mark.parametrize("location", [TransactionLocation.QR, TransactionLocation.GPS])
-    def test_full_traceability(  # noqa: PLR0913 Too many arguments in function definition
+    def test_full_traceability_cicc_qr(
         self,
-        location: TransactionLocation,
         client: APIClient,
-        geo_json_file: BufferedReader,
+        cicc_geo_json_file: BufferedReader,
         mock_default_storage: MagicMock,
         freezer: FrozenDateTimeFactory,
         snapshot: SnapshotAssertion,
@@ -256,15 +254,12 @@ class TestTransactionsProducerCreate:
         request_data = {
             "commodity_id": str(commodity.id),
             "volume": 1,
-            "location": location,
-            "latitude": 0,
-            "longitude": 0,
+            "location": TransactionLocation.QR,
+            "qr_source": "cicc",
+            "location_file": cicc_geo_json_file,
             "is_buying_from_farmer": True,
         }
-
-        if location == TransactionLocation.QR:
-            request_data["location_file"] = geo_json_file
-            mock_default_storage.return_value = Mock()
+        mock_default_storage.return_value = Mock()
 
         client.login(user)
 
@@ -279,8 +274,9 @@ class TestTransactionsProducerCreate:
         transaction = Transaction.objects.get(pk=response_json["data"]["id"])
 
         assert transaction.traceability == TransactionTraceability.FULL
+        assert transaction.location == TransactionLocation.QR
 
-    @pytest.mark.parametrize("location", [TransactionLocation.MANUAL, TransactionLocation.FILE])
+    @pytest.mark.parametrize("location", [TransactionLocation.QR, TransactionLocation.GPS, TransactionLocation.FILE])
     def test_conditional_traceability(  # noqa: PLR0913 Too many arguments in function definition
         self,
         location: TransactionLocation,
@@ -305,7 +301,7 @@ class TestTransactionsProducerCreate:
             "is_buying_from_farmer": True,
         }
 
-        if location == TransactionLocation.FILE:
+        if location in {TransactionLocation.FILE, TransactionLocation.QR}:
             request_data["location_file"] = geo_json_file
             mock_default_storage.return_value = Mock()
 
@@ -322,6 +318,123 @@ class TestTransactionsProducerCreate:
         transaction = Transaction.objects.get(pk=response_json["data"]["id"])
 
         assert transaction.traceability == TransactionTraceability.CONDITIONAL
+
+    def test_map_point_partial_traceability(
+        self,
+        client: APIClient,
+        freezer: FrozenDateTimeFactory,
+    ) -> None:
+        # Arrange
+        freezer.move_to(DEFAULT_DATETIME)
+        client.login(UserFactory.create())
+        request_data = {
+            "commodity_id": str(CommodityFactory.create().id),
+            "volume": 1,
+            "location": TransactionLocation.MANUAL,
+            "farm_latitude": 1,
+            "farm_longitude": 1,
+            "is_buying_from_farmer": True,
+        }
+
+        # Act
+        response = client.post(path=self.URL, data=request_data, format="multipart")
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response.json()
+        transaction = Transaction.objects.get(pk=response.json()["data"]["id"])
+        assert transaction.traceability == TransactionTraceability.PARTIAL
+
+    @pytest.mark.parametrize("missing", ["NIPr_CICC", "GLN_Parcelle", "Lien_GS1_Parcelle", "geometry"])
+    def test_cicc_qr_incomplete(self, missing: str, client: APIClient, cicc_geo_json_file: BufferedReader) -> None:
+        # Arrange
+        data = json.load(cicc_geo_json_file)
+        feature = data["features"][0]
+        if missing == "geometry":
+            feature["geometry"]["coordinates"] = [feature["geometry"]["coordinates"][0][:3]]
+        else:
+            del feature["properties"][missing]
+        client.login(UserFactory.create())
+        request_data = {
+            "commodity_id": str(CommodityFactory.create().id),
+            "volume": 1,
+            "location": TransactionLocation.QR,
+            "qr_source": "cicc",
+            "location_file": io.BytesIO(json.dumps(data).encode()),
+            "is_buying_from_farmer": True,
+        }
+
+        # Act
+        response = client.post(path=self.URL, data=request_data, format="multipart")
+
+        # Assert
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert "CICC" in response.json()["message"]
+        assert not Transaction.objects.exists()
+
+    def test_cicc_geojson_recognised_without_qr_source(
+        self, client: APIClient, cicc_geo_json_file: BufferedReader, mock_default_storage: MagicMock
+    ) -> None:
+        # Arrange: the iOS app sends the CICC GeoJSON as a plain QR location
+        mock_default_storage.return_value = Mock()
+        client.login(UserFactory.create())
+        request_data = {
+            "commodity_id": str(CommodityFactory.create().id),
+            "volume": 1,
+            "location": TransactionLocation.QR,
+            "location_file": cicc_geo_json_file,
+            "is_buying_from_farmer": True,
+        }
+
+        # Act
+        response = client.post(path=self.URL, data=request_data, format="multipart")
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response.json()
+        transaction = Transaction.objects.get(pk=response.json()["data"]["id"])
+        assert transaction.traceability == TransactionTraceability.FULL
+
+    def test_cicc_keys_without_source_mark_stay_generic_qr(
+        self, client: APIClient, cicc_geo_json_file: BufferedReader, mock_default_storage: MagicMock
+    ) -> None:
+        # Arrange
+        data = json.load(cicc_geo_json_file)
+        del data["features"][0]["properties"]["Source"]
+        mock_default_storage.return_value = Mock()
+        client.login(UserFactory.create())
+        request_data = {
+            "commodity_id": str(CommodityFactory.create().id),
+            "volume": 1,
+            "location": TransactionLocation.QR,
+            "location_file": io.BytesIO(json.dumps(data).encode()),
+            "is_buying_from_farmer": True,
+        }
+
+        # Act
+        response = client.post(path=self.URL, data=request_data, format="multipart")
+
+        # Assert
+        assert response.status_code == HTTPStatus.OK, response.json()
+        transaction = Transaction.objects.get(pk=response.json()["data"]["id"])
+        assert transaction.traceability == TransactionTraceability.CONDITIONAL
+
+    def test_cicc_qr_source_needs_qr_location(self, client: APIClient) -> None:
+        # Arrange
+        client.login(UserFactory.create())
+        request_data = {
+            "commodity_id": str(CommodityFactory.create().id),
+            "volume": 1,
+            "location": TransactionLocation.GPS,
+            "qr_source": "cicc",
+            "farm_latitude": 1,
+            "farm_longitude": 1,
+            "is_buying_from_farmer": True,
+        }
+
+        # Act
+        response = client.post(path=self.URL, data=request_data, format="multipart")
+
+        # Assert
+        assert response.status_code == HTTPStatus.BAD_REQUEST
 
     def test_partial_traceability(
         self,

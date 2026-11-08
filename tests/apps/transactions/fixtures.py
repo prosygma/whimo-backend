@@ -24,6 +24,13 @@ def geo_json_file() -> BufferedReader:
 
 
 @pytest.fixture
+def cicc_geo_json_file() -> BufferedReader:
+    """GeoJSON the apps build from a CICC plot QR code (made-up values)."""
+    cicc = FIXTURES_PATH / "location_file" / "cicc.json"
+    return cicc.open("rb")
+
+
+@pytest.fixture
 def geo_feature_file() -> BufferedReader:
     geo_feature = FIXTURES_PATH / "location_file" / "feature.json"
     return geo_feature.open("rb")

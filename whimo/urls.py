@@ -10,6 +10,7 @@ auth_urlpatterns = [
 
 data_urlpatterns = [
     path("analytics/", include("whimo.analytics.urls")),
+    path("app-options/", include("whimo.camertrace.urls")),
     path("commodities/", include("whimo.commodities.urls")),
     path("harvest-seasons/", include("whimo.harvest_seasons.urls")),
     path("languages/", include("whimo.languages.urls")),

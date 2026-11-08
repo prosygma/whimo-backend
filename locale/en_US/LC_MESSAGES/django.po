@@ -620,3 +620,72 @@ msgstr ""
 
 msgid "WhatsApp"
 msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Options"
+msgstr ""
+
+msgid "Traceability rules"
+msgstr ""
+
+msgid "Traceability rule"
+msgstr ""
+
+msgid "Geodata source"
+msgstr ""
+
+msgid "Traceability status"
+msgstr ""
+
+msgid "Applies to new transactions only."
+msgstr ""
+
+msgid "The status a new producer transaction gets from its geodata source. Changes apply to new transactions only."
+msgstr ""
+
+msgid "Plot geodata in the mobile apps"
+msgstr ""
+
+msgid "Ask « Yes, I am on the plot »"
+msgstr ""
+
+msgid "Ask the buyer whether they are on the plot. When off, the question is skipped and the device GPS option is not offered."
+msgstr ""
+
+msgid "Offer « Add a GPS point »"
+msgstr ""
+
+msgid "Let the buyer pick the plot location on a map."
+msgstr ""
+
+msgid "Offer « Scan the CICC QR code »"
+msgstr ""
+
+msgid "Let the buyer scan the QR code of a CICC plot identification card."
+msgstr ""
+
+msgid "CICC QR code (certified geometer)"
+msgstr ""
+
+msgid "GeoJSON QR code"
+msgstr ""
+
+msgid "Device GPS, on the plot"
+msgstr ""
+
+msgid "Uploaded file"
+msgstr ""
+
+msgid "Point picked on the map"
+msgstr ""
+
+msgid "No geodata, bought from a farmer"
+msgstr ""
+
+msgid "No geodata"
+msgstr ""
+
+msgid "CICC QR code is invalid: it needs the plot coordinates and the NIPr_CICC, GLN_Parcelle and Lien_GS1_Parcelle fields"
+msgstr ""
