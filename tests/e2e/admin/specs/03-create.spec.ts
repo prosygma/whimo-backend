@@ -60,7 +60,7 @@ test('db.CommodityGroup with name variants and an inline commodity', async ({ pa
 
   const form = await prepareForm(page, 'commoditygroup');
   await form.locator('[name="name"]').fill(token);
-  // JSONField driven by NameVariantsWidget; LANGUAGES is en-US / fr-FR / es-ES.
+  // JSONField driven by NameVariantsWidget; it offers the enabled languages (fr-FR / en-US).
   // Returns false on trees that render unfold's ArrayWidget for this field instead.
   if (!(await addNameVariant(page, 'name_variants', 'fr-FR', `${token} FR`))) {
     test.info().annotations.push({ type: 'widget', description: 'name_variants is not NameVariantsWidget here' });
@@ -86,7 +86,7 @@ test('db.Commodity with a group autocomplete', async ({ page, probe }) => {
   await form.locator('[name="code"]').fill(`EC${nextCounter('code')}${RUN()}`.slice(0, 20));
   await form.locator('[name="name"]').fill(token);
   await form.locator('[name="unit"]').fill('kg');
-  await addNameVariant(page, 'name_variants', 'es-ES', `${token} ES`);
+  await addNameVariant(page, 'name_variants', 'en-US', `${token} EN`);
   await chooseAutocomplete(page, 'group', groupToken);
 
   await saveAndRemember(page, 'db.Commodity', token);

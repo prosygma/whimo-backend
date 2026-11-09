@@ -421,11 +421,6 @@ UNFOLD = {
                         "link": reverse_lazy("admin:index"),
                     },
                     {
-                        "title": _("Languages"),
-                        "icon": "translate",
-                        "link": reverse_lazy("admin:languages_language_changelist"),
-                    },
-                    {
                         "title": _("Periodic Tasks"),
                         "icon": "task",
                         "link": reverse_lazy("admin:django_celery_beat_periodictask_changelist"),
@@ -513,6 +508,11 @@ UNFOLD = {
                         "title": _("Traceability rules"),
                         "icon": "rule",
                         "link": reverse_lazy("admin:camertrace_traceabilityrule_changelist"),
+                    },
+                    {
+                        "title": _("Languages"),
+                        "icon": "translate",
+                        "link": reverse_lazy("admin:languages_language_changelist"),
                     },
                 ],
             },
