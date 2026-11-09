@@ -28,19 +28,44 @@ class ReadOnlyAdminMixin:
 
 
 def name_variant_languages(variants: dict[str, Any]) -> list[tuple[str, str]]:
-    """Languages offered for commodity names: those of the admin's Languages page, keyed like
-    Django's active language (fr-FR), plus any key already used so that it is never changed."""
+    """Languages offered for commodity names: the enabled ones of the admin's Languages page,
+    keyed like Django's active language (fr-FR), plus any key already used that matches no
+    language at all, so that it is never changed. Keys of disabled languages are not offered:
+    the widget keeps them hidden (see split_name_variants)."""
     from whimo.languages.models import Language
     from whimo.languages.services import django_code
 
-    choices = [
-        (django_code(language.code), language.english_name or language.name) for language in Language.objects.all()
-    ]
-    if not choices:
+    languages = list(Language.objects.all())
+    if not languages:
         choices = [(code, str(label)) for code, label in settings.LANGUAGES]
+    else:
+        choices = [
+            (django_code(language.code), language.english_name or language.name)
+            for language in languages
+            if language.is_enabled
+        ]
     known = {code for code, _label in choices}
     choices += [(code, code) for code in variants if code not in known]
     return choices
+
+
+def split_name_variants(variants: dict[str, Any]) -> tuple[list[tuple[str, Any]], list[tuple[str, Any]]]:
+    """(visible, hidden) name variants. A variant is hidden when its key belongs to a language
+    that is disabled on the Languages page (exact code first, then same base: es-ES -> es).
+    Hidden variants stay in the data, and show again once the language is enabled."""
+    from whimo.languages.models import Language
+    from whimo.languages.services import base
+
+    languages = list(Language.objects.all())
+    visible: list[tuple[str, Any]] = []
+    hidden: list[tuple[str, Any]] = []
+    for key, text in variants.items():
+        code = key.lower().replace("_", "-")
+        language = next((lang for lang in languages if lang.code == code), None) or next(
+            (lang for lang in languages if base(lang.code) == base(code)), None
+        )
+        (hidden if language is not None and not language.is_enabled else visible).append((key, text))
+    return visible, hidden
 
 
 class NameVariantsWidget(forms.Widget):
@@ -58,8 +83,10 @@ class NameVariantsWidget(forms.Widget):
         if not isinstance(variants, dict):
             variants = {}
 
-        context["widget"]["rows"] = list(variants.items())
-        context["widget"]["languages"] = name_variant_languages(variants)
+        rows, hidden_rows = split_name_variants(variants)
+        context["widget"]["rows"] = rows
+        context["widget"]["hidden_rows"] = hidden_rows
+        context["widget"]["languages"] = name_variant_languages(dict(rows))
         context["widget"]["input_class"] = " ".join(INPUT_CLASSES)
         context["widget"]["select_class"] = " ".join(SELECT_CLASSES)
         return context

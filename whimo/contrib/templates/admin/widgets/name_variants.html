@@ -3,6 +3,12 @@
 <div x-data="{ rows: [] }" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
     <input type="hidden" name="{{ widget.name }}" value="">
 
+    {% comment %}Variants of disabled languages: kept as they are, not shown.{% endcomment %}
+    {% for code, text in widget.hidden_rows %}
+        <input type="hidden" name="{{ widget.name }}_language" value="{{ code }}">
+        <input type="hidden" name="{{ widget.name }}_value" value="{{ text }}">
+    {% endfor %}
+
     {% for code, text in widget.rows %}
         <div class="max-w-2xl" style="display: flex; flex-direction: row; gap: 8px; align-items: center; width: 100%;">
             <select name="{{ widget.name }}_language" class="{{ widget.select_class }}" style="width: 12rem; flex: 0 0 auto;">
