@@ -117,12 +117,14 @@ class TransactionsService:
         traceability = TransactionsService._get_producer_traceability(request)
         transaction = TransactionsMapper.from_producer_request(user_id, traceability, harvest_season_id, request)
 
+        # Upload before saving: a failed upload must not leave a transaction or a balance change behind,
+        # otherwise each retry by the user records the volume again.
+        TransactionsService._upload_location_file(transaction_id=transaction.pk, location_file=request.location_file)
+
         with db_transaction.atomic():
             balance.volume += request.volume
             balance.save(update_fields=["updated_at", "volume"])
             transaction.save()
-
-        TransactionsService._upload_location_file(transaction_id=transaction.pk, location_file=request.location_file)
 
         recipient, is_created = TransactionsService._get_or_create_recipient(request.recipient)
         if is_created and request.recipient:
