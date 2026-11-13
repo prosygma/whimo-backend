@@ -95,6 +95,41 @@ class TestTransactionsProducerCreate:
         balance = Balance.objects.get(user=user, commodity=commodity)
         assert balance.volume == request_data["volume"]
 
+    def test_location_file_upload_error_records_nothing(
+        self,
+        client: APIClient,
+        geo_json_file: BufferedReader,
+        mock_default_storage: MagicMock,
+    ) -> None:
+        # Arrange
+        user = UserFactory.create()
+        commodity = CommodityFactory.create()
+
+        initial_volume = 100
+        balance = BalanceFactory.create(user=user, commodity=commodity, volume=initial_volume)
+        mock_default_storage.save.side_effect = ConnectionError("storage unreachable")
+
+        request_data = {
+            "commodity_id": str(commodity.id),
+            "volume": 1,
+            "location": TransactionLocation.QR,
+            "location_file": geo_json_file,
+            "is_buying_from_farmer": True,
+        }
+
+        client.login(user)
+
+        # Act
+        response = client.post(path=self.URL, data=request_data, format="multipart")
+
+        # Assert
+        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR, response.json()
+        mock_default_storage.save.assert_called_once()
+        assert not Transaction.objects.filter(created_by=user).exists()
+
+        balance.refresh_from_db()
+        assert balance.volume == initial_volume
+
     def test_recording_an_old_harvest(self, client: APIClient) -> None:
         # Arrange
         user = UserFactory.create()
