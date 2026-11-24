@@ -54,7 +54,7 @@ ANDROID_ESCAPES = {"n": "\n", "t": "\t", "'": "'", '"': '"', "@": "@", "?": "?",
 
 def android_unescape(text: str) -> str:
     text = text.strip()
-    if len(text) >= 2 and text[0] == text[-1] == '"':
+    if len(text) > 1 and text[0] == text[-1] == '"':
         text = text[1:-1]
     return re.sub(r"\\(.)", lambda m: ANDROID_ESCAPES.get(m.group(1), m.group(1)), text)
 
@@ -192,7 +192,7 @@ def main() -> int:
         ordered = {platform: catalog[platform] for platform in ("web", "android", "ios", "api") if platform in catalog}
         path.write_text(json.dumps(ordered, ensure_ascii=False, indent=2, sort_keys=False) + "\n", encoding="utf-8")
         counts = ", ".join(f"{platform} {count_strings(ordered[platform])}" for platform in ordered)
-        print(f"{path.relative_to(ROOT)}: {counts}")
+        print(f"{path.relative_to(ROOT)}: {counts}")  # noqa: T201 (command-line output)
     return 0
 
 

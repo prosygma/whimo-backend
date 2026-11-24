@@ -9,7 +9,7 @@ from whimo import brand
 
 def _static(path: str) -> Any:
     # Unfold calls these with the request; resolve lazily so STATIC_URL is final.
-    return lambda request: static(path)
+    return lambda _request: static(path)
 
 
 def unfold_brand_settings() -> dict[str, Any]:

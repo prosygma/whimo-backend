@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [camertrace]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Test-only values: the suite needs them to import settings. Nothing here is a real secret.
+  DJANGO_SECRET_KEY: ci-test-secret-key
+  POSTGRES_HOST: 127.0.0.1
+  POSTGRES_USER: app
+  POSTGRES_PASSWORD: password
+  POSTGRES_DB: app
+  REDIS_HOST: 127.0.0.1
+  REDIS_PASSWORD: password
+  MINIO_ROOT_USER: ci-user
+  MINIO_ROOT_PASSWORD: ci-password
+  EMAIL_HOST_PASSWORD: ci-password
+  SMS_TELNYX_API_KEY: ci-api-key
+  SMS_TELNYX_SENDER_ID: WHIMO
+  SMS_TELNYX_MESSAGING_PROFILE_ID: ci-profile-id
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pipx install poetry==2.5.1
+      - run: poetry install --no-root
+      - run: poetry run ruff check .
+      - run: poetry run openapi-spec-validator docs/openapi.yaml
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:17.4-alpine
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: app
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U app -d app"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start Redis with a password
+        run: docker run -d --name redis -p 6379:6379 redis:7.4-alpine redis-server --requirepass password
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pipx install poetry==2.5.1
+      - run: poetry install --no-root
+      # Serial on purpose: parallel workers share one Redis, so throttling tests can collide.
+      - run: poetry run pytest tests -p no:cacheprovider -q
+
+  upstream-clean:
+    # Generic branches are candidates for EuropeanForestInstitute: they must carry no CamerTrace content.
+    if: github.event_name == 'pull_request' && (startsWith(github.head_ref, 'feat/') || startsWith(github.head_ref, 'fix/'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fetch EFI main
+        run: |
+          git remote add upstream https://github.com/EuropeanForestInstitute/${{ github.event.repository.name }}.git
+          git fetch --no-tags upstream main
+      # Check the PR's own commits, not the merge with the base branch.
+      - run: scripts/check-upstream-clean.sh ${{ github.event.pull_request.head.sha }} upstream/main

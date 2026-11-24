@@ -1,0 +1,41 @@
+name: Bug report
+description: Something does not work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Security problems: do not file them here. See SECURITY.md.
+        Please use made-up data only. Never paste real phone numbers, e-mails, farmer cards, or coordinates.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What did you see, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to …
+        2. Tap …
+        3. See …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: App version and build (for example 1.9.4 (68)), browser, or commit.
+  - type: input
+    id: device
+    attributes:
+      label: Device / OS
+      description: For example Samsung A02, Android 11; or iPhone 13, iOS 18; or Chrome 131.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Remove any personal data first.
