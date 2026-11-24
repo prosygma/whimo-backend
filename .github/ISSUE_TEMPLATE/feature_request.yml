@@ -1,0 +1,26 @@
+name: Feature request
+description: Suggest a change or a new feature
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Who needs this, and what can't they do today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should happen? Screens, rules, or API changes.
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - Useful to every WHIMO deployment
+        - CamerTrace / Cameroon only
+        - Not sure
+    validations:
+      required: true

@@ -1,6 +1,10 @@
+> **CamerTrace** (API and admin panel): the cocoa and coffee traceability platform of the CICC, Cameroon,
+> built on [WHIMO](https://github.com/EuropeanForestInstitute/whimo-backend) by the European Forest Institute.
+>
+> Contributing: [CONTRIBUTING.md](CONTRIBUTING.md) · Branches: [FORK.md](FORK.md) · Security: [SECURITY.md](SECURITY.md).
+> The rest of this README comes from WHIMO.
+
 [![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)](docs/openapi.yaml)
-[![coverage](https://gitlab.com/whimoapp1/backend/badges/master/coverage.svg?job=test)](https://gitlab.com/whimoapp1/backend/pipelines/latest)
-[![pipeline](https://gitlab.com/whimoapp1/backend/badges/master/pipeline.svg)](https://gitlab.com/whimoapp1/backend/pipelines/latest)
 
 # 🌱️ WHIMO
 
