@@ -18,7 +18,7 @@ services:
     hostname: api.local
     command: [ "poetry", "run", "./manage.py", "runserver", "0.0.0.0:8000" ]
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:${API_HOST_PORT:-8000}:8000"
     environment:
       - POSTGRES_HOST=postgres.local
       - REDIS_HOST=redis.local
