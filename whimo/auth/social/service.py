@@ -14,6 +14,9 @@ from whimo.auth.social.schemas.requests import OAuthCodeRequest, OAuthIdTokenReq
 from whimo.db.enums import GadgetType
 from whimo.db.models import Gadget, User
 
+# Google documents both forms of the issuer for its ID tokens.
+GOOGLE_ISSUERS = ["https://accounts.google.com", "accounts.google.com"]
+
 
 @dataclass(slots=True)
 class OAuthService:
@@ -70,15 +73,31 @@ class OAuthService:
         oauth = OAuthService._get_google_oauth(with_client_claims=False)
 
         token = {"id_token": request.id_token}
-        return oauth.google.parse_id_token(token=token, nonce=request.nonce)
+        claims_options = {
+            "iss": {"values": GOOGLE_ISSUERS},
+            "aud": OAuthService._audience_option(settings.OAUTH_GOOGLE_ID_TOKEN_AUDIENCES),
+        }
+        return oauth.google.parse_id_token(token=token, nonce=request.nonce, claims_options=claims_options)
 
     @staticmethod
     def _parse_apple_id_token(request: OAuthIdTokenRequest) -> dict:
         oauth = OAuthService._get_apple_oauth(with_client_claims=False)
 
         token = {"id_token": request.id_token}
-        claims_options = {"iss": {"value": "https://appleid.apple.com"}}
+        claims_options = {
+            "iss": {"value": "https://appleid.apple.com"},
+            "aud": OAuthService._audience_option(settings.OAUTH_APPLE_ID_TOKEN_AUDIENCES),
+        }
         return oauth.apple.parse_id_token(token=token, nonce=request.nonce, claims_options=claims_options)
+
+    @staticmethod
+    def _audience_option(audiences: list[str]) -> dict:
+        # The ID-token clients are registered without a client_id, so authlib does not check "aud"
+        # by itself: without this option, a token issued to any other app would be accepted.
+        # An empty list would make authlib skip the check, so refuse instead.
+        if not audiences:
+            raise AuthlibBaseError(error="invalid_claim", description="No ID token audience is configured")
+        return {"essential": True, "values": audiences}
 
     @staticmethod
     def _parse_google_code(request: OAuthCodeRequest) -> dict:

@@ -7,15 +7,17 @@ from django.urls import reverse
 from pytest_mock import MockerFixture
 from syrupy import SnapshotAssertion
 
+from tests.apps.auth.social.fixtures import GOOGLE_AUDIENCE
 from tests.factories.users import GadgetFactory
 from tests.helpers.clients import APIClient
 from tests.helpers.constants import USER_EMAIL
 from whimo.auth.jwt.schemas.dto import AccessRefreshTokenDTO
+from whimo.auth.social.service import GOOGLE_ISSUERS
 from whimo.common.schemas.base import DataResponse
 from whimo.db.enums import GadgetType
 from whimo.db.models import Gadget, User
 
-pytestmark = [pytest.mark.django_db]
+pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("id_token_audiences")]
 
 
 class TestGoogleLogin:
@@ -111,7 +113,14 @@ class TestGoogleLogin:
         assert data_response.data.access
         assert data_response.data.refresh
 
-        mock_google_client.parse_id_token.assert_called_once_with(token={"id_token": "valid-token"}, nonce="test-nonce")
+        mock_google_client.parse_id_token.assert_called_once_with(
+            token={"id_token": "valid-token"},
+            nonce="test-nonce",
+            claims_options={
+                "iss": {"values": GOOGLE_ISSUERS},
+                "aud": {"essential": True, "values": [GOOGLE_AUDIENCE]},
+            },
+        )
 
     def test_oauth_parsing_error(self, client: APIClient, mocker: MockerFixture, snapshot: SnapshotAssertion) -> None:
         # Arrange

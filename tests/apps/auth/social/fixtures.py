@@ -2,9 +2,19 @@ from typing import Callable
 from unittest.mock import MagicMock
 
 import pytest
+from pytest_django.fixtures import SettingsWrapper
 from pytest_mock import MockerFixture
 
 from whimo.auth.social.schemas.dto import OAuthUserInfo
+
+GOOGLE_AUDIENCE = "web-client.apps.googleusercontent.com"
+APPLE_AUDIENCE = "org.example.whimo"
+
+
+@pytest.fixture
+def id_token_audiences(settings: SettingsWrapper) -> None:
+    settings.OAUTH_GOOGLE_ID_TOKEN_AUDIENCES = [GOOGLE_AUDIENCE]
+    settings.OAUTH_APPLE_ID_TOKEN_AUDIENCES = [APPLE_AUDIENCE]
 
 
 @pytest.fixture
