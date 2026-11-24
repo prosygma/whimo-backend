@@ -7,6 +7,7 @@ from django.urls import reverse
 from pytest_mock import MockerFixture
 from syrupy import SnapshotAssertion
 
+from tests.apps.auth.social.fixtures import APPLE_AUDIENCE
 from tests.factories.users import GadgetFactory
 from tests.helpers.clients import APIClient
 from tests.helpers.constants import USER_EMAIL
@@ -16,7 +17,7 @@ from whimo.common.schemas.base import DataResponse
 from whimo.db.enums import GadgetType
 from whimo.db.models import Gadget, User
 
-pytestmark = [pytest.mark.django_db]
+pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("id_token_audiences")]
 
 
 class TestAppleLogin:
@@ -130,7 +131,10 @@ class TestAppleLogin:
         mock_apple_client.parse_id_token.assert_called_once_with(
             token={"id_token": "valid-token"},
             nonce="test-nonce",
-            claims_options={"iss": {"value": "https://appleid.apple.com"}},
+            claims_options={
+                "iss": {"value": "https://appleid.apple.com"},
+                "aud": {"essential": True, "values": [APPLE_AUDIENCE]},
+            },
         )
 
     def test_oauth_parsing_error(self, client: APIClient, mocker: MockerFixture, snapshot: SnapshotAssertion) -> None:

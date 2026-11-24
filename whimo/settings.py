@@ -292,6 +292,19 @@ OAUTH_APPLE_CLIENT_ID = env.str("OAUTH_APPLE_CLIENT_ID", default="")
 
 OAUTH_APPLE_CLIENT_SECRET = env.str("OAUTH_APPLE_CLIENT_SECRET", default="")
 
+# Audiences ("aud") accepted in ID tokens sent by the mobile apps. A token issued to any other
+# client is rejected. Android asks Google for tokens for the web client ID (setServerClientId),
+# so the Google default is OAUTH_GOOGLE_CLIENT_ID. Native iOS tokens carry the iOS client ID
+# (Google) or the app's bundle ID (Apple): list them all. Unset or empty: the client ID alone.
+# With no audience at all, every ID token is rejected.
+OAUTH_GOOGLE_ID_TOKEN_AUDIENCES = [
+    aud.strip() for aud in env.list("OAUTH_GOOGLE_ID_TOKEN_AUDIENCES", default=[]) if aud.strip()
+] or [aud for aud in (OAUTH_GOOGLE_CLIENT_ID,) if aud]
+
+OAUTH_APPLE_ID_TOKEN_AUDIENCES = [
+    aud.strip() for aud in env.list("OAUTH_APPLE_ID_TOKEN_AUDIENCES", default=[]) if aud.strip()
+] or [aud for aud in (OAUTH_APPLE_CLIENT_ID,) if aud]
+
 # Email
 # ______________________________________________________________________________________________________________________
 
