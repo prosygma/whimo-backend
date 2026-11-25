@@ -27,6 +27,12 @@ class Transaction(BaseModel):
         choices=[(item.value, item.name) for item in TransactionLocation],
         help_text=_("Source of location geodata"),
     )
+    location_file_name = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text=_("Original name of the uploaded location file"),
+    )
 
     status = models.CharField(
         max_length=20,

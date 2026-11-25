@@ -246,6 +246,14 @@ def stored_files(files: dict[Transaction, bytes]) -> MagicMock:
     return MagicMock(open=Mock(side_effect=open_file))
 
 
+def zipped(*names: str) -> bytes:
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as zip_file:
+        for name in names:
+            zip_file.writestr(name, "")
+    return buffer.getvalue()
+
+
 class TestChainBundleContents:
     URL = "transactions_chain_bundle_download"
 
@@ -332,6 +340,52 @@ class TestChainBundleContents:
             merged = json.loads(zip_file.read("merged.geojson"))
 
         assert [feature["properties"]["TransactionId"] for feature in merged["features"]] == [str(qr_farm.id)]
+
+    @pytest.mark.parametrize(
+        ("content", "extension"),
+        [
+            (zipped("[Content_Types].xml", "xl/workbook.xml"), ".xlsx"),
+            (b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1", ".xls"),
+            (zipped("doc.kml"), ".kmz"),
+            (zipped("farm.shp"), ".zip"),
+            (b'<?xml version="1.0"?><kml></kml>', ".kml"),
+            (b' {"type": "FeatureCollection"}', ".geojson"),
+            (b"%PDF-1.7", ".pdf"),
+            (b"\x89PNG\r\n", ".png"),
+            (b"\xff\xd8\xff\xe0", ".jpg"),
+            (b'\xef\xbb\xbffarm,notes\r\nNorth,"field,\r\ncorner"\r\n', ".csv"),
+            (b"farm,notes\nNorth\n", ""),
+            (b"farm boundary", ""),
+        ],
+    )
+    def test_an_uploaded_file_keeps_an_extension_matching_its_content(
+        self, client: APIClient, content: bytes, extension: str
+    ) -> None:
+        user, farmer = UserFactory.create(), UserFactory.create()
+        commodity = CommodityFactory.create()
+        file_farm = farm(farmer, commodity, TransactionLocation.FILE)
+        root = trade(farmer, user, commodity)
+        client.login(user)
+
+        with patch("whimo.transactions.services.default_storage", stored_files({file_farm: content})):
+            response = client.get(path=reverse(self.URL, args=(root.id,)))
+
+        assert response.status_code == HTTPStatus.OK
+        with zipfile.ZipFile(io.BytesIO(response.content), "r") as zip_file:
+            assert zip_file.read(f"{file_farm.id}{extension}") == content
+
+    def test_an_uploaded_file_takes_the_extension_of_its_original_name(self, client: APIClient) -> None:
+        user, farmer = UserFactory.create(), UserFactory.create()
+        commodity = CommodityFactory.create()
+        file_farm = farm(farmer, commodity, TransactionLocation.FILE, location_file_name="Register.XLSX")
+        root = trade(farmer, user, commodity)
+        client.login(user)
+
+        with patch("whimo.transactions.services.default_storage", stored_files({file_farm: b"farm boundary"})):
+            response = client.get(path=reverse(self.URL, args=(root.id,)))
+
+        with zipfile.ZipFile(io.BytesIO(response.content), "r") as zip_file:
+            assert zip_file.read(f"{file_farm.id}.xlsx") == b"farm boundary"
 
     def test_a_missing_or_invalid_file_keeps_the_farm_in_its_bucket(
         self,

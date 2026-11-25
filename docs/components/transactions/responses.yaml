@@ -222,8 +222,9 @@ ChainBundleDownloadResponse:
         format: binary
         description: |
           ZIP bundle with merged.geojson, the stored geojson of every qr farm and the uploaded file of every
-          file farm. An uploaded file is stored without an extension, so its entry is named by the
-          transaction id alone.
+          file farm. An uploaded file is named by the transaction id with the extension of its original
+          name. Files uploaded before the name was kept get one found from their content: .xlsx, .xls, .kmz,
+          .zip, .kml, .geojson, .pdf, .png, .jpg or .csv, none when the content is not recognized.
   headers:
     Content-Disposition:
       schema:
