@@ -42,20 +42,20 @@ fields, no personal data.
 
 ## Examples
 
-Accepted — point with metadata (decoded from a live "Share location" QR, 210 bytes,
-EC level H). A `Point` is a complete, valid farm location:
+Accepted — point with metadata (the shape a "Share location" QR decodes to). A `Point` is a complete, valid
+farm location:
 
 ```json
-{"type":"Feature","properties":{"name":"Kenema District ","survey":"EUDR Cocoa Farm Mapping (Kenema, Kailahun and Kono)","date":"20260131 18:03"},
- "geometry":{"type":"Point","coordinates":[-11.112771,7.970897]}}
+{"type":"Feature","properties":{"name":"Example farm","survey":"Example survey","date":"20260101 12:00"},
+ "geometry":{"type":"Point","coordinates":[10.000000,5.000000]}}
 ```
 
-Accepted — closed polygon (real generator output, 270 bytes):
+Accepted — closed polygon (the shape the generator outputs):
 
 ```json
-{"type":"Feature","properties":{"name":"somewhere_france","survey":"OLAM Colombia encuesta","date":"20260710 19:05"},
- "geometry":{"type":"Polygon","coordinates":[[[4.603431,45.691673],[4.604785,45.692369],
- [4.607276,45.689646],[4.605574,45.688917],[4.603431,45.691673]]]}}
+{"type":"Feature","properties":{"name":"Example plot","survey":"Example survey","date":"20260101 12:00"},
+ "geometry":{"type":"Polygon","coordinates":[[[10.000000,5.000000],[10.001000,5.000000],
+ [10.001000,5.001000],[10.000000,5.001000],[10.000000,5.000000]]]}}
 ```
 
 Rejected — no `properties`, bare geometry, or unsupported geometry type:

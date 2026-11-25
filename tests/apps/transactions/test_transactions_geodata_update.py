@@ -1,6 +1,7 @@
 import json
 from http import HTTPStatus
 from io import BufferedReader
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
@@ -68,6 +69,7 @@ class TestTransactionsGeodataUpdate:
 
         transaction.refresh_from_db()
         assert transaction.location == location
+        assert transaction.location_file_name == Path(geo_json_file.name).name
 
         mock_default_storage.save.assert_called_once()
 

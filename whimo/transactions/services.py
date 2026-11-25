@@ -1,9 +1,11 @@
+import csv
 import io
 import json
 import logging
 import zipfile
 from dataclasses import dataclass
 from decimal import Decimal
+from pathlib import Path
 from typing import cast
 from uuid import UUID, uuid4
 
@@ -29,7 +31,7 @@ from whimo.db.models import Balance, Commodity, ConversionRecipe, HarvestSeason,
 from whimo.db.storages import TransactionsStorage, UsersStorage
 from whimo.notifications.services.notifications import NotificationsService
 from whimo.notifications.services.notifications_push import NotificationsPushService
-from whimo.transactions.constants import CHAIN_TIER_FIELD, LOCATION_S3_PREFIX
+from whimo.transactions.constants import CHAIN_TIER_FIELD, LOCATION_FILE_SIGNATURES, LOCATION_S3_PREFIX
 from whimo.transactions.mappers import TransactionsMapper
 from whimo.transactions.schemas.dto import (
     ChainLocationBundleDTO,
@@ -116,6 +118,7 @@ class TransactionsService:
 
         traceability = TransactionsService._get_producer_traceability(request)
         transaction = TransactionsMapper.from_producer_request(user_id, traceability, harvest_season_id, request)
+        transaction.location_file_name = request.location_file.name if request.location_file else None
 
         # Upload before saving: a failed upload must not leave a transaction or a balance change behind,
         # otherwise each retry by the user records the volume again.
@@ -214,11 +217,12 @@ class TransactionsService:
 
         TransactionsService._upload_location_file(transaction_id=transaction.pk, location_file=request.location_file)
         transaction.location = request.location
+        transaction.location_file_name = request.location_file.name if request.location_file else None
 
         with db_transaction.atomic():
             notifications = NotificationsService.create_geodata_updated(transaction, user_id)
             NotificationsPushService.send_push([n.id for n in notifications])
-            transaction.save(update_fields=["updated_at", "location"])
+            transaction.save(update_fields=["updated_at", "location", "location_file_name"])
 
     @staticmethod
     def resend_notification(user_id: UUID, transaction_id: UUID) -> None:
@@ -688,7 +692,10 @@ class TransactionsService:
         # An uploaded file is stored under the transaction id alone, without an
         # extension, and its format is not ours to parse - it goes into the zip as is.
         if farm.location == TransactionLocation.FILE:
-            zip_file.writestr(str(farm.pk), location_file)
+            extension = Path(farm.location_file_name or "").suffix.lower()
+            zip_file.writestr(
+                f"{farm.pk}{extension or TransactionsService._file_extension(location_file)}", location_file
+            )
             return []
 
         try:
@@ -702,6 +709,35 @@ class TransactionsService:
 
         zip_file.writestr(f"{farm.pk}.geojson", location_file)
         return collection.features
+
+    @staticmethod
+    def _file_extension(content: bytes) -> str:
+        if zipfile.is_zipfile(io.BytesIO(content)):
+            names = zipfile.ZipFile(io.BytesIO(content)).namelist()
+            if any(name.startswith("xl/") for name in names):
+                return ".xlsx"
+            if any(name.endswith(".kml") for name in names):
+                return ".kmz"
+            return ".zip"
+
+        start = content.lstrip()
+        for signature, extension in LOCATION_FILE_SIGNATURES:
+            if start.startswith(signature):
+                return extension
+
+        return ".csv" if TransactionsService._is_csv(content) else ""
+
+    @staticmethod
+    def _is_csv(content: bytes) -> bool:
+        try:
+            text = content.decode("utf-8-sig")
+            if "\x00" in text:
+                return False
+            rows = (row for row in csv.reader(io.StringIO(text, newline=""), strict=True) if row)
+            width = len(next(rows, []))
+            return width > 1 and len(next(rows, [])) == width and all(len(row) == width for row in rows)
+        except (UnicodeDecodeError, csv.Error):
+            return False
 
     @staticmethod
     def _farm_point(farm: Transaction) -> Feature | None:
